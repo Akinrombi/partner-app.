@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logistics Partner Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col">
+
+  <!-- ONBOARDING / LOGIN MODAL -->
+  <div id="onboarding-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-3xl max-w-md w-full shadow-2xl space-y-6 text-center">
+      <div>
+        <span class="text-4xl">🚀</span>
+        <h2 class="text-2xl font-bold text-slate-100 mt-2">Welcome Partner</h2>
+        <p class="text-sm text-slate-400 mt-1">Select how you want to operate on the network</p>
+      </div>
+
+      <div class="space-y-3">
+        <button onclick="setPartnerRole('RIDER')" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 p-4 rounded-2xl flex items-center gap-4 text-left transition-all hover:border-amber-500/50 group">
+          <div class="p-3 bg-amber-500/10 text-amber-400 rounded-xl group-hover:bg-amber-500 group-hover:text-slate-950 transition-all text-xl">
+            🚴
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-100">Dispatch Rider</h3>
+            <p class="text-xs text-slate-400">Deliver food & parcel packages (Bicycle/Bike)</p>
+          </div>
+        </button>
+
+        <button onclick="setPartnerRole('DRIVER')" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 p-4 rounded-2xl flex items-center gap-4 text-left transition-all hover:border-indigo-500/50 group">
+          <div class="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl group-hover:bg-indigo-500 group-hover:text-slate-950 transition-all text-xl">
+            🚗
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-100">Taxi Driver</h3>
+            <p class="text-xs text-slate-400">Provide passenger ride trips (Car/Vehicle)</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP HEADER -->
+  <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-40">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span id="role-icon" class="text-2xl">🚴</span>
+        <div>
+          <h1 id="role-title" class="text-lg font-bold text-amber-400">Rider Partner Portal</h1>
+          <p id="partner-status" class="text-xs text-slate-400">Status: Offline</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="online-toggle-btn" onclick="toggleOnline()" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-rose-500/10 text-rose-400 border border-rose-500/30">
+          Go Online 🔴
+        </button>
+        <button onclick="resetRole()" class="p-2 bg-slate-700 text-slate-300 rounded-xl text-xs hover:bg-slate-600">
+          ⚙️
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- DASHBOARD CONTENT -->
+  <main class="max-w-4xl mx-auto p-4 md:p-6 flex-1 w-full space-y-6">
+
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-xl font-bold text-slate-100">Available Jobs</h2>
+        <p class="text-xs text-slate-400">Accept jobs to start earning</p>
+      </div>
+      <button onclick="fetchJobs()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg border border-slate-700">
+        🔄 Refresh Jobs
+      </button>
+    </div>
+
+    <!-- JOBS LIST CONTAINER -->
+    <div id="jobs-container" class="space-y-4">
+      <div class="bg-slate-800/50 border border-slate-700/60 p-12 rounded-2xl text-center">
+        <p class="text-slate-400">Loading available jobs...</p>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const SUPABASE_URL = 'https://glkutdkwbrjpiuqcmgwe.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdsa3V0ZGt3YnJqcGl1cWNtZ3dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NzU3MTMsImV4cCI6MjEwNTU1MTcxM30.f2SgZJvP681imm0Qe1fKsATnCk_86z2guwvZWASXoZM';
+
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let partnerRole = localStorage.getItem('partner_role') || null; // 'RIDER' or 'DRIVER'
+    let isOnline = false;
+
+    function initApp() {
+      if (!partnerRole) {
+        document.getElementById('onboarding-modal').classList.remove('hidden');
+      } else {
+        document.getElementById('onboarding-modal').classList.add('hidden');
+        updateUIForRole();
+        fetchJobs();
+      }
+    }
+
+    function setPartnerRole(role) {
+      partnerRole = role;
+      localStorage.setItem('partner_role', role);
+      initApp();
+    }
+
+    function resetRole() {
+      localStorage.removeItem('partner_role');
+      partnerRole = null;
+      document.getElementById('onboarding-modal').classList.remove('hidden');
+    }
+
+    function updateUIForRole() {
+      const isRider = partnerRole === 'RIDER';
+      document.getElementById('role-icon').innerText = isRider ? '🚴' : '🚗';
+      document.getElementById('role-title').innerText = isRider ? 'Rider Partner Portal' : 'Driver Partner Portal';
+      document.getElementById('role-title').className = `text-lg font-bold ${isRider ? 'text-amber-400' : 'text-indigo-400'}`;
+    }
+
+    function toggleOnline() {
+      isOnline = !isOnline;
+      const btn = document.getElementById('online-toggle-btn');
+      const statusText = document.getElementById('partner-status');
+
+      if (isOnline) {
+        btn.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all bg-emerald-500 text-white shadow-lg shadow-emerald-900/30";
+        btn.innerText = "Online 🟢";
+        statusText.innerText = "Status: Online & Ready";
+        statusText.className = "text-xs text-emerald-400";
+      } else {
+        btn.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all bg-rose-500/10 text-rose-400 border border-rose-500/30";
+        btn.innerText = "Go Online 🔴";
+        statusText.innerText = "Status: Offline";
+        statusText.className = "text-xs text-slate-400";
+      }
+      fetchJobs();
+    }
+
+    async function fetchJobs() {
+      const container = document.getElementById('jobs-container');
+
+      if (!isOnline) {
+        container.innerHTML = `
+          <div class="bg-slate-800/50 border border-slate-700/60 p-12 rounded-2xl text-center">
+            <p class="text-3xl mb-2">💤</p>
+            <p class="text-slate-300 font-medium">You are currently offline</p>
+            <p class="text-xs text-slate-500 mt-1">Tap 'Go Online' above to start receiving order requests.</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (partnerRole === 'RIDER') {
+        // Fetch Food and Dispatch Delivery orders
+        const { data, error } = await _supabase
+          .from('orders')
+          .select('*')
+          .or('status.eq.READY_FOR_PICKUP,status.eq.PENDING')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error("Error fetching rider jobs:", error);
+          return;
+        }
+
+        renderRiderJobs(data || []);
+      } else {
+        // Fetch Ride Requests
+        const { data, error } = await _supabase
+          .from('ride_requests')
+          .select('*')
+          .or('status.eq.SEARCHING,status.eq.PENDING')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error("Error fetching driver jobs:", error);
+          return;
+        }
+
+        renderDriverJobs(data || []);
+      }
+    }
+
+    function renderRiderJobs(jobs) {
+      const container = document.getElementById('jobs-container');
+
+      if (!jobs.length) {
+        container.innerHTML = `
+          <div class="bg-slate-800/50 border border-slate-700/60 p-12 rounded-2xl text-center">
+            <p class="text-3xl mb-2">📦</p>
+            <p class="text-slate-300 font-medium">No available delivery jobs</p>
+            <p class="text-xs text-slate-500 mt-1">New package & food requests will appear here instantly.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = jobs.map(j => `
+        <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${j.order_type === 'FOOD' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">
+                ${j.order_type || 'DISPATCH'}
+              </span>
+              <span class="text-xs text-slate-500 font-mono">#${(j.id || '').toString().slice(0,6)}</span>
+            </div>
+            <h3 class="font-bold text-base text-slate-100">${j.item_details || 'Delivery Package'}</h3>
+            <p class="text-xs text-slate-400"><b>Pickup:</b> ${j.pickup_address || 'Vendor Location'}</p>
+            <p class="text-xs text-slate-400"><b>Drop-off:</b> ${j.delivery_address || 'Customer Location'}</p>
+          </div>
+          <button onclick="acceptJob('${j.id}', 'orders', 'DISPATCHED')" class="w-full md:w-auto bg-amber-600 hover:bg-amber-500 px-6 py-2.5 rounded-xl font-bold text-white text-sm transition-all shadow-lg shadow-amber-900/30">
+            Accept Delivery
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function renderDriverJobs(jobs) {
+      const container = document.getElementById('jobs-container');
+
+      if (!jobs.length) {
+        container.innerHTML = `
+          <div class="bg-slate-800/50 border border-slate-700/60 p-12 rounded-2xl text-center">
+            <p class="text-3xl mb-2">🚕</p>
+            <p class="text-slate-300 font-medium">No active ride requests</p>
+            <p class="text-xs text-slate-500 mt-1">Passenger bookings will show up here when requested via WhatsApp.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = jobs.map(j => `
+        <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-400">
+                TAXI RIDE
+              </span>
+              <span class="text-xs text-slate-500 font-mono">#${(j.id || '').toString().slice(0,6)}</span>
+            </div>
+            <p class="text-sm text-slate-200">📍 <b>Pickup:</b> ${j.pickup_address || 'Customer Location'}</p>
+            <p class="text-sm text-slate-200">🏁 <b>Destination:</b> ${j.destination_address || 'Drop-off Location'}</p>
+            <p class="text-xs text-slate-500">📞 ${j.customer_phone || 'N/A'}</p>
+          </div>
+          <button onclick="acceptJob('${j.id}', 'ride_requests', 'ACCEPTED')" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-500 px-6 py-2.5 rounded-xl font-bold text-white text-sm transition-all shadow-lg shadow-indigo-900/30">
+            Accept Ride
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function acceptJob(id, table, newStatus) {
+      await _supabase.from(table).update({ status: newStatus }).eq('id', id);
+      alert("Job accepted successfully!");
+      fetchJobs();
+    }
+
+    // Auto Refresh Jobs Every 5 Seconds
+    setInterval(fetchJobs, 5000);
+
+    // Initial Start
+    initApp();
+  </script>
+</body>
+</html>
