@@ -6,10 +6,12 @@
   <title>Logistics Partner Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col">
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col pb-24">
 
-  <!-- AUTHENTICATION / LOGIN / SIGNUP MODAL -->
+  <!-- AUTHENTICATION MODAL -->
   <div id="auth-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-3xl max-w-md w-full shadow-2xl space-y-6 my-auto">
       <div class="text-center">
@@ -18,25 +20,21 @@
         <p id="auth-subtitle" class="text-xs text-slate-400 mt-1">Enter your credentials to access your portal</p>
       </div>
 
-      <!-- Tab Switcher for Login / Signup -->
       <div class="flex bg-slate-800 p-1 rounded-xl border border-slate-700 text-xs">
-        <button id="btn-tab-login" onclick="toggleAuthMode('login')" class="flex-1 py-2 rounded-lg font-bold bg-amber-600 text-white transition-all">Sign In</button>
+        <button id="btn-tab-login" onclick="toggleAuthMode('login')" class="flex-1 py-2 rounded-lg font-bold bg-emerald-600 text-white transition-all">Sign In</button>
         <button id="btn-tab-signup" onclick="toggleAuthMode('signup')" class="flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-slate-200 transition-all">Create Account</button>
       </div>
 
-      <!-- Auth Form -->
       <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
-        
-        <!-- Signup Extra Fields -->
         <div id="signup-fields" class="space-y-3 hidden">
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Full Name</label>
-            <input type="text" id="reg-name" placeholder="John Doe" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500" />
+            <input type="text" id="reg-name" placeholder="John Doe" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
           </div>
 
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Partner Role</label>
-            <select id="reg-role" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+            <select id="reg-role" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
               <option value="RIDER">🚴 Dispatch Rider (Bicycle / Bike)</option>
               <option value="DRIVER">🚗 Taxi Driver (Car / Vehicle)</option>
             </select>
@@ -44,26 +42,26 @@
 
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Phone Number</label>
-            <input type="tel" id="reg-phone" placeholder="+234..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500" />
+            <input type="tel" id="reg-phone" placeholder="+234..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
           </div>
 
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Vehicle Info / Plate Number</label>
-            <input type="text" id="reg-vehicle" placeholder="e.g. Honda Ace / LAG-123XY" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500" />
+            <input type="text" id="reg-vehicle" placeholder="e.g. Honda Ace / LAG-123XY" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Email Address</label>
-          <input type="email" id="auth-email" required placeholder="partner@gmail.com" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500" />
+          <input type="email" id="auth-email" required placeholder="partner@gmail.com" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
         </div>
 
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Password</label>
-          <input type="password" id="auth-password" required placeholder="••••••••" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500" />
+          <input type="password" id="auth-password" required placeholder="••••••••" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
         </div>
 
-        <button type="submit" id="auth-submit-btn" class="w-full bg-amber-600 hover:bg-amber-500 py-3 rounded-xl font-bold text-white text-sm transition-all shadow-lg shadow-amber-900/30">
+        <button type="submit" id="auth-submit-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold text-white text-sm transition-all shadow-lg shadow-emerald-900/30">
           Sign In
         </button>
       </form>
@@ -78,7 +76,7 @@
       <div class="flex items-center gap-3">
         <span id="role-icon" class="text-2xl">🚴</span>
         <div>
-          <h1 id="role-title" class="text-lg font-bold text-amber-400">Rider Partner Portal</h1>
+          <h1 id="role-title" class="text-lg font-bold text-emerald-400">Partner Portal</h1>
           <p id="user-display-email" class="text-xs text-slate-400">Loading user...</p>
         </div>
       </div>
@@ -88,45 +86,135 @@
           Go Online 🔴
         </button>
         <button onclick="handleSignOut()" class="p-2 bg-slate-700 text-slate-300 rounded-xl text-xs hover:bg-slate-600" title="Sign Out">
-          🚪
+          <i data-lucide="log-out" class="w-4 h-4"></i>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- DASHBOARD CONTENT -->
-  <main class="max-w-4xl mx-auto p-4 md:p-6 flex-1 w-full space-y-6">
+  <!-- APP VIEW SECTIONS -->
+  <main class="max-w-4xl mx-auto p-4 md:p-6 flex-1 w-full">
 
-    <!-- View Tabs: Available vs Active Jobs -->
-    <div class="flex border-b border-slate-700 space-x-2 pb-2">
-      <button onclick="switchJobTab('available')" id="tab-available" class="px-4 py-2.5 rounded-xl font-bold text-xs transition-all bg-amber-600 text-white flex items-center gap-2">
-        <span>📋 Available Jobs</span>
-        <span id="badge-available" class="bg-slate-900/50 px-2 py-0.5 rounded-full text-[10px]">0</span>
-      </button>
-      <button onclick="switchJobTab('active')" id="tab-active" class="px-4 py-2.5 rounded-xl font-bold text-xs transition-all text-slate-400 hover:text-slate-200 flex items-center gap-2">
-        <span>⚡ Pending / Active Jobs</span>
-        <span id="badge-active" class="bg-slate-800 px-2 py-0.5 rounded-full text-[10px]">0</span>
-      </button>
-    </div>
-
-    <div class="flex items-center justify-between">
-      <div>
-        <h2 id="section-title" class="text-xl font-bold text-slate-100">Available Jobs</h2>
-        <p id="section-subtitle" class="text-xs text-slate-400">Accept jobs to start earning</p>
+    <!-- HOME VIEW -->
+    <section id="view-home" class="space-y-6">
+      <div class="bg-gradient-to-r from-emerald-900/40 to-slate-800 border border-emerald-500/30 p-6 rounded-3xl flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-100">Welcome Back!</h2>
+          <p class="text-xs text-slate-400 mt-1">Toggle online status to start accepting jobs.</p>
+        </div>
+        <div id="home-status-badge" class="px-3 py-1.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 text-xs font-bold rounded-full">
+          Offline
+        </div>
       </div>
-      <button onclick="fetchJobs()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg border border-slate-700">
-        🔄 Refresh
-      </button>
-    </div>
 
-    <!-- JOBS LIST CONTAINER -->
-    <div id="jobs-container" class="space-y-4">
-      <div class="bg-slate-800/50 border border-slate-700/60 p-12 rounded-2xl text-center">
-        <p class="text-slate-400">Loading jobs...</p>
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold text-slate-100">Available Jobs Nearby</h3>
+        <button onclick="fetchJobs()" class="bg-slate-800 text-xs px-3 py-2 rounded-lg border border-slate-700">🔄 Refresh</button>
       </div>
-    </div>
+
+      <div id="home-jobs-container" class="space-y-4">
+        <div class="bg-slate-800/50 border border-slate-700/60 p-12 rounded-2xl text-center">
+          <p class="text-slate-400">Loading available jobs...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- DELIVERIES / JOBS VIEW -->
+    <section id="view-deliveries" class="space-y-6 hidden">
+      <div class="flex border-b border-slate-700 space-x-2 pb-2">
+        <button onclick="switchJobTab('available')" id="tab-available" class="px-4 py-2.5 rounded-xl font-bold text-xs transition-all bg-emerald-600 text-white flex items-center gap-2">
+          <span>📋 Available Jobs</span>
+          <span id="badge-available" class="bg-slate-900/50 px-2 py-0.5 rounded-full text-[10px]">0</span>
+        </button>
+        <button onclick="switchJobTab('active')" id="tab-active" class="px-4 py-2.5 rounded-xl font-bold text-xs transition-all text-slate-400 hover:text-slate-200 flex items-center gap-2">
+          <span>⚡ Active Jobs</span>
+          <span id="badge-active" class="bg-slate-800 px-2 py-0.5 rounded-full text-[10px]">0</span>
+        </button>
+      </div>
+
+      <div id="deliveries-container" class="space-y-4">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- WALLET VIEW -->
+    <section id="view-wallet" class="space-y-6 hidden">
+      <div class="bg-slate-800 border border-slate-700 p-6 rounded-3xl space-y-4">
+        <p class="text-xs text-slate-400 font-medium">Available Balance</p>
+        <h2 class="text-4xl font-extrabold text-emerald-400">₦ 0.00</h2>
+        <div class="flex gap-2 pt-2">
+          <button class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded-xl text-xs font-bold">Withdraw Earnings</button>
+          <button class="bg-slate-700 py-2.5 px-4 rounded-xl text-xs font-bold">History</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUPPORT VIEW -->
+    <section id="view-support" class="space-y-6 hidden">
+      <div class="bg-slate-800 border border-slate-700 p-6 rounded-3xl space-y-4 text-center py-12">
+        <i data-lucide="message-square" class="w-12 h-12 text-emerald-400 mx-auto"></i>
+        <h3 class="text-xl font-bold">Partner Support</h3>
+        <p class="text-xs text-slate-400">Need assistance with an order or trip? Contact dispatch support.</p>
+        <button class="bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-xl text-xs font-bold">Chat with Support</button>
+      </div>
+    </section>
+
+    <!-- PROFILE VIEW -->
+    <section id="view-profile" class="space-y-6 hidden">
+      <div class="bg-slate-800 border border-slate-700 p-6 rounded-3xl space-y-4">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center font-bold text-2xl">
+            <i data-lucide="user" class="w-8 h-8"></i>
+          </div>
+          <div>
+            <h3 id="profile-name" class="font-bold text-lg">Partner Name</h3>
+            <p id="profile-email" class="text-xs text-slate-400">partner@gmail.com</p>
+          </div>
+        </div>
+        <div class="border-t border-slate-700 pt-4 space-y-2 text-xs">
+          <p class="flex justify-between text-slate-400"><span>Role:</span> <strong id="profile-role" class="text-slate-100">Rider</strong></p>
+          <p class="flex justify-between text-slate-400"><span>Vehicle:</span> <strong id="profile-vehicle" class="text-slate-100">N/A</strong></p>
+          <p class="flex justify-between text-slate-400"><span>Phone:</span> <strong id="profile-phone" class="text-slate-100">N/A</strong></p>
+        </div>
+        <button onclick="handleSignOut()" class="w-full bg-rose-500/10 text-rose-400 border border-rose-500/20 py-3 rounded-xl text-xs font-bold mt-4">
+          Log Out
+        </button>
+      </div>
+    </section>
 
   </main>
+
+  <!-- BOTTOM NAVIGATION BAR (MATCHING SCREENSHOT) -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 py-2 px-4 z-40">
+    <div class="max-w-md mx-auto flex items-center justify-around">
+      
+      <button onclick="switchView('home')" id="nav-home" class="flex flex-col items-center gap-1 text-emerald-500">
+        <i data-lucide="home" class="w-6 h-6"></i>
+        <span class="text-[11px] font-semibold">Home</span>
+      </button>
+
+      <button onclick="switchView('deliveries')" id="nav-deliveries" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
+        <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+        <span class="text-[11px] font-semibold">Deliveries</span>
+      </button>
+
+      <button onclick="switchView('wallet')" id="nav-wallet" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
+        <i data-lucide="wallet" class="w-6 h-6"></i>
+        <span class="text-[11px] font-semibold">Wallet</span>
+      </button>
+
+      <button onclick="switchView('support')" id="nav-support" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
+        <i data-lucide="message-circle" class="w-6 h-6"></i>
+        <span class="text-[11px] font-semibold">Support</span>
+      </button>
+
+      <button onclick="switchView('profile')" id="nav-profile" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
+        <i data-lucide="user" class="w-6 h-6"></i>
+        <span class="text-[11px] font-semibold">Profile</span>
+      </button>
+
+    </div>
+  </nav>
 
   <script>
     const SUPABASE_URL = 'https://glkutdkwbrjpiuqcmgwe.supabase.co';
@@ -134,13 +222,15 @@
 
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let authMode = 'login'; // 'login' or 'signup'
+    let currentView = 'home';
+    let authMode = 'login';
     let currentSessionUser = null;
     let partnerProfile = null;
-    let activeJobTab = 'available'; // 'available' or 'active'
+    let activeJobTab = 'available';
     let isOnline = false;
 
     async function initSession() {
+      lucide.createIcons();
       const { data: { session } } = await _supabase.auth.getSession();
       if (session) {
         currentSessionUser = session.user;
@@ -150,24 +240,33 @@
       }
     }
 
-    function showAuthModal() {
-      document.getElementById('auth-modal').classList.remove('hidden');
+    function switchView(view) {
+      currentView = view;
+      ['home', 'deliveries', 'wallet', 'support', 'profile'].forEach(v => {
+        document.getElementById(`view-${v}`).classList.add('hidden');
+        const navBtn = document.getElementById(`nav-${v}`);
+        if (v === view) {
+          navBtn.className = "flex flex-col items-center gap-1 text-emerald-500 font-bold";
+        } else {
+          navBtn.className = "flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200";
+        }
+      });
+
+      document.getElementById(`view-${view}`).classList.remove('hidden');
+      if (view === 'deliveries' || view === 'home') fetchJobs();
     }
 
-    function hideAuthModal() {
-      document.getElementById('auth-modal').classList.add('hidden');
-    }
+    function showAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
+    function hideAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
 
     function toggleAuthMode(mode) {
       authMode = mode;
       const isLogin = mode === 'login';
       document.getElementById('signup-fields').classList.toggle('hidden', isLogin);
       document.getElementById('auth-title').innerText = isLogin ? 'Partner Sign In' : 'Create Partner Account';
-      document.getElementById('auth-subtitle').innerText = isLogin ? 'Enter your credentials to access your portal' : 'Fill in your details to get started';
       document.getElementById('auth-submit-btn').innerText = isLogin ? 'Sign In' : 'Register Account';
-
-      document.getElementById('btn-tab-login').className = `flex-1 py-2 rounded-lg font-bold text-xs transition-all ${isLogin ? 'bg-amber-600 text-white' : 'text-slate-400 hover:text-slate-200'}`;
-      document.getElementById('btn-tab-signup').className = `flex-1 py-2 rounded-lg font-bold text-xs transition-all ${!isLogin ? 'bg-amber-600 text-white' : 'text-slate-400 hover:text-slate-200'}`;
+      document.getElementById('btn-tab-login').className = `flex-1 py-2 rounded-lg font-bold text-xs ${isLogin ? 'bg-emerald-600 text-white' : 'text-slate-400'}`;
+      document.getElementById('btn-tab-signup').className = `flex-1 py-2 rounded-lg font-bold text-xs ${!isLogin ? 'bg-emerald-600 text-white' : 'text-slate-400'}`;
     }
 
     async function handleAuthSubmit(e) {
@@ -175,17 +274,11 @@
       const email = document.getElementById('auth-email').value;
       const password = document.getElementById('auth-password').value;
       const errorDiv = document.getElementById('auth-error');
-      errorDiv.classList.add('hidden');
 
       if (authMode === 'login') {
         const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-        if (error) {
-          errorDiv.innerText = error.message;
-          errorDiv.classList.remove('hidden');
-        } else {
-          currentSessionUser = data.user;
-          await loadPartnerProfile();
-        }
+        if (error) { errorDiv.innerText = error.message; errorDiv.classList.remove('hidden'); }
+        else { currentSessionUser = data.user; await loadPartnerProfile(); }
       } else {
         const name = document.getElementById('reg-name').value;
         const role = document.getElementById('reg-role').value;
@@ -193,17 +286,11 @@
         const vehicle = document.getElementById('reg-vehicle').value;
 
         const { data, error } = await _supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { full_name: name, role: role, phone: phone, vehicle: vehicle }
-          }
+          email, password, options: { data: { full_name: name, role, phone, vehicle } }
         });
 
-        if (error) {
-          errorDiv.innerText = error.message;
-          errorDiv.classList.remove('hidden');
-        } else {
+        if (error) { errorDiv.innerText = error.message; errorDiv.classList.remove('hidden'); }
+        else {
           currentSessionUser = data.user;
           partnerProfile = { role, name, phone, vehicle };
           localStorage.setItem(`partner_profile_${data.user.id}`, JSON.stringify(partnerProfile));
@@ -217,16 +304,10 @@
     async function loadPartnerProfile() {
       if (!currentSessionUser) return;
       const saved = localStorage.getItem(`partner_profile_${currentSessionUser.id}`);
-      if (saved) {
-        partnerProfile = JSON.parse(saved);
-      } else {
+      if (saved) partnerProfile = JSON.parse(saved);
+      else {
         const meta = currentSessionUser.user_metadata || {};
-        partnerProfile = {
-          role: meta.role || 'RIDER',
-          name: meta.full_name || 'Partner Driver',
-          phone: meta.phone || '',
-          vehicle: meta.vehicle || ''
-        };
+        partnerProfile = { role: meta.role || 'RIDER', name: meta.full_name || 'Partner', phone: meta.phone || '', vehicle: meta.vehicle || '' };
       }
       hideAuthModal();
       updateUI();
@@ -244,20 +325,31 @@
       if (!partnerProfile) return;
       const isRider = partnerProfile.role === 'RIDER';
       document.getElementById('role-icon').innerText = isRider ? '🚴' : '🚗';
-      document.getElementById('role-title').innerText = isRider ? 'Rider Partner Portal' : 'Driver Partner Portal';
-      document.getElementById('role-title').className = `text-lg font-bold ${isRider ? 'text-amber-400' : 'text-indigo-400'}`;
-      document.getElementById('user-display-email').innerText = currentSessionUser ? `${currentSessionUser.email} (${partnerProfile.role})` : '';
+      document.getElementById('role-title').innerText = isRider ? 'Rider Portal' : 'Driver Portal';
+      document.getElementById('user-display-email').innerText = currentSessionUser ? currentSessionUser.email : '';
+      
+      document.getElementById('profile-name').innerText = partnerProfile.name || 'Partner';
+      document.getElementById('profile-email').innerText = currentSessionUser ? currentSessionUser.email : '';
+      document.getElementById('profile-role').innerText = partnerProfile.role;
+      document.getElementById('profile-vehicle').innerText = partnerProfile.vehicle || 'N/A';
+      document.getElementById('profile-phone').innerText = partnerProfile.phone || 'N/A';
     }
 
     function toggleOnline() {
       isOnline = !isOnline;
       const btn = document.getElementById('online-toggle-btn');
+      const badge = document.getElementById('home-status-badge');
+
       if (isOnline) {
-        btn.className = "px-3 py-2 rounded-xl text-xs font-bold transition-all bg-emerald-500 text-white shadow-lg shadow-emerald-900/30";
+        btn.className = "px-3 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-white shadow-lg";
         btn.innerText = "Online 🟢";
+        badge.className = "px-3 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold rounded-full";
+        badge.innerText = "Online & Active";
       } else {
-        btn.className = "px-3 py-2 rounded-xl text-xs font-bold transition-all bg-rose-500/10 text-rose-400 border border-rose-500/30";
+        btn.className = "px-3 py-2 rounded-xl text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30";
         btn.innerText = "Go Online 🔴";
+        badge.className = "px-3 py-1.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 text-xs font-bold rounded-full";
+        badge.innerText = "Offline";
       }
       fetchJobs();
     }
@@ -265,148 +357,69 @@
     function switchJobTab(tab) {
       activeJobTab = tab;
       const isAvailable = tab === 'available';
-
-      document.getElementById('tab-available').className = `px-4 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${isAvailable ? 'bg-amber-600 text-white' : 'text-slate-400 hover:text-slate-200'}`;
-      document.getElementById('tab-active').className = `px-4 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${!isAvailable ? 'bg-amber-600 text-white' : 'text-slate-400 hover:text-slate-200'}`;
-
-      document.getElementById('section-title').innerText = isAvailable ? 'Available Jobs' : 'Pending / Active Jobs';
-      document.getElementById('section-subtitle').innerText = isAvailable ? 'Accept new jobs to start earning' : 'Manage your accepted in-progress deliveries and trips';
-
+      document.getElementById('tab-available').className = `px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 ${isAvailable ? 'bg-emerald-600 text-white' : 'text-slate-400'}`;
+      document.getElementById('tab-active').className = `px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 ${!isAvailable ? 'bg-emerald-600 text-white' : 'text-slate-400'}`;
       fetchJobs();
     }
 
     async function fetchJobs() {
       if (!currentSessionUser || !partnerProfile) return;
-      const container = document.getElementById('jobs-container');
+      const homeContainer = document.getElementById('home-jobs-container');
+      const deliveriesContainer = document.getElementById('deliveries-container');
 
       if (!isOnline) {
-        container.innerHTML = `
+        const offlineHtml = `
           <div class="bg-slate-800/50 border border-slate-700/60 p-12 rounded-2xl text-center">
             <p class="text-3xl mb-2">💤</p>
             <p class="text-slate-300 font-medium">You are currently offline</p>
-            <p class="text-xs text-slate-500 mt-1">Tap 'Go Online' above to start receiving order requests.</p>
+            <p class="text-xs text-slate-500 mt-1">Tap 'Go Online' above to receive requests.</p>
           </div>
         `;
+        homeContainer.innerHTML = offlineHtml;
+        if (deliveriesContainer) deliveriesContainer.innerHTML = offlineHtml;
         return;
       }
 
       const isRider = partnerProfile.role === 'RIDER';
       const table = isRider ? 'orders' : 'ride_requests';
 
-      if (activeJobTab === 'available') {
-        const query = isRider 
-          ? _supabase.from('orders').select('*').or('status.eq.READY_FOR_PICKUP,status.eq.PENDING').order('created_at', { ascending: false })
-          : _supabase.from('ride_requests').select('*').or('status.eq.SEARCHING,status.eq.PENDING').order('created_at', { ascending: false });
+      const query = isRider 
+        ? _supabase.from('orders').select('*').or('status.eq.READY_FOR_PICKUP,status.eq.PENDING').order('created_at', { ascending: false })
+        : _supabase.from('ride_requests').select('*').or('status.eq.SEARCHING,status.eq.PENDING').order('created_at', { ascending: false });
 
-        const { data, error } = await query;
-        if (error) console.error(error);
-        renderAvailableJobs(data || [], isRider);
-      } else {
-        // Fetch Active / Pending Jobs accepted by rider or in progress
-        const query = isRider
-          ? _supabase.from('orders').select('*').or('status.eq.ACCEPTED_BY_RIDER,status.eq.DISPATCHED,status.eq.ONGOING,status.eq.PICKED_UP').order('created_at', { ascending: false })
-          : _supabase.from('ride_requests').select('*').or('status.eq.ACCEPTED,status.eq.ONGOING').order('created_at', { ascending: false });
+      const { data } = await query;
+      const jobs = data || [];
 
-        const { data, error } = await query;
-        if (error) console.error(error);
-        renderActiveJobs(data || [], isRider);
-      }
-    }
-
-    function renderAvailableJobs(jobs, isRider) {
-      const container = document.getElementById('jobs-container');
       document.getElementById('badge-available').innerText = jobs.length;
 
-      if (!jobs.length) {
-        container.innerHTML = `
-          <div class="bg-slate-800/50 border border-slate-700/60 p-12 rounded-2xl text-center">
-            <p class="text-3xl mb-2">📦</p>
-            <p class="text-slate-300 font-medium">No available jobs right now</p>
-            <p class="text-xs text-slate-500 mt-1">New orders will show up here automatically.</p>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = jobs.map(j => `
+      const jobsHtml = jobs.length ? jobs.map(j => `
         <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
           <div class="space-y-1">
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isRider ? 'bg-amber-500/20 text-amber-400' : 'bg-indigo-500/20 text-indigo-400'}">
-                ${isRider ? (j.order_type || 'DISPATCH') : 'TAXI TRIP'}
-              </span>
-              <span class="text-xs text-slate-500 font-mono">#${(j.id || '').toString().slice(0,6)}</span>
-            </div>
-            <h3 class="font-bold text-base text-slate-100">${j.item_details || (isRider ? 'Delivery Package' : 'Passenger Ride')}</h3>
-            <p class="text-xs text-slate-400"><b>Pickup:</b> ${j.pickup_address || 'Vendor Location'}</p>
-            <p class="text-xs text-slate-400"><b>Drop-off:</b> ${j.delivery_address || j.destination_address || 'Customer Location'}</p>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">
+              ${isRider ? (j.order_type || 'DISPATCH') : 'TAXI TRIP'}
+            </span>
+            <h3 class="font-bold text-base text-slate-100">${j.item_details || 'Request'}</h3>
+            <p class="text-xs text-slate-400">📍 <b>Pickup:</b> ${j.pickup_address || 'Location'}</p>
+            <p class="text-xs text-slate-400">🏁 <b>Drop-off:</b> ${j.delivery_address || j.destination_address || 'Destination'}</p>
           </div>
-          <button onclick="acceptJob('${j.id}', '${isRider ? 'orders' : 'ride_requests'}', '${isRider ? 'ACCEPTED_BY_RIDER' : 'ACCEPTED'}')" class="w-full md:w-auto bg-amber-600 hover:bg-amber-500 px-6 py-2.5 rounded-xl font-bold text-white text-sm transition-all shadow-lg shadow-amber-900/30">
+          <button onclick="acceptJob('${j.id}', '${table}', '${isRider ? 'ACCEPTED_BY_RIDER' : 'ACCEPTED'}')" class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 px-6 py-2.5 rounded-xl font-bold text-white text-sm">
             Accept Job
           </button>
         </div>
-      `).join('');
-    }
+      `).join('') : '<p class="text-center text-slate-400 py-8">No available jobs.</p>';
 
-    function renderActiveJobs(jobs, isRider) {
-      const container = document.getElementById('jobs-container');
-      document.getElementById('badge-active').innerText = jobs.length;
-
-      if (!jobs.length) {
-        container.innerHTML = `
-          <div class="bg-slate-800/50 border border-slate-700/60 p-12 rounded-2xl text-center">
-            <p class="text-3xl mb-2">⚡</p>
-            <p class="text-slate-300 font-medium">No pending active jobs</p>
-            <p class="text-xs text-slate-500 mt-1">Accept jobs from the 'Available Jobs' tab to manage them here.</p>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = jobs.map(j => `
-        <div class="bg-slate-800 p-5 rounded-2xl border border-amber-500/40 flex flex-col justify-between gap-4 shadow-xl">
-          <div class="space-y-1">
-            <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">
-                IN PROGRESS: ${j.status}
-              </span>
-              <span class="font-mono">#${(j.id || '').toString().slice(0,6)}</span>
-            </div>
-            <h3 class="font-bold text-base text-slate-100">${j.item_details || (isRider ? 'Delivery Package' : 'Passenger Ride')}</h3>
-            <p class="text-xs text-slate-300 mt-2">📍 <b>Pickup:</b> ${j.pickup_address || 'Vendor'}</p>
-            <p class="text-xs text-slate-300">🏁 <b>Destination:</b> ${j.delivery_address || j.destination_address || 'Customer'}</p>
-            <p class="text-xs text-slate-400 mt-1">📞 Customer Phone: ${j.customer_phone || 'N/A'}</p>
-          </div>
-          
-          <div class="flex gap-2 pt-2 border-t border-slate-700/60">
-            ${isRider && j.status !== 'PICKED_UP' ? `
-              <button onclick="updateJobStatus('${j.id}', 'orders', 'PICKED_UP')" class="flex-1 bg-blue-600 hover:bg-blue-500 py-2.5 rounded-xl font-bold text-white text-xs">
-                Mark Picked Up
-              </button>
-            ` : ''}
-            <button onclick="updateJobStatus('${j.id}', '${isRider ? 'orders' : 'ride_requests'}', '${isRider ? 'COMPLETED' : 'COMPLETED'}')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded-xl font-bold text-white text-xs">
-              Complete Delivery / Trip
-            </button>
-          </div>
-        </div>
-      `).join('');
+      homeContainer.innerHTML = jobsHtml;
+      if (deliveriesContainer) deliveriesContainer.innerHTML = jobsHtml;
     }
 
     async function acceptJob(id, table, newStatus) {
       await _supabase.from(table).update({ status: newStatus }).eq('id', id);
-      alert("Job accepted! Moved to Pending / Active Jobs tab.");
+      alert("Job accepted successfully!");
+      switchView('deliveries');
       switchJobTab('active');
     }
 
-    async function updateJobStatus(id, table, newStatus) {
-      await _supabase.from(table).update({ status: newStatus }).eq('id', id);
-      fetchJobs();
-    }
-
-    // Auto Refresh Jobs Every 5 Seconds
     setInterval(fetchJobs, 5000);
-
-    // Initial Auth Check
     initSession();
   </script>
 </body>
