@@ -20,7 +20,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
+    body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; padding-bottom: 70px; }
     .app-container { width: 100%; max-width: 480px; background-color: var(--bg); display: flex; flex-direction: column; min-height: 100vh; }
 
     /* Top Bar */
@@ -40,7 +40,14 @@
     .main-content { padding: 16px; flex: 1; }
     .section-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
-    /* Order Card */
+    /* Navigation Sections */
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+
+    /* Cards & Stats */
+    .stats-card { background: var(--card-bg); border-radius: 12px; padding: 20px; border: 1px solid var(--border); margin-bottom: 16px; text-align: center; }
+    .stats-amount { font-size: 32px; font-weight: 800; color: var(--primary); margin: 8px 0; }
+
     .order-card { background: var(--card-bg); border-radius: 12px; padding: 16px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin-bottom: 16px; }
     .order-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
     .vendor-name { font-size: 18px; font-weight: 700; }
@@ -54,26 +61,27 @@
     .point-text strong { display: block; font-size: 14px; color: var(--text); }
     .point-text span { font-size: 13px; color: var(--text-muted); }
 
-    .order-items { background-color: #0F172A; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; border: 1px solid var(--border); }
-
     .btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
     .btn-primary { background-color: var(--primary); color: white; }
-    .btn-primary:active { background-color: var(--primary-dark); }
-
-    .pin-section { margin-top: 12px; display: flex; gap: 8px; }
-    .pin-input { flex: 1; padding: 12px; font-size: 18px; letter-spacing: 4px; text-align: center; background: #0F172A; color: white; border: 1px solid var(--border); border-radius: 8px; outline: none; }
 
     .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+
+    /* Bottom Navigation Bar */
+    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 20; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; text-decoration: none; cursor: pointer; }
+    .nav-item.active { color: var(--primary); font-weight: bold; }
+    .nav-icon { font-size: 18px; margin-bottom: 3px; }
   </style>
 </head>
 <body>
 
 <div class="app-container">
+  <!-- Top Bar -->
   <div class="top-bar">
     <div class="rider-profile">
       <div class="avatar" id="avatar">DA</div>
       <div>
-        <div style="font-weight:700; font-size:15px;" id="rider-name">Rider Portal</div>
+        <div style="font-weight:700; font-size:15px;" id="rider-name">David Akinrombi</div>
         <div style="font-size:12px; color:var(--text-muted);" id="rider-hub">Ikorodu Hub</div>
       </div>
     </div>
@@ -86,110 +94,103 @@
     </div>
   </div>
 
-  <div class="main-content" id="main-content">
-    <div class="section-title">Active Dispatches</div>
-    <div id="jobs-container">
-      <div class="empty-state">
-        <h3>Searching for available jobs...</h3>
-        <p style="margin-top:8px;">Stay close to Sabo / Agric hubs.</p>
+  <div class="main-content">
+    <!-- Tab 1: Home / Dispatches -->
+    <div id="tab-jobs" class="tab-section active">
+      <div class="section-title">Active Dispatches</div>
+      <div id="jobs-container">
+        <div class="empty-state">
+          <h3>Searching for available jobs...</h3>
+          <p style="margin-top:8px;">Stay close to Sabo / Agric hubs.</p>
+        </div>
       </div>
+    </div>
+
+    <!-- Tab 2: Earnings / Wallet -->
+    <div id="tab-wallet" class="tab-section">
+      <div class="section-title">Earnings & Wallet</div>
+      <div class="stats-card">
+        <div style="font-size: 13px; color: var(--text-muted);">Today's Earnings</div>
+        <div class="stats-amount">₦4,800</div>
+        <button class="btn btn-primary" onclick="alert('Payout request submitted to bank!')">REQUEST INSTANT PAYOUT</button>
+      </div>
+      <div class="section-title">Completed Deliveries Today</div>
+      <div class="order-card">
+        <div style="display:flex; justify-content:space-between; font-size:14px;">
+          <span>Sabo $\rightarrow$ Agric</span>
+          <strong style="color:var(--primary);">+₦1,200</strong>
+        </div>
+      </div>
+      <div class="order-card">
+        <div style="display:flex; justify-content:space-between; font-size:14px;">
+          <span>Garage $\rightarrow$ Ebute</span>
+          <strong style="color:var(--primary);">+₦1,200</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Support -->
+    <div id="tab-support" class="tab-section">
+      <div class="section-title">Rider Support</div>
+      <div class="order-card">
+        <h4 style="margin-bottom:8px;">Need Immediate Help?</h4>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Contact Ikorodu Dispatch Control regarding late orders or customer issues.</p>
+        <button class="btn btn-primary" onclick="window.open('https://wa.me/2340000000000', '_blank')">CHAT DISPATCH ON WHATSAPP</button>
+      </div>
+    </div>
+
+    <!-- Tab 4: Profile -->
+    <div id="tab-profile" class="tab-section">
+      <div class="section-title">Rider Profile</div>
+      <div class="order-card">
+        <div style="margin-bottom:12px;"><strong>Full Name:</strong> David Akinrombi</div>
+        <div style="margin-bottom:12px;"><strong>Zone:</strong> Ikorodu Central</div>
+        <div style="margin-bottom:12px;"><strong>Vehicle:</strong> Bicycle / Delivery Bike</div>
+        <div><strong>Status:</strong> <span style="color:var(--primary);">Verified Founding Rider</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="switchTab('jobs', this)">
+      <div class="nav-icon">🚲</div>
+      <span>Jobs</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('wallet', this)">
+      <div class="nav-icon">💼</div>
+      <span>Wallet</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('support', this)">
+      <div class="nav-icon">🎧</div>
+      <span>Support</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('profile', this)">
+      <div class="nav-icon">👤</div>
+      <span>Profile</span>
     </div>
   </div>
 </div>
 
 <script>
-  // Replace these with your project values from the Supabase Dashboard
-  const SUPABASE_URL = 'https://YOUR-SUPABASE-PROJECT.supabase.co';
-  const SUPABASE_ANON_KEY = 'YOUR-SUPABASE-ANON-KEY';
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  function switchTab(tabName, element) {
+    document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
-  async function fetchJobs() {
-    const container = document.getElementById('jobs-container');
-    const { data: orders, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('status', 'pending');
-
-    if (error || !orders || orders.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <h3>No available jobs right now</h3>
-          <p style="margin-top:8px;">New dispatches will appear here automatically.</p>
-        </div>`;
-      return;
-    }
-
-    container.innerHTML = orders.map(order => `
-      <div class="order-card" id="order-${order.id}">
-        <div class="order-header">
-          <div>
-            <div class="vendor-name">${order.vendor_name || 'Vendor Pick-up'}</div>
-            <div style="font-size:12px; color:var(--text-muted);">Order #${order.id.slice(0, 8)}</div>
-          </div>
-          <div class="payout">₦${order.amount || '1,200'}</div>
-        </div>
-        <div class="route-details">
-          <div class="route-point">
-            <div class="icon-dot dot-pickup"></div>
-            <div class="point-text">
-              <strong>Pick up</strong>
-              <span>${order.pickup_address || 'Ikorodu Vendor Location'}</span>
-            </div>
-          </div>
-          <div class="route-point">
-            <div class="icon-dot dot-dropoff"></div>
-            <div class="point-text">
-              <strong>Drop off</strong>
-              <span>${order.delivery_address || 'Ikorodu Drop-off Point'}</span>
-            </div>
-          </div>
-        </div>
-        <div class="order-items">
-          <strong>Items:</strong> ${order.items || 'Standard Package / Food Order'}
-        </div>
-        <div id="action-area-${order.id}">
-          <button class="btn btn-primary" onclick="acceptOrder('${order.id}')">ACCEPT ORDER</button>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  async function acceptOrder(orderId) {
-    const actionArea = document.getElementById(`action-area-${orderId}`);
-    actionArea.innerHTML = `
-      <div style="font-size:13px; font-weight:600; margin-bottom:6px;">Enter Customer's 4-Digit PIN:</div>
-      <div class="pin-section">
-        <input type="text" id="pin-${orderId}" class="pin-input" maxlength="4" placeholder="••••">
-        <button class="btn btn-primary" style="width: auto; padding: 0 20px;" onclick="verifyPin('${orderId}')">VERIFY</button>
-      </div>`;
-  }
-
-  async function verifyPin(orderId) {
-    const pin = document.getElementById(`pin-${orderId}`).value;
-    if (pin.length === 4) {
-      await supabase.from('orders').update({ status: 'delivered' }).eq('id', orderId);
-      alert('Order Verified & Completed!');
-      fetchJobs();
-    } else {
-      alert('Please enter a valid 4-digit PIN.');
-    }
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    element.classList.add('active');
   }
 
   function toggleStatus(checkbox) {
     const statusText = document.getElementById('status-text');
-    const mainContent = document.getElementById('main-content');
     if (checkbox.checked) {
       statusText.innerText = "ONLINE";
       statusText.style.color = "var(--primary)";
-      mainContent.style.opacity = "1";
     } else {
       statusText.innerText = "OFFLINE";
       statusText.style.color = "var(--text-muted)";
-      mainContent.style.opacity = "0.4";
     }
   }
-
-  window.onload = fetchJobs;
 </script>
 
 </body>
