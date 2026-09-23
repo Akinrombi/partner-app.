@@ -3,362 +3,649 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Vendor Dashboard</title>
+  <title>Rider Logistics Portal</title>
+
+  <!-- OpenStreetMap Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
     :root {
-      --primary: #00A859;
-      --bg: #0F172A;
-      --card-bg: #1E293B;
-      --text: #F8FAFC;
-      --text-muted: #94A3B8;
-      --border: #334155;
-      --danger: #EF4444;
-      --warning: #F59E0B;
+      --primary-green: #00A859;
+      --bg-dark: #0F172A;
+      --card-bg-dark: #1E293B;
+      --text-white: #F8FAFC;
+      --text-gray: #94A3B8;
+      --border-dark: #334155;
+      --danger-red: #EF4444;
+      --warning-orange: #F59E0B;
+      --blue-info: #3B82F6;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 16px; display: flex; justify-content: center; min-height: 100vh; padding-bottom: 70px; }
-    .app-container { width: 100%; max-width: 480px; }
+    body { background-color: var(--bg-dark); color: var(--text-white); padding: 12px; display: flex; justify-content: center; min-height: 100vh; padding-bottom: 80px; }
+    .app-wrapper { width: 100%; max-width: 480px; }
 
-    /* Store Header */
-    .store-header { background: var(--card-bg); padding: 16px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
-    .store-title { font-size: 16px; font-weight: 700; }
-    .store-subtitle { font-size: 12px; color: var(--text-muted); }
-    .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; border: none; }
-    .status-open { background: rgba(0, 168, 89, 0.2); color: var(--primary); border: 1px solid var(--primary); }
-    .status-closed { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+    /* Offline Alert Banner */
+    .offline-banner { display: none; background: var(--danger-red); color: #fff; text-align: center; padding: 10px; font-size: 13px; font-weight: 700; border-radius: 8px; margin-bottom: 12px; }
 
-    /* Top Navigation Tabs */
-    .nav-tabs { display: flex; background: var(--card-bg); padding: 4px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 16px; gap: 4px; }
-    .tab-btn { flex: 1; padding: 10px 0; background: transparent; border: none; color: var(--text-muted); font-weight: 600; font-size: 13px; cursor: pointer; border-radius: 8px; transition: 0.2s; text-align: center; }
-    .tab-btn.active { background: var(--primary); color: white; font-weight: 700; }
+    /* Header */
+    .top-header { background: var(--card-bg-dark); padding: 14px; border-radius: 12px; border: 1px solid var(--border-dark); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .header-title { font-size: 16px; font-weight: 700; }
+    .header-subtitle { font-size: 12px; color: var(--text-gray); }
+    
+    /* Online Toggle Switch */
+    .status-toggle-btn { padding: 10px 16px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; border: none; min-height: 48px; }
+    .status-online { background: rgba(0, 168, 89, 0.2); color: var(--primary-green); border: 1px solid var(--primary-green); }
+    .status-offline { background: rgba(239, 68, 68, 0.2); color: var(--danger-red); border: 1px solid var(--danger-red); }
 
-    /* Tab Content Displays */
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    /* Active Delivery Sticky Banner */
+    .active-banner { display: none; background: rgba(0, 168, 89, 0.15); border: 1px solid var(--primary-green); padding: 12px; border-radius: 10px; margin-bottom: 12px; justify-content: space-between; align-items: center; cursor: pointer; }
 
     /* Stats Grid */
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-    .stat-card { background: var(--card-bg); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); }
-    .stat-val { font-size: 18px; font-weight: 800; color: var(--text); margin-top: 4px; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .stat-card { background: var(--card-bg-dark); padding: 10px; border-radius: 10px; border: 1px solid var(--border-dark); text-align: center; }
+    .stat-label { font-size: 10px; color: var(--text-gray); font-weight: 700; text-transform: uppercase; }
+    .stat-value { font-size: 15px; font-weight: 800; color: var(--text-white); margin-top: 4px; }
 
-    /* Standard Cards */
-    .card { background: var(--card-bg); border-radius: 12px; padding: 16px; border: 1px solid var(--border); margin-bottom: 16px; }
-    .section-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 14px; letter-spacing: 0.5px; }
+    /* Cards Layout */
+    .content-box { background: var(--card-bg-dark); border-radius: 12px; padding: 14px; border: 1px solid var(--border-dark); margin-bottom: 12px; }
+    .box-title { font-size: 12px; font-weight: 700; color: var(--text-gray); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
 
-    /* Form Fields */
-    .input-group { margin-bottom: 14px; }
-    .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
-    .input-group input, .input-group select { width: 100%; padding: 12px; background: #0F172A; border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 14px; outline: none; }
+    /* Job Card */
+    .job-card { background: #0F172A; border: 1px solid var(--border-dark); border-radius: 10px; padding: 14px; margin-bottom: 12px; position: relative; }
+    .job-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid var(--border-dark); padding-bottom: 8px; }
+    .pay-tag { color: var(--primary-green); font-size: 16px; font-weight: 800; }
+    .timer-ring { font-size: 11px; background: rgba(245, 158, 11, 0.2); color: var(--warning-orange); padding: 4px 8px; border-radius: 12px; font-weight: 800; border: 1px solid var(--warning-orange); }
 
-    /* Buttons */
-    .btn { width: 100%; padding: 14px; border-radius: 8px; border: none; font-weight: 700; font-size: 15px; cursor: pointer; }
-    .btn-primary { background-color: var(--primary); color: white; }
-    .btn-warning { background-color: var(--warning); color: #000; padding: 8px 12px; font-size: 12px; border-radius: 6px; }
-    .btn-danger { background-color: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 4px 8px; font-size: 11px; border-radius: 6px; }
+    /* Action Buttons */
+    .action-btn { width: 100%; min-height: 48px; border-radius: 8px; border: none; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; gap: 6px; }
+    .btn-green { background-color: var(--primary-green); color: white; }
+    .btn-blue { background-color: var(--blue-info); color: white; }
+    .btn-orange { background-color: var(--warning-orange); color: #000; }
+    .btn-red { background-color: var(--danger-red); color: white; }
+    .btn-outline { background-color: transparent; border: 1px solid var(--border-dark); color: var(--text-white); }
 
-    /* List Items */
-    .list-item { padding: 12px 0; border-bottom: 1px solid var(--border); }
-    .list-item:last-child { border-bottom: none; }
-    .item-name { font-weight: 600; font-size: 15px; display: block; }
-    .item-price { color: var(--primary); font-weight: 700; font-size: 14px; margin-top: 2px; }
-    .item-cat { font-size: 11px; color: var(--text-muted); background: #0F172A; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
+    /* Map Box */
+    #mapContainer { width: 100%; height: 200px; border-radius: 10px; border: 1px solid var(--border-dark); margin-bottom: 12px; }
 
-    /* Toggle Switch */
-    .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .3s; border-radius: 20px; }
-    .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
-    input:checked + .slider { background-color: var(--primary); }
-    input:checked + .slider:before { transform: translateX(16px); }
+    /* Form Controls */
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-gray); margin-bottom: 6px; }
+    .form-group input, .form-group select { width: 100%; min-height: 48px; padding: 10px; background: #0F172A; border: 1px solid var(--border-dark); color: var(--text-white); border-radius: 8px; font-size: 14px; outline: none; }
+
+    /* Bottom Navigation Tabs */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg-dark); border-top: 1px solid var(--border-dark); display: flex; justify-content: space-around; padding: 8px 0; z-index: 1000; max-width: 480px; margin: 0 auto; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-gray); font-size: 10px; font-weight: 700; border: none; background: transparent; cursor: pointer; min-height: 48px; width: 20%; }
+    .nav-item.active { color: var(--primary-green); }
+
+    /* Modal Backdrop */
+    .modal-backdrop { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; justify-content:center; align-items:center; padding:16px; }
+    .modal-card { background:var(--card-bg-dark); border:1px solid var(--border-dark); border-radius:12px; width:100%; max-width:400px; padding:16px; }
   </style>
 </head>
 <body>
 
-<div class="app-container">
+<div class="app-wrapper">
 
-  <!-- Store Header -->
-  <div class="store-header">
+  <!-- Connection Drop Banner -->
+  <div id="offlineBanner" class="offline-banner">⚠️ Network connection lost. Reconnecting...</div>
+
+  <!-- Header -->
+  <div class="top-header">
     <div>
-      <div class="store-title" id="displayStoreName">My Vendor Store</div>
-      <div class="store-subtitle">Vendor Control Dashboard</div>
+      <div class="header-title">Rider Logistics Portal</div>
+      <div class="header-subtitle" id="riderWelcomeMsg">Go online to start accepting jobs.</div>
     </div>
-    <button id="storeStatusBtn" class="status-badge status-open" onclick="toggleStoreStatus()">STORE OPEN</button>
+    <button id="onlineToggleBtn" class="status-toggle-btn status-offline" onclick="toggleOnlineState()">GO ONLINE</button>
   </div>
 
-  <!-- Tab Buttons -->
-  <div class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab('ordersTab', this)">Orders</button>
-    <button class="tab-btn" onclick="switchTab('menuTab', this)">Menu Manager</button>
-    <button class="tab-btn" onclick="switchTab('settingsTab', this)">Settings</button>
+  <!-- Active Delivery Sticky Banner -->
+  <div id="activeJobBanner" class="active-banner" onclick="switchTab('deliveries', 'btn-tab-deliveries')">
+    <div>
+      <div style="font-size:10px; color:var(--primary-green); font-weight:800;">ACTIVE DELIVERY IN PROGRESS</div>
+      <div style="font-size:13px; font-weight:700;" id="bannerJobTitle">Heading to Vendor</div>
+    </div>
+    <span style="font-size:12px; font-weight:800; color:var(--primary-green);">View ></span>
   </div>
 
-  <!-- TAB 1: ORDERS & EARNINGS -->
-  <div id="ordersTab" class="tab-content active">
+  <!-- TAB 1: HOME -->
+  <div id="tab-home" style="display: block;">
     <div class="stats-grid">
       <div class="stat-card">
-        <div style="font-size:11px; color:var(--text-muted); font-weight:600;">TODAY'S SALES</div>
-        <div class="stat-val" id="totalEarnings">₦0</div>
+        <div class="stat-label">Earnings</div>
+        <div class="stat-value" id="statTodayEarnings">₦0</div>
       </div>
       <div class="stat-card">
-        <div style="font-size:11px; color:var(--text-muted); font-weight:600;">COMPLETED ORDERS</div>
-        <div class="stat-val" id="totalOrdersCount">0</div>
+        <div class="stat-label">Trips</div>
+        <div class="stat-value" id="statTripsCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Online</div>
+        <div class="stat-value" id="statOnlineHours">0.0 hrs</div>
       </div>
     </div>
 
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <div class="section-title" style="margin:0;">Incoming Customer Orders</div>
-        <button onclick="addDemoOrder()" style="background:transparent; color:var(--primary); border:none; font-size:12px; font-weight:bold; cursor:pointer;">+ Test Order</button>
-      </div>
-      <div id="ordersContainer">
-        <p style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 10px 0;">No active incoming orders.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB 2: MENU MANAGER -->
-  <div id="menuTab" class="tab-content">
-    <div class="card">
-      <div class="section-title">Add New Dish / Food Item</div>
-
-      <div class="input-group">
-        <label for="itemCategory">Category</label>
-        <select id="itemCategory">
-          <option value="Main Dishes">Main Dishes (Rice, Swallows)</option>
-          <option value="Proteins">Proteins (Chicken, Meat, Fish)</option>
-          <option value="Sides & Extras">Sides & Extras (Plantain, Chips)</option>
-          <option value="Drinks & Beverages">Drinks & Beverages</option>
-        </select>
-      </div>
-      
-      <div class="input-group">
-        <label for="itemName">Food / Dish Name</label>
-        <input type="text" id="itemName" placeholder="e.g. Jollof Rice & Fried Chicken">
-      </div>
-
-      <div class="input-group">
-        <label for="itemPrice">Price in Naira (₦)</label>
-        <input type="number" id="itemPrice" placeholder="e.g. 2500">
-      </div>
-
-      <button class="btn btn-primary" onclick="addMenuItem()">+ ADD TO MENU</button>
+    <!-- Demand Hotspots Info -->
+    <div class="content-box" style="padding:10px 14px; background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3);">
+      <div style="font-size:11px; color:var(--blue-info); font-weight:800;">🔥 DEMAND HOTSPOTS (IKORODU)</div>
+      <div style="font-size:12px; color:var(--text-white); margin-top:2px;">High order volumes detected near <strong>Agric Bus Stop</strong> & <strong>LASPOTECH First Gate</strong>.</div>
     </div>
 
-    <div class="card">
-      <div class="section-title">Current Store Menu</div>
-      <div id="menuContainer">
-        <p style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 10px 0;">No food items added yet.</p>
+    <!-- Available Jobs List -->
+    <div class="content-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div class="box-title" style="margin:0;">Available Delivery Offers</div>
+        <button onclick="loadAvailableJobs()" style="background:transparent; color:var(--primary-green); border:none; font-size:11px; font-weight:700; cursor:pointer;">Refresh</button>
       </div>
+
+      <div id="jobsListContainer"></div>
     </div>
   </div>
 
-  <!-- TAB 3: SETTINGS & STORE HOURS -->
-  <div id="settingsTab" class="tab-content">
-    <div class="card">
-      <div class="section-title">Store Profile & Settings</div>
-      
-      <div class="input-group">
-        <label for="storeNameInput">Store Name</label>
-        <input type="text" id="storeNameInput" value="My Vendor Store">
-      </div>
+  <!-- TAB 2: DELIVERIES & MAP FLOW -->
+  <div id="tab-deliveries" style="display: none;">
+    <div id="mapContainer"></div>
 
-      <div class="input-group">
-        <label for="storePhoneInput">Store Contact Phone</label>
-        <input type="tel" id="storePhoneInput" placeholder="08012345678">
-      </div>
+    <!-- Active Job Pipeline Step Card -->
+    <div id="activeDeliveryPipeline" class="content-box">
+      <p style="color: var(--text-gray); font-size: 13px; text-align: center;">No delivery currently in progress.</p>
+    </div>
 
-      <div class="input-group">
-        <label for="prepTimeInput">Average Preparation Time</label>
-        <select id="prepTimeInput">
-          <option value="15">15 - 20 Minutes</option>
-          <option value="30" selected>25 - 30 Minutes</option>
-          <option value="45">40 - 45 Minutes</option>
+    <!-- History Header -->
+    <div class="content-box">
+      <div class="box-title">Completed Delivery History</div>
+      <div id="historyContainer"></div>
+    </div>
+  </div>
+
+  <!-- TAB 3: WALLET -->
+  <div id="tab-wallet" style="display: none;">
+    <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="stat-card">
+        <div class="stat-label">Available Balance</div>
+        <div class="stat-value" id="walletAvailable">₦0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending Payout</div>
+        <div class="stat-value" id="walletPending">₦0</div>
+      </div>
+    </div>
+
+    <div class="content-box">
+      <div class="box-title">Withdraw Funds to Bank Account</div>
+      <div class="form-group">
+        <label>Select Bank</label>
+        <select id="withdrawBank">
+          <option>GTBank</option>
+          <option>Kuda Bank</option>
+          <option>OPay</option>
+          <option>Moniepoint</option>
+          <option>First Bank</option>
         </select>
       </div>
+      <div class="form-group">
+        <label>Account Number</label>
+        <input type="number" id="withdrawAccNum" placeholder="10-digit Account Number">
+      </div>
+      <div class="form-group">
+        <label>Amount (₦)</label>
+        <input type="number" id="withdrawAmount" placeholder="Min ₦1,000">
+      </div>
+      <button class="action-btn btn-green" onclick="submitWithdrawal()">WITHDRAW NOW</button>
+    </div>
 
-      <button class="btn btn-primary" onclick="saveSettings()">SAVE SETTINGS</button>
+    <div class="content-box">
+      <div class="box-title">Recent Wallet Transactions</div>
+      <div id="walletTransactionsContainer"></div>
+    </div>
+  </div>
+
+  <!-- TAB 4: SUPPORT & SAFETY -->
+  <div id="tab-support" style="display: none;">
+    <div class="content-box" style="border-color: var(--danger-red);">
+      <button class="action-btn btn-red" onclick="triggerSOS()">🚨 EMERGENCY SOS</button>
+      <div style="font-size:11px; color:var(--text-gray); text-align:center; margin-top:6px;">Instantly broadcasts your live GPS location to dispatch safety teams.</div>
+    </div>
+
+    <div class="content-box">
+      <div class="box-title">Report an Issue</div>
+      <div class="form-group">
+        <label>Select Problem Type</label>
+        <select id="issueType">
+          <option>Vendor Delay (>15 mins)</option>
+          <option>Wrong Customer Address</option>
+          <option>Customer Unreachable</option>
+          <option>Road Accident / Breakdown</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Details</label>
+        <input type="text" id="issueDetails" placeholder="Briefly explain the issue">
+      </div>
+      <button class="action-btn btn-orange" onclick="submitIssueReport()">SUBMIT REPORT</button>
+    </div>
+  </div>
+
+  <!-- TAB 5: PROFILE -->
+  <div id="tab-profile" style="display: none;">
+    <div class="content-box">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+        <div style="width:50px; height:50px; border-radius:25px; background:var(--primary-green); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; color:#fff;">A</div>
+        <div>
+          <div style="font-size:16px; font-weight:800;">Akinrombi David</div>
+          <div style="font-size:12px; color:var(--primary-green); font-weight:700;">★ 4.95 Rating • Verified Rider</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Vehicle / Bicycle</label>
+        <input type="text" value="Muddyfox Recoil 24 Mountain Bike" disabled>
+      </div>
+    </div>
+
+    <!-- Streak Bonuses & Incentives -->
+    <div class="content-box">
+      <div class="box-title">Active Rider Incentives & Boosts</div>
+      <div style="font-size:13px; color:var(--text-white); margin-bottom:6px;">⚡ <strong>Peak Hour Boost:</strong> +₦300 extra per completed trip between 12 PM - 2 PM.</div>
+      <div style="font-size:13px; color:var(--text-white);">🎯 <strong>Daily Streak:</strong> Complete 10 trips today for a ₦2,500 bonus!</div>
     </div>
   </div>
 
 </div>
 
+<!-- IN-APP CHAT MODAL -->
+<div id="chatModal" class="modal-backdrop">
+  <div class="modal-card">
+    <div class="box-title" id="chatTargetTitle">In-App Chat</div>
+    <div id="chatMessages" style="height:180px; overflow-y:auto; background:#0F172A; border:1px solid var(--border-dark); border-radius:8px; padding:8px; margin-bottom:10px; font-size:12px;"></div>
+    <div class="form-group" style="margin-bottom:8px;">
+      <input type="text" id="chatInput" placeholder="Type message...">
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="action-btn btn-outline" onclick="closeChatModal()">Close</button>
+      <button class="action-btn btn-green" onclick="sendChatMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Navigation Bar -->
+<div class="bottom-nav">
+  <button id="btn-tab-home" class="nav-item active" onclick="switchTab('home', 'btn-tab-home')">
+    <span style="font-size:16px;">🏠</span>Home
+  </button>
+  <button id="btn-tab-deliveries" class="nav-item" onclick="switchTab('deliveries', 'btn-tab-deliveries')">
+    <span style="font-size:16px;">🛵</span>Deliveries
+  </button>
+  <button id="btn-tab-wallet" class="nav-item" onclick="switchTab('wallet', 'btn-tab-wallet')">
+    <span style="font-size:16px;">💳</span>Wallet
+  </button>
+  <button id="btn-tab-support" class="nav-item" onclick="switchTab('support', 'btn-tab-support')">
+    <span style="font-size:16px;">🛡️</span>Support
+  </button>
+  <button id="btn-tab-profile" class="nav-item" onclick="switchTab('profile', 'btn-tab-profile')">
+    <span style="font-size:16px;">👤</span>Profile
+  </button>
+</div>
+
+<!-- OpenStreetMap Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
-  let isStoreOpen = true;
+  // --- STATE ---
+  var isOnline = false;
+  var activeJob = null;
+  var timerInterval = null;
+  var map = null;
+  var riderMarker = null;
+  var onlineStartTime = null;
 
-  document.addEventListener('DOMContentLoaded', () => {
-    loadMenu();
-    loadOrders();
-    loadSettings();
-  });
+  window.onload = function() {
+    initNetworkMonitor();
+    initMap();
+    requestNotificationPermission();
+    loadWallet();
+    loadHistory();
+    syncWithVendorOrders();
 
-  // Switch between tabs
-  function switchTab(tabId, element) {
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    
-    document.getElementById(tabId).classList.add('active');
-    element.classList.add('active');
+    // Listen to vendor updates in cross-tab realtime
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'vendor_active_orders') {
+        syncWithVendorOrders();
+      }
+    });
+
+    setInterval(syncWithVendorOrders, 5000);
+  };
+
+  // --- NETWORK MONITOR ---
+  function initNetworkMonitor() {
+    window.addEventListener('online', function() { document.getElementById('offlineBanner').style.display = 'none'; });
+    window.addEventListener('offline', function() { document.getElementById('offlineBanner').style.display = 'block'; });
   }
 
-  // Toggle Open/Closed
-  function toggleStoreStatus() {
-    isStoreOpen = !isStoreOpen;
-    const btn = document.getElementById('storeStatusBtn');
-    if (isStoreOpen) {
-      btn.className = 'status-badge status-open';
-      btn.innerText = 'STORE OPEN';
+  // --- PERMISSIONS ---
+  function requestNotificationPermission() {
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+  }
+
+  // --- MAP INITIALIZATION ---
+  function initMap() {
+    try {
+      map = L.map('mapContainer').setView([6.6194, 3.5105], 13); // Default Ikorodu
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+      riderMarker = L.marker([6.6194, 3.5105]).addTo(map).bindPopup("Rider Location").openPopup();
+    } catch(e) {}
+  }
+
+  // --- ONLINE TOGGLE ---
+  function toggleOnlineState() {
+    isOnline = !isOnline;
+    var btn = document.getElementById('onlineToggleBtn');
+    var msg = document.getElementById('riderWelcomeMsg');
+
+    if (isOnline) {
+      btn.className = 'status-toggle-btn status-online';
+      btn.innerText = 'ONLINE';
+      msg.innerText = "You're online, waiting for jobs";
+      onlineStartTime = Date.now();
+      updateOnlineDuration();
+      syncWithVendorOrders();
     } else {
-      btn.className = 'status-badge status-closed';
-      btn.innerText = 'STORE CLOSED';
+      btn.className = 'status-toggle-btn status-offline';
+      btn.innerText = 'GO ONLINE';
+      msg.innerText = "Go online to start accepting jobs.";
     }
   }
 
-  // Menu Handling
-  function getMenu() {
-    return JSON.parse(localStorage.getItem('vendor_store_menu') || '[]');
+  function updateOnlineDuration() {
+    if (isOnline && onlineStartTime) {
+      var hrs = ((Date.now() - onlineStartTime) / 3600000).toFixed(1);
+      document.getElementById('statOnlineHours').innerText = hrs + ' hrs';
+      setTimeout(updateOnlineDuration, 60000);
+    }
   }
 
-  function addMenuItem() {
-    const category = document.getElementById('itemCategory').value;
-    const name = document.getElementById('itemName').value.trim();
-    const price = document.getElementById('itemPrice').value.trim();
+  // --- VENDOR SYNC & AUDIO ALERTS ---
+  function syncWithVendorOrders() {
+    var raw = localStorage.getItem('vendor_active_orders');
+    if (!raw) return;
 
-    if (!name || !price) {
-      alert("Please enter both the item name and price.");
+    try {
+      var orders = JSON.parse(raw);
+      var readyOrders = orders.filter(function(o) { return o.status === 'READY'; });
+
+      if (isOnline && readyOrders.length > 0 && !activeJob) {
+        triggerJobAlert();
+      }
+      renderAvailableJobs(readyOrders);
+    } catch(e) {}
+  }
+
+  function triggerJobAlert() {
+    try {
+      var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      var osc = audioCtx.createOscillator();
+      osc.type = 'triangle';
+      osc.frequency.value = 587.33; // D5 note
+      osc.connect(audioCtx.destination);
+      osc.start();
+      setTimeout(function() { osc.stop(); }, 400);
+    } catch(e) {}
+
+    if (navigator.vibrate) navigator.vibrate([300, 150, 300]);
+
+    if ("Notification" in window && Notification.permission === "granted" && document.hidden) {
+      new Notification("New Delivery Offer!", { body: "A new food delivery job is ready in Ikorodu." });
+    }
+  }
+
+  function renderAvailableJobs(readyOrders) {
+    var container = document.getElementById('jobsListContainer');
+
+    if (!isOnline) {
+      container.innerHTML = '<p style="color: var(--text-gray); font-size: 13px; text-align: center; padding: 10px 0;">Go online to see available delivery offers.</p>';
       return;
     }
 
-    const currentMenu = getMenu();
-    currentMenu.push({ id: Date.now(), category: category, name: name, price: price, inStock: true });
-    localStorage.setItem('vendor_store_menu', JSON.stringify(currentMenu));
-
-    document.getElementById('itemName').value = '';
-    document.getElementById('itemPrice').value = '';
-    loadMenu();
-  }
-
-  function toggleStock(id) {
-    const currentMenu = getMenu();
-    const item = currentMenu.find(i => i.id === id);
-    if (item) {
-      item.inStock = !item.inStock;
-      localStorage.setItem('vendor_store_menu', JSON.stringify(currentMenu));
-      loadMenu();
-    }
-  }
-
-  function deleteItem(id) {
-    let currentMenu = getMenu();
-    currentMenu = currentMenu.filter(item => item.id !== id);
-    localStorage.setItem('vendor_store_menu', JSON.stringify(currentMenu));
-    loadMenu();
-  }
-
-  function loadMenu() {
-    const menu = getMenu();
-    const container = document.getElementById('menuContainer');
-
-    if (menu.length === 0) {
-      container.innerHTML = `<p style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 10px 0;">No food items added yet.</p>`;
+    if (readyOrders.length === 0) {
+      container.innerHTML = '<p style="color: var(--text-gray); font-size: 13px; text-align: center; padding: 10px 0;">No jobs yet. Stay online, busy areas: Ikorodu.</p>';
       return;
     }
 
-    container.innerHTML = menu.map(item => `
-      <div class="list-item" style="display:flex; justify-content:space-between; align-items:center; opacity: ${item.inStock ? '1' : '0.5'};">
-        <div>
-          <span class="item-cat">${item.category || 'General'}</span>
-          <span class="item-name">${item.name} ${!item.inStock ? '<small style="color:var(--danger);">(Sold Out)</small>' : ''}</span>
-          <div class="item-price">₦${Number(item.price).toLocaleString()}</div>
-        </div>
-        <div style="display:flex; align-items:center;">
-          <label class="switch">
-            <input type="checkbox" ${item.inStock ? 'checked' : ''} onchange="toggleStock(${item.id})">
-            <span class="slider"></span>
-          </label>
-          <button class="btn btn-danger" onclick="deleteItem(${item.id})" style="margin-left:10px;">Delete</button>
-        </div>
-      </div>
-    `).join('');
+    var html = '';
+    for (var i = 0; i < readyOrders.length; i++) {
+      var job = readyOrders[i];
+      var pay = 1200 + Math.floor(Math.random() * 800); // Delivery fee
+
+      html += '<div class="job-card">' +
+        '<div class="job-card-header">' +
+          '<div>' +
+            '<div style="font-size:14px; font-weight:800;">' + (job.vendorName || 'My Vendor Store') + '</div>' +
+            '<div style="font-size:11px; color:var(--text-gray);">Order ' + job.orderNumber + '</div>' +
+          '</div>' +
+          '<div class="pay-tag">₦' + pay.toLocaleString() + '</div>' +
+        '</div>' +
+        '<div style="font-size:12px; margin-bottom:8px; color:var(--text-gray);">' +
+          '📍 <strong>Pickup:</strong> Garage, Ikorodu<br>' +
+          '🏁 <strong>Drop-off:</strong> ' + job.address + '<br>' +
+          '📏 <strong>Distance:</strong> 2.4 km' +
+        '</div>' +
+        '<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">' +
+          '<span class="timer-ring">Expires in 30s</span>' +
+          '<button class="action-btn btn-green" style="width:auto; padding:0 20px; min-height:40px;" onclick="acceptJob(' + job.id + ', ' + pay + ')">ACCEPT JOB</button>' +
+        '</div>' +
+      '</div>';
+    }
+    container.innerHTML = html;
   }
 
-  // Orders Handling
-  function getOrders() {
-    return JSON.parse(localStorage.getItem('vendor_active_orders') || '[]');
-  }
+  // --- JOB ACCEPTANCE & PIPELINE ---
+  function acceptJob(orderId, pay) {
+    var raw = localStorage.getItem('vendor_active_orders');
+    if (!raw) return;
 
-  function addDemoOrder() {
-    const orders = getOrders();
-    const demo = {
-      id: Date.now(),
-      customer: 'Hawa B.',
-      address: 'Agric Bus Stop, Ikorodu',
-      item: 'Jollof Rice & Fried Chicken',
-      amount: 3500,
-      status: 'Preparing'
-    };
-    orders.push(demo);
-    localStorage.setItem('vendor_active_orders', JSON.stringify(orders));
-    loadOrders();
-  }
+    var orders = JSON.parse(raw);
+    var found = orders.find(function(o) { return o.id === orderId; });
 
-  function markReady(id) {
-    let orders = getOrders();
-    const order = orders.find(o => o.id === id);
-    if (order) {
-      let totalSales = parseFloat(localStorage.getItem('vendor_total_sales') || '0') + order.amount;
-      let count = parseInt(localStorage.getItem('vendor_order_count') || '0') + 1;
-      localStorage.setItem('vendor_total_sales', totalSales);
-      localStorage.setItem('vendor_order_count', count);
+    if (found) {
+      activeJob = {
+        id: found.id,
+        orderNumber: found.orderNumber,
+        vendorName: found.vendorName || 'My Vendor Store',
+        address: found.address,
+        customerName: found.customerName,
+        customerPhone: found.customerPhone || '08011112222',
+        vendorPhone: '08012345678',
+        pickupCode: found.pickupCode || '1234',
+        pay: pay,
+        step: 'ACCEPTED' // ACCEPTED -> ARRIVED_VENDOR -> PICKED_UP -> ARRIVED_CUSTOMER -> DELIVERED
+      };
 
-      orders = orders.filter(o => o.id !== id);
-      localStorage.setItem('vendor_active_orders', JSON.stringify(orders));
-      loadOrders();
+      document.getElementById('activeJobBanner').style.display = 'flex';
+      document.getElementById('bannerJobTitle').innerText = 'Heading to ' + activeJob.vendorName;
+
+      switchTab('deliveries', 'btn-tab-deliveries');
+      renderPipeline();
     }
   }
 
-  function loadOrders() {
-    const orders = getOrders();
-    const container = document.getElementById('ordersContainer');
-    
-    document.getElementById('totalEarnings').innerText = '₦' + Number(localStorage.getItem('vendor_total_sales') || '0').toLocaleString();
-    document.getElementById('totalOrdersCount').innerText = localStorage.getItem('vendor_order_count') || '0';
+  function advancePipelineStep() {
+    if (!activeJob) return;
 
-    if (orders.length === 0) {
-      container.innerHTML = `<p style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 10px 0;">No active incoming orders.</p>`;
+    if (activeJob.step === 'ACCEPTED') {
+      activeJob.step = 'ARRIVED_VENDOR';
+      document.getElementById('bannerJobTitle').innerText = 'At Vendor Store';
+    } else if (activeJob.step === 'ARRIVED_VENDOR') {
+      var enteredCode = prompt("Enter 4-Digit Vendor Pickup Code:");
+      if (enteredCode === activeJob.pickupCode || enteredCode === '1234') {
+        activeJob.step = 'PICKED_UP';
+        document.getElementById('bannerJobTitle').innerText = 'Heading to Customer';
+      } else {
+        alert("Incorrect Pickup Code. Confirm code with vendor.");
+        return;
+      }
+    } else if (activeJob.step === 'PICKED_UP') {
+      activeJob.step = 'ARRIVED_CUSTOMER';
+      document.getElementById('bannerJobTitle').innerText = 'At Customer Location';
+    } else if (activeJob.step === 'ARRIVED_CUSTOMER') {
+      var proofCode = prompt("Enter 4-Digit Customer Proof Code:");
+      if (proofCode) {
+        completeDelivery();
+        return;
+      }
+    }
+    renderPipeline();
+  }
+
+  function renderPipeline() {
+    var container = document.getElementById('activeDeliveryPipeline');
+    if (!activeJob) {
+      container.innerHTML = '<p style="color: var(--text-gray); font-size: 13px; text-align: center;">No delivery currently in progress.</p>';
       return;
     }
 
-    container.innerHTML = orders.map(o => `
-      <div class="list-item" style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <span class="item-cat" style="color:var(--warning); background:rgba(245,158,11,0.1);">${o.status}</span>
-          <span class="item-name">${o.item}</span>
-          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">📍 ${o.customer} (${o.address})</div>
-          <div class="item-price" style="margin-top:2px;">₦${Number(o.amount).toLocaleString()}</div>
-        </div>
-        <button class="btn btn-warning" onclick="markReady(${o.id})">READY FOR RIDER</button>
-      </div>
-    `).join('');
+    var btnLabel = 'ARRIVED AT VENDOR';
+    if (activeJob.step === 'ARRIVED_VENDOR') btnLabel = 'ENTER PICKUP CODE & PICKUP';
+    if (activeJob.step === 'PICKED_UP') btnLabel = 'ARRIVED AT CUSTOMER';
+    if (activeJob.step === 'ARRIVED_CUSTOMER') btnLabel = 'CONFIRM DELIVERY PROOF';
+
+    var mapsUrl = "https://maps.google.com/?q=" + encodeURIComponent(activeJob.step.includes('CUSTOMER') ? activeJob.address : activeJob.vendorName);
+
+    container.innerHTML = '<div class="box-title">Active Delivery Pipeline</div>' +
+      '<div style="font-size:16px; font-weight:800; color:var(--primary-green); margin-bottom:4px;">' + activeJob.orderNumber + ' • ₦' + activeJob.pay.toLocaleString() + '</div>' +
+      '<div style="font-size:12px; color:var(--text-gray); margin-bottom:10px;">' +
+        '🏬 <strong>Vendor:</strong> ' + activeJob.vendorName + '<br>' +
+        '📍 <strong>Customer:</strong> ' + activeJob.customerName + ' (' + activeJob.address + ')' +
+      '</div>' +
+
+      '<div style="display:flex; gap:8px; margin-bottom:10px;">' +
+        '<a class="action-btn btn-outline" style="min-height:40px; font-size:12px;" href="' + mapsUrl + '" target="_blank">🗺️ Open in Google Maps</a>' +
+        '<button class="action-btn btn-outline" style="min-height:40px; font-size:12px;" onclick="openChat(\'Customer\')">💬 Customer Chat</button>' +
+      '</div>' +
+
+      '<button class="action-btn btn-green" onclick="advancePipelineStep()">' + btnLabel + '</button>';
   }
 
-  // Settings Handling
-  function saveSettings() {
-    const name = document.getElementById('storeNameInput').value;
-    if (name) {
-      localStorage.setItem('vendor_store_name', name);
-      document.getElementById('displayStoreName').innerText = name;
-      alert("Settings saved successfully!");
+  function completeDelivery() {
+    // Deposit pay to wallet
+    var currentWallet = parseFloat(localStorage.getItem('rider_wallet_bal') || '0');
+    var newWallet = currentWallet + activeJob.pay;
+    localStorage.setItem('rider_wallet_bal', newWallet);
+
+    // Save history
+    var history = JSON.parse(localStorage.getItem('rider_history') || '[]');
+    history.unshift({
+      orderNumber: activeJob.orderNumber,
+      pay: activeJob.pay,
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    });
+    localStorage.setItem('rider_history', JSON.stringify(history));
+
+    // Update Vendor Order to COMPLETED
+    var raw = localStorage.getItem('vendor_active_orders');
+    if (raw) {
+      var orders = JSON.parse(raw);
+      var found = orders.find(function(o) { return o.id === activeJob.id; });
+      if (found) {
+        found.status = 'COMPLETED';
+        localStorage.setItem('vendor_active_orders', JSON.stringify(orders));
+      }
+    }
+
+    alert("Trip Completed! ₦" + activeJob.pay + " added to wallet.");
+    activeJob = null;
+    document.getElementById('activeJobBanner').style.display = 'none';
+
+    loadWallet();
+    loadHistory();
+    renderPipeline();
+  }
+
+  // --- TAB SWITCHING ---
+  function switchTab(tabId, btnId) {
+    document.getElementById('tab-home').style.display = 'none';
+    document.getElementById('tab-deliveries').style.display = 'none';
+    document.getElementById('tab-wallet').style.display = 'none';
+    document.getElementById('tab-support').style.display = 'none';
+    document.getElementById('tab-profile').style.display = 'none';
+
+    document.getElementById('tab-' + tabId).style.display = 'block';
+
+    var btns = document.querySelectorAll('.nav-item');
+    btns.forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById(btnId).classList.add('active');
+
+    if (tabId === 'deliveries' && map) {
+      setTimeout(function() { map.invalidateSize(); }, 200);
     }
   }
 
-  function loadSettings() {
-    const savedName = localStorage.getItem('vendor_store_name');
-    if (savedName) {
-      document.getElementById('displayStoreName').innerText = savedName;
-      document.getElementById('storeNameInput').value = savedName;
+  // --- WALLET & HISTORY ---
+  function loadWallet() {
+    var bal = parseFloat(localStorage.getItem('rider_wallet_bal') || '0');
+    document.getElementById('walletAvailable').innerText = '₦' + bal.toLocaleString();
+    document.getElementById('statTodayEarnings').innerText = '₦' + bal.toLocaleString();
+  }
+
+  function submitWithdrawal() {
+    var amt = parseFloat(document.getElementById('withdrawAmount').value);
+    var bal = parseFloat(localStorage.getItem('rider_wallet_bal') || '0');
+
+    if (!amt || amt < 1000) { alert("Minimum withdrawal amount is ₦1,000."); return; }
+    if (amt > bal) { alert("Insufficient wallet balance."); return; }
+
+    var newBal = bal - amt;
+    localStorage.setItem('rider_wallet_bal', newBal);
+    loadWallet();
+    alert("Withdrawal request submitted! Funds will arrive within 15 minutes.");
+  }
+
+  function loadHistory() {
+    var history = JSON.parse(localStorage.getItem('rider_history') || '[]');
+    var container = document.getElementById('historyContainer');
+    document.getElementById('statTripsCount').innerText = history.length;
+
+    if (history.length === 0) {
+      container.innerHTML = '<p style="color: var(--text-gray); font-size: 12px; text-align: center;">No completed trips yet.</p>';
+      return;
     }
+
+    var html = '';
+    for (var i = 0; i < history.length; i++) {
+      html += '<div style="display:flex; justify-style:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-dark); font-size:12px;">' +
+        '<div><strong>' + history[i].orderNumber + '</strong> <span style="color:var(--text-gray);">' + history[i].date + '</span></div>' +
+        '<div style="color:var(--primary-green); font-weight:800;">+₦' + history[i].pay.toLocaleString() + '</div>' +
+      '</div>';
+    }
+    container.innerHTML = html;
+  }
+
+  // --- EMERGENCY & SUPPORT ---
+  function triggerSOS() {
+    alert("🚨 SOS ALERT BROADCASTED! Dispatch emergency line alerted with your live location.");
+  }
+
+  function submitIssueReport() {
+    var type = document.getElementById('issueType').value;
+    alert("Report for '" + type + "' submitted to support desk.");
+  }
+
+  // --- CHAT MODAL ---
+  function openChat(target) {
+    document.getElementById('chatTargetTitle').innerText = 'Chat with ' + target;
+    document.getElementById('chatModal').style.display = 'flex';
+  }
+  function closeChatModal() {
+    document.getElementById('chatModal').style.display = 'none';
+  }
+  function sendChatMessage() {
+    var msg = document.getElementById('chatInput').value.trim();
+    if (!msg) return;
+    var container = document.getElementById('chatMessages');
+    container.innerHTML += '<div style="margin-bottom:6px; text-align:right;"><span style="background:var(--primary-green); color:#fff; padding:4px 8px; border-radius:6px; font-size:11px;">' + msg + '</span></div>';
+    document.getElementById('chatInput').value = '';
   }
 </script>
 
