@@ -1,426 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Logistics Partner Portal</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rider Dispatch Dashboard</title>
+
+  <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --primary: #00A859;
+      --primary-dark: #008546;
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --border: #334155;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
+    .app-container { width: 100%; max-width: 480px; background-color: var(--bg); display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* Top Bar */
+    .top-bar { background: var(--card-bg); padding: 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+    .rider-profile { display: flex; align-items: center; gap: 12px; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #052E16; color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+    .status-toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .3s; border-radius: 24px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--primary); }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    /* Main Content */
+    .main-content { padding: 16px; flex: 1; }
+    .section-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Order Card */
+    .order-card { background: var(--card-bg); border-radius: 12px; padding: 16px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin-bottom: 16px; }
+    .order-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
+    .vendor-name { font-size: 18px; font-weight: 700; }
+    .payout { font-size: 18px; font-weight: 800; color: var(--primary); }
+
+    .route-details { margin: 16px 0; display: flex; flex-direction: column; gap: 12px; }
+    .route-point { display: flex; align-items: flex-start; gap: 12px; }
+    .icon-dot { width: 12px; height: 12px; border-radius: 50%; margin-top: 4px; }
+    .dot-pickup { background-color: #F59E0B; }
+    .dot-dropoff { background-color: var(--primary); }
+    .point-text strong { display: block; font-size: 14px; color: var(--text); }
+    .point-text span { font-size: 13px; color: var(--text-muted); }
+
+    .order-items { background-color: #0F172A; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; border: 1px solid var(--border); }
+
+    .btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .btn-primary { background-color: var(--primary); color: white; }
+    .btn-primary:active { background-color: var(--primary-dark); }
+
+    .pin-section { margin-top: 12px; display: flex; gap: 8px; }
+    .pin-input { flex: 1; padding: 12px; font-size: 18px; letter-spacing: 4px; text-align: center; background: #0F172A; color: white; border: 1px solid var(--border); border-radius: 8px; outline: none; }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+  </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col pb-24">
+<body>
 
-  <!-- AUTHENTICATION MODAL -->
-  <div id="auth-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-3xl max-w-md w-full shadow-2xl space-y-6 my-auto">
-      <div class="text-center">
-        <span class="text-4xl">🚀</span>
-        <h2 id="auth-title" class="text-2xl font-bold text-slate-100 mt-2">Partner Sign In</h2>
-        <p id="auth-subtitle" class="text-xs text-slate-400 mt-1">Enter your credentials to access your portal</p>
+<div class="app-container">
+  <div class="top-bar">
+    <div class="rider-profile">
+      <div class="avatar" id="avatar">DA</div>
+      <div>
+        <div style="font-weight:700; font-size:15px;" id="rider-name">Rider Portal</div>
+        <div style="font-size:12px; color:var(--text-muted);" id="rider-hub">Ikorodu Hub</div>
       </div>
-
-      <div class="flex bg-slate-800 p-1 rounded-xl border border-slate-700 text-xs">
-        <button id="btn-tab-login" onclick="toggleAuthMode('login')" class="flex-1 py-2 rounded-lg font-bold bg-emerald-600 text-white transition-all">Sign In</button>
-        <button id="btn-tab-signup" onclick="toggleAuthMode('signup')" class="flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-slate-200 transition-all">Create Account</button>
-      </div>
-
-      <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
-        <div id="signup-fields" class="space-y-3 hidden">
-          <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Full Name</label>
-            <input type="text" id="reg-name" placeholder="John Doe" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
-          </div>
-
-          <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Partner Role</label>
-            <select id="reg-role" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-              <option value="RIDER">🚴 Dispatch Rider (Bicycle / Bike)</option>
-              <option value="DRIVER">🚗 Taxi Driver (Car / Vehicle)</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Phone Number</label>
-            <input type="tel" id="reg-phone" placeholder="+234..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
-          </div>
-
-          <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Vehicle Info / Plate Number</label>
-            <input type="text" id="reg-vehicle" placeholder="e.g. Honda Ace / LAG-123XY" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Email Address</label>
-          <input type="email" id="auth-email" required placeholder="partner@gmail.com" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Password</label>
-          <input type="password" id="auth-password" required placeholder="••••••••" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
-        </div>
-
-        <button type="submit" id="auth-submit-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold text-white text-sm transition-all shadow-lg shadow-emerald-900/30">
-          Sign In
-        </button>
-      </form>
-
-      <div id="auth-error" class="hidden p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-400 text-center"></div>
+    </div>
+    <div class="status-toggle">
+      <span id="status-text" style="color:var(--primary);">ONLINE</span>
+      <label class="switch">
+        <input type="checkbox" id="online-switch" checked onchange="toggleStatus(this)">
+        <span class="slider"></span>
+      </label>
     </div>
   </div>
 
-  <!-- MAIN APP HEADER -->
-  <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-40">
-    <div class="max-w-4xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span id="role-icon" class="text-2xl">🚴</span>
-        <div>
-          <h1 id="role-title" class="text-lg font-bold text-emerald-400">Partner Portal</h1>
-          <p id="user-display-email" class="text-xs text-slate-400">Loading user...</p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <button id="online-toggle-btn" onclick="toggleOnline()" class="px-3 py-2 rounded-xl text-xs font-bold transition-all bg-rose-500/10 text-rose-400 border border-rose-500/30">
-          Go Online 🔴
-        </button>
-        <button onclick="handleSignOut()" class="p-2 bg-slate-700 text-slate-300 rounded-xl text-xs hover:bg-slate-600" title="Sign Out">
-          <i data-lucide="log-out" class="w-4 h-4"></i>
-        </button>
+  <div class="main-content" id="main-content">
+    <div class="section-title">Active Dispatches</div>
+    <div id="jobs-container">
+      <div class="empty-state">
+        <h3>Searching for available jobs...</h3>
+        <p style="margin-top:8px;">Stay close to Sabo / Agric hubs.</p>
       </div>
     </div>
-  </header>
+  </div>
+</div>
 
-  <!-- APP VIEW SECTIONS -->
-  <main class="max-w-4xl mx-auto p-4 md:p-6 flex-1 w-full">
+<script>
+  // Replace these with your project values from the Supabase Dashboard
+  const SUPABASE_URL = 'https://YOUR-SUPABASE-PROJECT.supabase.co';
+  const SUPABASE_ANON_KEY = 'YOUR-SUPABASE-ANON-KEY';
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    <!-- HOME VIEW -->
-    <section id="view-home" class="space-y-6">
-      <div class="bg-gradient-to-r from-emerald-900/40 to-slate-800 border border-emerald-500/30 p-6 rounded-3xl flex items-center justify-between">
-        <div>
-          <h2 class="text-2xl font-bold text-slate-100">Welcome Back!</h2>
-          <p class="text-xs text-slate-400 mt-1">Toggle online status to start accepting jobs.</p>
-        </div>
-        <div id="home-status-badge" class="px-3 py-1.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 text-xs font-bold rounded-full">
-          Offline
-        </div>
-      </div>
+  async function fetchJobs() {
+    const container = document.getElementById('jobs-container');
+    const { data: orders, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('status', 'pending');
 
-      <div class="flex items-center justify-between">
-        <h3 class="text-lg font-bold text-slate-100">Available Jobs Nearby</h3>
-        <button onclick="fetchJobs()" class="bg-slate-800 text-xs px-3 py-2 rounded-lg border border-slate-700">🔄 Refresh</button>
-      </div>
+    if (error || !orders || orders.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <h3>No available jobs right now</h3>
+          <p style="margin-top:8px;">New dispatches will appear here automatically.</p>
+        </div>`;
+      return;
+    }
 
-      <div id="home-jobs-container" class="space-y-4">
-        <div class="bg-slate-800/50 border border-slate-700/60 p-12 rounded-2xl text-center">
-          <p class="text-slate-400">Loading available jobs...</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- DELIVERIES / JOBS VIEW -->
-    <section id="view-deliveries" class="space-y-6 hidden">
-      <div class="flex border-b border-slate-700 space-x-2 pb-2">
-        <button onclick="switchJobTab('available')" id="tab-available" class="px-4 py-2.5 rounded-xl font-bold text-xs transition-all bg-emerald-600 text-white flex items-center gap-2">
-          <span>📋 Available Jobs</span>
-          <span id="badge-available" class="bg-slate-900/50 px-2 py-0.5 rounded-full text-[10px]">0</span>
-        </button>
-        <button onclick="switchJobTab('active')" id="tab-active" class="px-4 py-2.5 rounded-xl font-bold text-xs transition-all text-slate-400 hover:text-slate-200 flex items-center gap-2">
-          <span>⚡ Active Jobs</span>
-          <span id="badge-active" class="bg-slate-800 px-2 py-0.5 rounded-full text-[10px]">0</span>
-        </button>
-      </div>
-
-      <div id="deliveries-container" class="space-y-4">
-        <!-- Rendered dynamically -->
-      </div>
-    </section>
-
-    <!-- WALLET VIEW -->
-    <section id="view-wallet" class="space-y-6 hidden">
-      <div class="bg-slate-800 border border-slate-700 p-6 rounded-3xl space-y-4">
-        <p class="text-xs text-slate-400 font-medium">Available Balance</p>
-        <h2 class="text-4xl font-extrabold text-emerald-400">₦ 0.00</h2>
-        <div class="flex gap-2 pt-2">
-          <button class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded-xl text-xs font-bold">Withdraw Earnings</button>
-          <button class="bg-slate-700 py-2.5 px-4 rounded-xl text-xs font-bold">History</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- SUPPORT VIEW -->
-    <section id="view-support" class="space-y-6 hidden">
-      <div class="bg-slate-800 border border-slate-700 p-6 rounded-3xl space-y-4 text-center py-12">
-        <i data-lucide="message-square" class="w-12 h-12 text-emerald-400 mx-auto"></i>
-        <h3 class="text-xl font-bold">Partner Support</h3>
-        <p class="text-xs text-slate-400">Need assistance with an order or trip? Contact dispatch support.</p>
-        <button class="bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-xl text-xs font-bold">Chat with Support</button>
-      </div>
-    </section>
-
-    <!-- PROFILE VIEW -->
-    <section id="view-profile" class="space-y-6 hidden">
-      <div class="bg-slate-800 border border-slate-700 p-6 rounded-3xl space-y-4">
-        <div class="flex items-center gap-4">
-          <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center font-bold text-2xl">
-            <i data-lucide="user" class="w-8 h-8"></i>
-          </div>
+    container.innerHTML = orders.map(order => `
+      <div class="order-card" id="order-${order.id}">
+        <div class="order-header">
           <div>
-            <h3 id="profile-name" class="font-bold text-lg">Partner Name</h3>
-            <p id="profile-email" class="text-xs text-slate-400">partner@gmail.com</p>
+            <div class="vendor-name">${order.vendor_name || 'Vendor Pick-up'}</div>
+            <div style="font-size:12px; color:var(--text-muted);">Order #${order.id.slice(0, 8)}</div>
+          </div>
+          <div class="payout">₦${order.amount || '1,200'}</div>
+        </div>
+        <div class="route-details">
+          <div class="route-point">
+            <div class="icon-dot dot-pickup"></div>
+            <div class="point-text">
+              <strong>Pick up</strong>
+              <span>${order.pickup_address || 'Ikorodu Vendor Location'}</span>
+            </div>
+          </div>
+          <div class="route-point">
+            <div class="icon-dot dot-dropoff"></div>
+            <div class="point-text">
+              <strong>Drop off</strong>
+              <span>${order.delivery_address || 'Ikorodu Drop-off Point'}</span>
+            </div>
           </div>
         </div>
-        <div class="border-t border-slate-700 pt-4 space-y-2 text-xs">
-          <p class="flex justify-between text-slate-400"><span>Role:</span> <strong id="profile-role" class="text-slate-100">Rider</strong></p>
-          <p class="flex justify-between text-slate-400"><span>Vehicle:</span> <strong id="profile-vehicle" class="text-slate-100">N/A</strong></p>
-          <p class="flex justify-between text-slate-400"><span>Phone:</span> <strong id="profile-phone" class="text-slate-100">N/A</strong></p>
+        <div class="order-items">
+          <strong>Items:</strong> ${order.items || 'Standard Package / Food Order'}
         </div>
-        <button onclick="handleSignOut()" class="w-full bg-rose-500/10 text-rose-400 border border-rose-500/20 py-3 rounded-xl text-xs font-bold mt-4">
-          Log Out
-        </button>
+        <div id="action-area-${order.id}">
+          <button class="btn btn-primary" onclick="acceptOrder('${order.id}')">ACCEPT ORDER</button>
+        </div>
       </div>
-    </section>
+    `).join('');
+  }
 
-  </main>
+  async function acceptOrder(orderId) {
+    const actionArea = document.getElementById(`action-area-${orderId}`);
+    actionArea.innerHTML = `
+      <div style="font-size:13px; font-weight:600; margin-bottom:6px;">Enter Customer's 4-Digit PIN:</div>
+      <div class="pin-section">
+        <input type="text" id="pin-${orderId}" class="pin-input" maxlength="4" placeholder="••••">
+        <button class="btn btn-primary" style="width: auto; padding: 0 20px;" onclick="verifyPin('${orderId}')">VERIFY</button>
+      </div>`;
+  }
 
-  <!-- BOTTOM NAVIGATION BAR (MATCHING SCREENSHOT) -->
-  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 py-2 px-4 z-40">
-    <div class="max-w-md mx-auto flex items-center justify-around">
-      
-      <button onclick="switchView('home')" id="nav-home" class="flex flex-col items-center gap-1 text-emerald-500">
-        <i data-lucide="home" class="w-6 h-6"></i>
-        <span class="text-[11px] font-semibold">Home</span>
-      </button>
-
-      <button onclick="switchView('deliveries')" id="nav-deliveries" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
-        <i data-lucide="shopping-bag" class="w-6 h-6"></i>
-        <span class="text-[11px] font-semibold">Deliveries</span>
-      </button>
-
-      <button onclick="switchView('wallet')" id="nav-wallet" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
-        <i data-lucide="wallet" class="w-6 h-6"></i>
-        <span class="text-[11px] font-semibold">Wallet</span>
-      </button>
-
-      <button onclick="switchView('support')" id="nav-support" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
-        <i data-lucide="message-circle" class="w-6 h-6"></i>
-        <span class="text-[11px] font-semibold">Support</span>
-      </button>
-
-      <button onclick="switchView('profile')" id="nav-profile" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
-        <i data-lucide="user" class="w-6 h-6"></i>
-        <span class="text-[11px] font-semibold">Profile</span>
-      </button>
-
-    </div>
-  </nav>
-
-  <script>
-    const SUPABASE_URL = 'https://glkutdkwbrjpiuqcmgwe.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdsa3V0ZGt3YnJqcGl1cWNtZ3dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NzU3MTMsImV4cCI6MjEwNTU1MTcxM30.f2SgZJvP681imm0Qe1fKsATnCk_86z2guwvZWASXoZM';
-
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    let currentView = 'home';
-    let authMode = 'login';
-    let currentSessionUser = null;
-    let partnerProfile = null;
-    let activeJobTab = 'available';
-    let isOnline = false;
-
-    async function initSession() {
-      lucide.createIcons();
-      const { data: { session } } = await _supabase.auth.getSession();
-      if (session) {
-        currentSessionUser = session.user;
-        await loadPartnerProfile();
-      } else {
-        showAuthModal();
-      }
-    }
-
-    function switchView(view) {
-      currentView = view;
-      ['home', 'deliveries', 'wallet', 'support', 'profile'].forEach(v => {
-        document.getElementById(`view-${v}`).classList.add('hidden');
-        const navBtn = document.getElementById(`nav-${v}`);
-        if (v === view) {
-          navBtn.className = "flex flex-col items-center gap-1 text-emerald-500 font-bold";
-        } else {
-          navBtn.className = "flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200";
-        }
-      });
-
-      document.getElementById(`view-${view}`).classList.remove('hidden');
-      if (view === 'deliveries' || view === 'home') fetchJobs();
-    }
-
-    function showAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
-    function hideAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
-
-    function toggleAuthMode(mode) {
-      authMode = mode;
-      const isLogin = mode === 'login';
-      document.getElementById('signup-fields').classList.toggle('hidden', isLogin);
-      document.getElementById('auth-title').innerText = isLogin ? 'Partner Sign In' : 'Create Partner Account';
-      document.getElementById('auth-submit-btn').innerText = isLogin ? 'Sign In' : 'Register Account';
-      document.getElementById('btn-tab-login').className = `flex-1 py-2 rounded-lg font-bold text-xs ${isLogin ? 'bg-emerald-600 text-white' : 'text-slate-400'}`;
-      document.getElementById('btn-tab-signup').className = `flex-1 py-2 rounded-lg font-bold text-xs ${!isLogin ? 'bg-emerald-600 text-white' : 'text-slate-400'}`;
-    }
-
-    async function handleAuthSubmit(e) {
-      e.preventDefault();
-      const email = document.getElementById('auth-email').value;
-      const password = document.getElementById('auth-password').value;
-      const errorDiv = document.getElementById('auth-error');
-
-      if (authMode === 'login') {
-        const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-        if (error) { errorDiv.innerText = error.message; errorDiv.classList.remove('hidden'); }
-        else { currentSessionUser = data.user; await loadPartnerProfile(); }
-      } else {
-        const name = document.getElementById('reg-name').value;
-        const role = document.getElementById('reg-role').value;
-        const phone = document.getElementById('reg-phone').value;
-        const vehicle = document.getElementById('reg-vehicle').value;
-
-        const { data, error } = await _supabase.auth.signUp({
-          email, password, options: { data: { full_name: name, role, phone, vehicle } }
-        });
-
-        if (error) { errorDiv.innerText = error.message; errorDiv.classList.remove('hidden'); }
-        else {
-          currentSessionUser = data.user;
-          partnerProfile = { role, name, phone, vehicle };
-          localStorage.setItem(`partner_profile_${data.user.id}`, JSON.stringify(partnerProfile));
-          hideAuthModal();
-          updateUI();
-          fetchJobs();
-        }
-      }
-    }
-
-    async function loadPartnerProfile() {
-      if (!currentSessionUser) return;
-      const saved = localStorage.getItem(`partner_profile_${currentSessionUser.id}`);
-      if (saved) partnerProfile = JSON.parse(saved);
-      else {
-        const meta = currentSessionUser.user_metadata || {};
-        partnerProfile = { role: meta.role || 'RIDER', name: meta.full_name || 'Partner', phone: meta.phone || '', vehicle: meta.vehicle || '' };
-      }
-      hideAuthModal();
-      updateUI();
+  async function verifyPin(orderId) {
+    const pin = document.getElementById(`pin-${orderId}`).value;
+    if (pin.length === 4) {
+      await supabase.from('orders').update({ status: 'delivered' }).eq('id', orderId);
+      alert('Order Verified & Completed!');
       fetchJobs();
+    } else {
+      alert('Please enter a valid 4-digit PIN.');
     }
+  }
 
-    async function handleSignOut() {
-      await _supabase.auth.signOut();
-      currentSessionUser = null;
-      partnerProfile = null;
-      showAuthModal();
+  function toggleStatus(checkbox) {
+    const statusText = document.getElementById('status-text');
+    const mainContent = document.getElementById('main-content');
+    if (checkbox.checked) {
+      statusText.innerText = "ONLINE";
+      statusText.style.color = "var(--primary)";
+      mainContent.style.opacity = "1";
+    } else {
+      statusText.innerText = "OFFLINE";
+      statusText.style.color = "var(--text-muted)";
+      mainContent.style.opacity = "0.4";
     }
+  }
 
-    function updateUI() {
-      if (!partnerProfile) return;
-      const isRider = partnerProfile.role === 'RIDER';
-      document.getElementById('role-icon').innerText = isRider ? '🚴' : '🚗';
-      document.getElementById('role-title').innerText = isRider ? 'Rider Portal' : 'Driver Portal';
-      document.getElementById('user-display-email').innerText = currentSessionUser ? currentSessionUser.email : '';
-      
-      document.getElementById('profile-name').innerText = partnerProfile.name || 'Partner';
-      document.getElementById('profile-email').innerText = currentSessionUser ? currentSessionUser.email : '';
-      document.getElementById('profile-role').innerText = partnerProfile.role;
-      document.getElementById('profile-vehicle').innerText = partnerProfile.vehicle || 'N/A';
-      document.getElementById('profile-phone').innerText = partnerProfile.phone || 'N/A';
-    }
+  window.onload = fetchJobs;
+</script>
 
-    function toggleOnline() {
-      isOnline = !isOnline;
-      const btn = document.getElementById('online-toggle-btn');
-      const badge = document.getElementById('home-status-badge');
-
-      if (isOnline) {
-        btn.className = "px-3 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-white shadow-lg";
-        btn.innerText = "Online 🟢";
-        badge.className = "px-3 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold rounded-full";
-        badge.innerText = "Online & Active";
-      } else {
-        btn.className = "px-3 py-2 rounded-xl text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30";
-        btn.innerText = "Go Online 🔴";
-        badge.className = "px-3 py-1.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 text-xs font-bold rounded-full";
-        badge.innerText = "Offline";
-      }
-      fetchJobs();
-    }
-
-    function switchJobTab(tab) {
-      activeJobTab = tab;
-      const isAvailable = tab === 'available';
-      document.getElementById('tab-available').className = `px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 ${isAvailable ? 'bg-emerald-600 text-white' : 'text-slate-400'}`;
-      document.getElementById('tab-active').className = `px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 ${!isAvailable ? 'bg-emerald-600 text-white' : 'text-slate-400'}`;
-      fetchJobs();
-    }
-
-    async function fetchJobs() {
-      if (!currentSessionUser || !partnerProfile) return;
-      const homeContainer = document.getElementById('home-jobs-container');
-      const deliveriesContainer = document.getElementById('deliveries-container');
-
-      if (!isOnline) {
-        const offlineHtml = `
-          <div class="bg-slate-800/50 border border-slate-700/60 p-12 rounded-2xl text-center">
-            <p class="text-3xl mb-2">💤</p>
-            <p class="text-slate-300 font-medium">You are currently offline</p>
-            <p class="text-xs text-slate-500 mt-1">Tap 'Go Online' above to receive requests.</p>
-          </div>
-        `;
-        homeContainer.innerHTML = offlineHtml;
-        if (deliveriesContainer) deliveriesContainer.innerHTML = offlineHtml;
-        return;
-      }
-
-      const isRider = partnerProfile.role === 'RIDER';
-      const table = isRider ? 'orders' : 'ride_requests';
-
-      const query = isRider 
-        ? _supabase.from('orders').select('*').or('status.eq.READY_FOR_PICKUP,status.eq.PENDING').order('created_at', { ascending: false })
-        : _supabase.from('ride_requests').select('*').or('status.eq.SEARCHING,status.eq.PENDING').order('created_at', { ascending: false });
-
-      const { data } = await query;
-      const jobs = data || [];
-
-      document.getElementById('badge-available').innerText = jobs.length;
-
-      const jobsHtml = jobs.length ? jobs.map(j => `
-        <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
-          <div class="space-y-1">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">
-              ${isRider ? (j.order_type || 'DISPATCH') : 'TAXI TRIP'}
-            </span>
-            <h3 class="font-bold text-base text-slate-100">${j.item_details || 'Request'}</h3>
-            <p class="text-xs text-slate-400">📍 <b>Pickup:</b> ${j.pickup_address || 'Location'}</p>
-            <p class="text-xs text-slate-400">🏁 <b>Drop-off:</b> ${j.delivery_address || j.destination_address || 'Destination'}</p>
-          </div>
-          <button onclick="acceptJob('${j.id}', '${table}', '${isRider ? 'ACCEPTED_BY_RIDER' : 'ACCEPTED'}')" class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 px-6 py-2.5 rounded-xl font-bold text-white text-sm">
-            Accept Job
-          </button>
-        </div>
-      `).join('') : '<p class="text-center text-slate-400 py-8">No available jobs.</p>';
-
-      homeContainer.innerHTML = jobsHtml;
-      if (deliveriesContainer) deliveriesContainer.innerHTML = jobsHtml;
-    }
-
-    async function acceptJob(id, table, newStatus) {
-      await _supabase.from(table).update({ status: newStatus }).eq('id', id);
-      alert("Job accepted successfully!");
-      switchView('deliveries');
-      switchJobTab('active');
-    }
-
-    setInterval(fetchJobs, 5000);
-    initSession();
-  </script>
 </body>
 </html>
