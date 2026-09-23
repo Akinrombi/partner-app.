@@ -2,280 +2,342 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rider Dispatch Dashboard</title>
-
-  <!-- Supabase CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Vendor Partner App</title>
 
   <style>
     :root {
       --primary: #00A859;
-      --primary-dark: #008546;
       --bg: #0F172A;
       --card-bg: #1E293B;
       --text: #F8FAFC;
       --text-muted: #94A3B8;
       --border: #334155;
+      --danger: #EF4444;
+      --warning: #F59E0B;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; padding-bottom: 75px; }
-    .app-container { width: 100%; max-width: 480px; background-color: var(--bg); display: flex; flex-direction: column; min-height: 100vh; }
+    body { background-color: var(--bg); color: var(--text); padding: 16px; display: flex; justify-content: center; min-height: 100vh; padding-bottom: 40px; }
+    .app-container { width: 100%; max-width: 480px; }
 
-    /* Top Bar */
-    .top-bar { background: var(--card-bg); padding: 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
-    .rider-profile { display: flex; align-items: center; gap: 12px; }
-    .avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #052E16; color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    /* Header */
+    .store-header { background: var(--card-bg); padding: 16px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .store-title { font-size: 16px; font-weight: 700; }
+    .store-subtitle { font-size: 12px; color: var(--text-muted); }
+    .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; border: none; }
+    .status-open { background: rgba(0, 168, 89, 0.2); color: var(--primary); border: 1px solid var(--primary); }
+    .status-closed { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
 
-    .status-toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
-    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .3s; border-radius: 24px; }
-    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
-    input:checked + .slider { background-color: var(--primary); }
-    input:checked + .slider:before { transform: translateX(20px); }
+    /* Tab Navigation */
+    .nav-tabs { display: flex; background: var(--card-bg); padding: 4px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 16px; }
+    .tab-btn { flex: 1; padding: 10px 0; background: transparent; border: none; color: var(--text-muted); font-weight: 600; font-size: 13px; cursor: pointer; border-radius: 8px; transition: 0.2s; text-align: center; }
+    .tab-btn.active { background: var(--primary); color: white; font-weight: 700; }
 
-    /* Main Content */
-    .main-content { padding: 16px; flex: 1; }
-    .section-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    /* Cards & Sections */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
-    /* Navigation Sections */
-    .tab-section { display: none; }
-    .tab-section.active { display: block; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .stat-card { background: var(--card-bg); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); }
+    .stat-val { font-size: 18px; font-weight: 800; color: var(--text); margin-top: 4px; }
 
-    /* Metrics Grid */
-    .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-    .metric-card { background: var(--card-bg); border-radius: 12px; padding: 16px; border: 1px solid var(--border); text-align: center; }
-    .metric-value { font-size: 22px; font-weight: 800; color: var(--primary); margin-top: 4px; }
-    .metric-label { font-size: 12px; color: var(--text-muted); }
+    .card { background: var(--card-bg); border-radius: 12px; padding: 16px; border: 1px solid var(--border); margin-bottom: 16px; }
+    .section-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 14px; letter-spacing: 0.5px; }
 
-    /* Wallet Banner */
-    .stats-card { background: var(--card-bg); border-radius: 12px; padding: 20px; border: 1px solid var(--border); margin-bottom: 16px; text-align: center; }
-    .stats-amount { font-size: 32px; font-weight: 800; color: var(--primary); margin: 8px 0; }
+    /* Form Fields */
+    .input-group { margin-bottom: 14px; }
+    .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+    .input-group input, .input-group select { width: 100%; padding: 12px; background: #0F172A; border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 14px; outline: none; }
 
-    /* Orders */
-    .order-card { background: var(--card-bg); border-radius: 12px; padding: 16px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin-bottom: 12px; }
-    .order-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px dashed var(--border); }
-    .vendor-name { font-size: 16px; font-weight: 700; }
-    .payout { font-size: 16px; font-weight: 800; color: var(--primary); }
-
-    .route-details { margin: 12px 0; display: flex; flex-direction: column; gap: 8px; }
-    .route-point { display: flex; align-items: flex-start; gap: 10px; }
-    .icon-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 4px; }
-    .dot-pickup { background-color: #F59E0B; }
-    .dot-dropoff { background-color: var(--primary); }
-    .point-text strong { display: block; font-size: 13px; color: var(--text); }
-    .point-text span { font-size: 12px; color: var(--text-muted); }
-
-    .job-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); background: #0F172A; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); margin-top: 10px; }
-
-    .btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    /* Buttons */
+    .btn { width: 100%; padding: 14px; border-radius: 8px; border: none; font-weight: 700; font-size: 15px; cursor: pointer; }
     .btn-primary { background-color: var(--primary); color: white; }
+    .btn-warning { background-color: var(--warning); color: #000; padding: 8px 12px; font-size: 12px; border-radius: 6px; }
+    .btn-danger { background-color: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 4px 8px; font-size: 11px; border-radius: 6px; }
 
-    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    /* Lists */
+    .list-item { padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .list-item:last-child { border-bottom: none; }
+    .item-name { font-weight: 600; font-size: 15px; display: block; }
+    .item-price { color: var(--primary); font-weight: 700; font-size: 14px; margin-top: 2px; }
+    .item-cat { font-size: 11px; color: var(--text-muted); background: #0F172A; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
 
-    /* Bottom Navigation Bar */
-    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 20; }
-    .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; text-decoration: none; cursor: pointer; }
-    .nav-item.active { color: var(--primary); font-weight: bold; }
-    .nav-icon { font-size: 18px; margin-bottom: 3px; }
+    /* Toggle Switch */
+    .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .3s; border-radius: 20px; }
+    .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--primary); }
+    input:checked + .slider:before { transform: translateX(16px); }
   </style>
 </head>
 <body>
 
 <div class="app-container">
-  <!-- Top Bar -->
-  <div class="top-bar">
-    <div class="rider-profile">
-      <div class="avatar" id="avatar">DA</div>
-      <div>
-        <div style="font-weight:700; font-size:15px;" id="rider-name">David A.</div>
-        <div style="font-size:12px; color:var(--text-muted);" id="rider-hub">Ikorodu Hub</div>
+
+  <!-- Store Header -->
+  <div class="store-header">
+    <div>
+      <div class="store-title">🏪 My Vendor Store</div>
+      <div class="store-subtitle">Vendor Portal</div>
+    </div>
+    <button id="storeStatusBtn" class="status-badge status-open" onclick="toggleStoreStatus()">STORE OPEN</button>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('ordersTab', this)">Orders</button>
+    <button class="tab-btn" onclick="switchTab('menuTab', this)">Menu Manager</button>
+    <button class="tab-btn" onclick="switchTab('settingsTab', this)">Settings</button>
+  </div>
+
+  <!-- TAB 1: ORDERS & SALES -->
+  <div id="ordersTab" class="tab-content active">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div style="font-size:11px; color:var(--text-muted); font-weight:600;">TODAY'S SALES</div>
+        <div class="stat-val" id="totalEarnings">₦0</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:11px; color:var(--text-muted); font-weight:600;">COMPLETED</div>
+        <div class="stat-val" id="totalOrdersCount">0</div>
       </div>
     </div>
-    <div class="status-toggle">
-      <span id="status-text" style="color:var(--primary);">ONLINE</span>
-      <label class="switch">
-        <input type="checkbox" id="online-switch" checked onchange="toggleStatus(this)">
-        <span class="slider"></span>
-      </label>
+
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div class="section-title" style="margin:0;">Incoming Customer Orders</div>
+        <button onclick="addDemoOrder()" style="background:transparent; color:var(--primary); border:none; font-size:12px; font-weight:bold; cursor:pointer;">+ Test Order</button>
+      </div>
+      <div id="ordersContainer">
+        <p style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 10px 0;">No active incoming orders.</p>
+      </div>
     </div>
   </div>
 
-  <div class="main-content">
-    <!-- Tab 1: Home / Dispatches -->
-    <div id="tab-jobs" class="tab-section active">
-      <div class="section-title">Active Dispatches</div>
-      <div id="jobs-container">
-        <div class="empty-state">
-          <h3>Searching for available jobs...</h3>
-          <p style="margin-top:8px;">Stay close to Sabo / Agric hubs.</p>
-        </div>
-      </div>
-    </div>
+  <!-- TAB 2: MENU MANAGER -->
+  <div id="menuTab" class="tab-content">
+    <div class="card">
+      <div class="section-title">Add New Dish / Food Item</div>
 
-    <!-- Tab 2: Wallet & Ride Metrics -->
-    <div id="tab-wallet" class="tab-section">
-      <div class="section-title">Performance & Earnings</div>
+      <div class="input-group">
+        <label for="itemCategory">Category</label>
+        <select id="itemCategory">
+          <option value="Main Dishes">Main Dishes (Rice, Swallows)</option>
+          <option value="Proteins">Proteins (Chicken, Meat, Fish)</option>
+          <option value="Sides & Extra">Sides & Extras (Plantain, Chips)</option>
+          <option value="Drinks & Beverages">Drinks & Beverages</option>
+        </select>
+      </div>
       
-      <!-- Metrics Grid: Jobs Completed & Kilometers Covered -->
-      <div class="metrics-grid">
-        <div class="metric-card">
-          <div class="metric-label">Jobs Completed</div>
-          <div class="metric-value">14</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">Distance Covered</div>
-          <div class="metric-value">38.4 km</div>
-        </div>
+      <div class="input-group">
+        <label for="itemName">Food / Dish Name</label>
+        <input type="text" id="itemName" placeholder="e.g. Jollof Rice & Fried Chicken">
       </div>
 
-      <div class="stats-card">
-        <div style="font-size: 13px; color: var(--text-muted);">Available Wallet Balance</div>
-        <div class="stats-amount">₦7,000</div>
-        <button class="btn btn-primary" onclick="alert('Payout request submitted to bank!')">REQUEST INSTANT PAYOUT</button>
+      <div class="input-group">
+        <label for="itemPrice">Price in Naira (₦)</label>
+        <input type="number" id="itemPrice" placeholder="e.g. 2500">
       </div>
 
-      <div class="section-title">Completed Jobs History</div>
-
-      <!-- Completed Job 1 -->
-      <div class="order-card">
-        <div class="order-header">
-          <div>
-            <div class="vendor-name">Ikorodu Kitchen (Sabo)</div>
-            <div style="font-size:11px; color:var(--text-muted);">Today • 02:15 PM</div>
-          </div>
-          <div class="payout">+₦1,200</div>
-        </div>
-        <div class="route-details">
-          <div class="route-point">
-            <div class="icon-dot dot-pickup"></div>
-            <div class="point-text">
-              <strong>Sabo Roundabout</strong>
-              <span>Pickup</span>
-            </div>
-          </div>
-          <div class="route-point">
-            <div class="icon-dot dot-dropoff"></div>
-            <div class="point-text">
-              <strong>Agric Bus Stop</strong>
-              <span>Drop-off</span>
-            </div>
-          </div>
-        </div>
-        <div class="job-meta">
-          <span>Status: <strong style="color:var(--primary);">Completed</strong></span>
-          <span>Distance: <strong>3.2 km</strong></span>
-        </div>
-      </div>
-
-      <!-- Completed Job 2 -->
-      <div class="order-card">
-        <div class="order-header">
-          <div>
-            <div class="vendor-name">Chicken Republic (Garage)</div>
-            <div style="font-size:11px; color:var(--text-muted);">Today • 11:40 AM</div>
-          </div>
-          <div class="payout">+₦1,500</div>
-        </div>
-        <div class="route-details">
-          <div class="route-point">
-            <div class="icon-dot dot-pickup"></div>
-            <div class="point-text">
-              <strong>Ikorodu Garage</strong>
-              <span>Pickup</span>
-            </div>
-          </div>
-          <div class="route-point">
-            <div class="icon-dot dot-dropoff"></div>
-            <div class="point-text">
-              <strong>Ebute Jetty Area</strong>
-              <span>Drop-off</span>
-            </div>
-          </div>
-        </div>
-        <div class="job-meta">
-          <span>Status: <strong style="color:var(--primary);">Completed</strong></span>
-          <span>Distance: <strong>5.1 km</strong></span>
-        </div>
-      </div>
-
+      <button class="btn btn-primary" onclick="addMenuItem()">+ ADD TO MENU</button>
     </div>
 
-    <!-- Tab 3: Support -->
-    <div id="tab-support" class="tab-section">
-      <div class="section-title">Rider Support</div>
-      <div class="order-card">
-        <h4 style="margin-bottom:8px;">Need Help on a Delivery?</h4>
-        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Contact Ikorodu Dispatch Control regarding late orders or address landmarks.</p>
-        <button class="btn btn-primary" onclick="window.open('https://wa.me/2340000000000', '_blank')">CHAT DISPATCH ON WHATSAPP</button>
-      </div>
-    </div>
-
-    <!-- Tab 4: Profile & Career Stats -->
-    <div id="tab-profile" class="tab-section">
-      <div class="section-title">Rider Profile</div>
-      <div class="order-card">
-        <div style="margin-bottom:12px;"><strong>Full Name:</strong> David Akinrombi</div>
-        <div style="margin-bottom:12px;"><strong>Operating Zone:</strong> Ikorodu Hub</div>
-        <div style="margin-bottom:12px;"><strong>Vehicle:</strong> Bicycle / Delivery Bike</div>
-        <div style="margin-bottom:12px;"><strong>Status:</strong> <span style="color:var(--primary);">Verified Founding Rider</span></div>
-      </div>
-
-      <div class="section-title">Lifetime Career Stats</div>
-      <div class="metrics-grid">
-        <div class="metric-card">
-          <div class="metric-label">Total Jobs Done</div>
-          <div class="metric-value">142</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">Total Kilometers</div>
-          <div class="metric-value">412 km</div>
-        </div>
+    <div class="card">
+      <div class="section-title">Current Store Menu</div>
+      <div id="menuContainer">
+        <p style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 10px 0;">No food items added yet.</p>
       </div>
     </div>
   </div>
 
-  <!-- Bottom Navigation Bar -->
-  <div class="bottom-nav">
-    <div class="nav-item active" onclick="switchTab('jobs', this)">
-      <div class="nav-icon">🚲</div>
-      <span>Jobs</span>
-    </div>
-    <div class="nav-item" onclick="switchTab('wallet', this)">
-      <div class="nav-icon">💼</div>
-      <span>Wallet</span>
-    </div>
-    <div class="nav-item" onclick="switchTab('support', this)">
-      <div class="nav-icon">🎧</div>
-      <span>Support</span>
-    </div>
-    <div class="nav-item" onclick="switchTab('profile', this)">
-      <div class="nav-icon">👤</div>
-      <span>Profile</span>
+  <!-- TAB 3: STORE SETTINGS -->
+  <div id="settingsTab" class="tab-content">
+    <div class="card">
+      <div class="section-title">Store Profile & Hours</div>
+      
+      <div class="input-group">
+        <label for="storeNameInput">Store Name</label>
+        <input type="text" id="storeNameInput" value="My Vendor Store">
+      </div>
+
+      <div class="input-group">
+        <label for="storePhoneInput">Store Contact Phone</label>
+        <input type="tel" id="storePhoneInput" placeholder="08012345678">
+      </div>
+
+      <div class="input-group">
+        <label for="prepTimeInput">Average Prep Time (Minutes)</label>
+        <select id="prepTimeInput">
+          <option value="15">15 - 20 Mins</option>
+          <option value="30" selected>25 - 30 Mins</option>
+          <option value="45">40 - 45 Mins</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" onclick="alert('Store settings saved!')">SAVE SETTINGS</button>
     </div>
   </div>
+
 </div>
 
 <script>
-  function switchTab(tabName, element) {
-    document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  let isStoreOpen = true;
 
-    document.getElementById(`tab-${tabName}`).classList.add('active');
+  document.addEventListener('DOMContentLoaded', () => {
+    loadMenu();
+    loadOrders();
+  });
+
+  // Tab Switcher
+  function switchTab(tabId, element) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    
+    document.getElementById(tabId).classList.add('active');
     element.classList.add('active');
   }
 
-  function toggleStatus(checkbox) {
-    const statusText = document.getElementById('status-text');
-    if (checkbox.checked) {
-      statusText.innerText = "ONLINE";
-      statusText.style.color = "var(--primary)";
+  // Store Open / Closed Toggle
+  function toggleStoreStatus() {
+    isStoreOpen = !isStoreOpen;
+    const btn = document.getElementById('storeStatusBtn');
+    if (isStoreOpen) {
+      btn.className = 'status-badge status-open';
+      btn.innerText = 'STORE OPEN';
     } else {
-      statusText.innerText = "OFFLINE";
-      statusText.style.color = "var(--text-muted)";
+      btn.className = 'status-badge status-closed';
+      btn.innerText = 'STORE CLOSED';
     }
+  }
+
+  // Menu Functions
+  function getMenu() {
+    return JSON.parse(localStorage.getItem('vendor_store_menu') || '[]');
+  }
+
+  function addMenuItem() {
+    const category = document.getElementById('itemCategory').value;
+    const name = document.getElementById('itemName').value.trim();
+    const price = document.getElementById('itemPrice').value.trim();
+
+    if (!name || !price) {
+      alert("Please type both the item name and price.");
+      return;
+    }
+
+    const currentMenu = getMenu();
+    currentMenu.push({ id: Date.now(), category: category, name: name, price: price, inStock: true });
+    localStorage.setItem('vendor_store_menu', JSON.stringify(currentMenu));
+
+    document.getElementById('itemName').value = '';
+    document.getElementById('itemPrice').value = '';
+    loadMenu();
+  }
+
+  function toggleStock(id) {
+    const currentMenu = getMenu();
+    const item = currentMenu.find(i => i.id === id);
+    if (item) {
+      item.inStock = !item.inStock;
+      localStorage.setItem('vendor_store_menu', JSON.stringify(currentMenu));
+      loadMenu();
+    }
+  }
+
+  function deleteItem(id) {
+    let currentMenu = getMenu();
+    currentMenu = currentMenu.filter(item => item.id !== id);
+    localStorage.setItem('vendor_store_menu', JSON.stringify(currentMenu));
+    loadMenu();
+  }
+
+  function loadMenu() {
+    const menu = getMenu();
+    const container = document.getElementById('menuContainer');
+
+    if (menu.length === 0) {
+      container.innerHTML = `<p style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 10px 0;">No food items added yet.</p>`;
+      return;
+    }
+
+    container.innerHTML = menu.map(item => `
+      <div class="list-item" style="display:flex; justify-content:space-between; align-items:center; opacity: ${item.inStock ? '1' : '0.5'};">
+        <div>
+          <span class="item-cat">${item.category || 'General'}</span>
+          <span class="item-name">${item.name} ${!item.inStock ? '<small style="color:var(--danger);">(Sold Out)</small>' : ''}</span>
+          <div class="item-price">₦${Number(item.price).toLocaleString()}</div>
+        </div>
+        <div style="display:flex; align-items:center;">
+          <label class="switch">
+            <input type="checkbox" ${item.inStock ? 'checked' : ''} onchange="toggleStock(${item.id})">
+            <span class="slider"></span>
+          </label>
+          <button class="btn btn-danger" onclick="deleteItem(${item.id})" style="margin-left:10px;">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Orders Functions
+  function getOrders() {
+    return JSON.parse(localStorage.getItem('vendor_active_orders') || '[]');
+  }
+
+  function addDemoOrder() {
+    const orders = getOrders();
+    const demo = {
+      id: Date.now(),
+      customer: 'Hawa B.',
+      address: 'Agric Bus Stop, Ikorodu',
+      item: 'Jollof Rice & Fried Chicken',
+      amount: 3500,
+      status: 'Preparing'
+    };
+    orders.push(demo);
+    localStorage.setItem('vendor_active_orders', JSON.stringify(orders));
+    loadOrders();
+  }
+
+  function markReady(id) {
+    let orders = getOrders();
+    const order = orders.find(o => o.id === id);
+    if (order) {
+      let totalSales = parseFloat(localStorage.getItem('vendor_total_sales') || '0') + order.amount;
+      let count = parseInt(localStorage.getItem('vendor_order_count') || '0') + 1;
+      localStorage.setItem('vendor_total_sales', totalSales);
+      localStorage.setItem('vendor_order_count', count);
+
+      orders = orders.filter(o => o.id !== id);
+      localStorage.setItem('vendor_active_orders', JSON.stringify(orders));
+      loadOrders();
+    }
+  }
+
+  function loadOrders() {
+    const orders = getOrders();
+    const container = document.getElementById('ordersContainer');
+    
+    document.getElementById('totalEarnings').innerText = '₦' + Number(localStorage.getItem('vendor_total_sales') || '0').toLocaleString();
+    document.getElementById('totalOrdersCount').innerText = localStorage.getItem('vendor_order_count') || '0';
+
+    if (orders.length === 0) {
+      container.innerHTML = `<p style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 10px 0;">No active incoming orders.</p>`;
+      return;
+    }
+
+    container.innerHTML = orders.map(o => `
+      <div class="list-item" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <span class="item-cat" style="color:var(--warning); background:rgba(245,158,11,0.1);">${o.status}</span>
+          <span class="item-name">${o.item}</span>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">📍 ${o.customer} (${o.address})</div>
+          <div class="item-price" style="margin-top:2px;">₦${Number(o.amount).toLocaleString()}</div>
+        </div>
+        <button class="btn btn-warning" onclick="markReady(${o.id})">READY FOR RIDER</button>
+      </div>
+    `).join('');
   }
 </script>
 
