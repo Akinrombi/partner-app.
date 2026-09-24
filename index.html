@@ -83,6 +83,26 @@
     <div class="form-group"><label>Email</label><input type="email" id="authEmail" placeholder="rider@test.com"></div>
     <div class="form-group"><label>Password</label><input type="password" id="authPass"></div>
     <button class="action-btn btn-green" onclick="handleAuth()">LOGIN AS RIDER</button>
+    <button class="action-btn btn-outline" style="margin-top:10px; color:var(--primary-green); border-color:var(--primary-green);" onclick="showSignup(true)">New rider? CREATE ACCOUNT</button>
+  </div>
+
+  <!-- SIGN UP -->
+  <div id="signupScreen" class="content-box" style="display:none;">
+    <div class="box-title">Create Rider Account</div>
+    <div class="form-group"><label>Full Name</label><input type="text" id="suName" placeholder="e.g. David Akinrombi"></div>
+    <div class="form-group"><label>Phone Number</label><input type="tel" id="suPhone" placeholder="08012345678"></div>
+    <div class="form-group">
+      <label>Vehicle Type</label>
+      <select id="suVehicleType">
+        <option>Bicycle</option><option>Motorbike</option><option>Tricycle (Keke)</option><option>Car</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Vehicle Details (optional)</label><input type="text" id="suVehicle" placeholder="e.g. Red Bajaj, plate LSR-123"></div>
+    <div class="form-group"><label>Email</label><input type="email" id="suEmail" placeholder="you@example.com"></div>
+    <div class="form-group"><label>Password (min 6 characters)</label><input type="password" id="suPass"></div>
+    <div class="form-group"><label>Confirm Password</label><input type="password" id="suPass2"></div>
+    <button class="action-btn btn-green" onclick="handleSignup()">CREATE MY ACCOUNT</button>
+    <button class="action-btn btn-outline" style="margin-top:10px;" onclick="showSignup(false)">Back to Login</button>
   </div>
 
   <div id="mainApp" style="display:none;">
@@ -202,7 +222,7 @@
       </div>
       <div class="form-group">
         <label>Vehicle / Bicycle</label>
-        <input type="text" value="Muddyfox Recoil 24 Mountain Bike" disabled>
+        <input type="text" id="profileVehicle" value="" disabled>
       </div>
       <button class="action-btn btn-outline" onclick="handleSignOut()">LOGOUT</button>
     </div>
@@ -274,6 +294,42 @@
     var r = await sb.auth.signInWithPassword({ email: email, password: password });
     if (r.error) alert(r.error.message); else initRider(r.data.user);
   }
+  function showSignup(show) {
+    document.getElementById('authScreen').style.display = show ? 'none' : 'block';
+    document.getElementById('signupScreen').style.display = show ? 'block' : 'none';
+  }
+
+  async function handleSignup() {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+    var name = document.getElementById('suName').value.trim();
+    var phone = document.getElementById('suPhone').value.trim();
+    var vType = document.getElementById('suVehicleType').value;
+    var vDetails = document.getElementById('suVehicle').value.trim();
+    var email = document.getElementById('suEmail').value.trim();
+    var pass = document.getElementById('suPass').value;
+    var pass2 = document.getElementById('suPass2').value;
+
+    if (!name || !phone || !email || !pass) { alert('Please fill in name, phone, email and password.'); return; }
+    if (phone.replace(/\D/g, '').length < 10) { alert('Enter a valid phone number.'); return; }
+    if (pass.length < 6) { alert('Password must be at least 6 characters.'); return; }
+    if (pass !== pass2) { alert('Passwords do not match.'); return; }
+
+    var vehicle = vType + (vDetails ? ' - ' + vDetails : '');
+    var r = await sb.auth.signUp({
+      email: email, password: pass,
+      options: { data: { role: 'rider', name: name, phone: phone, vehicle: vehicle } }
+    });
+    if (r.error) { alert(r.error.message); return; }
+
+    if (r.data.session) {
+      initRider(r.data.user);
+    } else {
+      alert('Account created! Check your email to confirm it, then log in.');
+      showSignup(false);
+      document.getElementById('authEmail').value = email;
+    }
+  }
+
   async function handleSignOut() {
     if (rider) { await sb.from('riders').update({ is_online: false }).eq('id', rider.id); }
     await sb.auth.signOut();
@@ -291,6 +347,7 @@
     var nm = rider.profiles ? rider.profiles.name : 'Rider';
     document.getElementById('profileName').innerText = nm;
     document.getElementById('profileAvatar').innerText = nm.charAt(0).toUpperCase();
+    document.getElementById('profileVehicle').value = rider.vehicle || 'Not set';
     document.getElementById('profileRating').innerText = '★ ' + Number(rider.rating).toFixed(2) + ' Rating • Verified Rider';
 
     initMap();
