@@ -3,574 +3,382 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Rider App</title>
+  <title>QuickEats Rider</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --primary: #00A859;
-      --primary-dark: #008A47;
-      --bg-dark: #0B1120;
-      --card-bg: #1E293B;
-      --card-bg-light: #2A3648;
-      --text-white: #F8FAFC;
-      --text-gray: #94A3B8;
-      --border: #334155;
+      --primary-light: #E6F6EE;
+      --bg-body: #F8F9FA;
+      --bg-card: #FFFFFF;
+      --text-main: #1A1A1A;
+      --text-sub: #6B7280;
+      --border: #E5E7EB;
       --danger: #EF4444;
       --warning: #F59E0B;
-      --blue: #3B82F6;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg-dark); color: var(--text-white); display: flex; justify-content: center; min-height: 100vh; padding-bottom: 70px; }
-    .app-wrapper { width: 100%; max-width: 480px; position: relative; }
+    body { background: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; min-height: 100vh; padding-bottom: 70px; }
+    .app-wrapper { width: 100%; max-width: 480px; position: relative; background: var(--bg-body); }
 
-    /* HEADER */
-    .header { background: var(--card-bg); padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
-    .header-info h1 { font-size: 16px; font-weight: 700; }
-    .header-info p { font-size: 12px; color: var(--text-gray); margin-top: 2px; }
-    .status-toggle { background: rgba(0, 168, 89, 0.15); border: 1px solid var(--primary); color: var(--primary); padding: 8px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 6px; }
-    .status-toggle.offline { background: rgba(239, 68, 68, 0.15); border-color: var(--danger); color: var(--danger); }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
-
-    /* TABS */
-    .view { display: none; padding: 16px; animation: fadeIn 0.3s ease; }
-    .view.active { display: block; }
+    /* SCREENS */
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: block; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* HOME TAB */
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-    .stat-card { background: linear-gradient(145deg, var(--card-bg), #172033); padding: 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.05); }
-    .stat-card span { font-size: 11px; color: var(--text-gray); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-    .stat-card b { display: block; font-size: 22px; margin-top: 6px; color: var(--text-white); font-weight: 800; }
+    /* LOGIN SCREEN */
+    #screen-login { background: #fff; padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+    .logo-circle { width: 100px; height: 100px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0, 168, 89, 0.3); }
+    .logo-circle span { font-size: 50px; }
+    #screen-login h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+    #screen-login p { color: var(--text-sub); font-size: 14px; margin-bottom: 40px; }
+    .btn-primary { width: 100%; height: 56px; border-radius: 12px; border: none; background: var(--primary); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+    .btn-primary:active { transform: scale(0.97); }
+    .btn-secondary { width: 100%; height: 56px; border-radius: 12px; border: 2px solid var(--border); background: transparent; color: var(--text-main); font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 12px; }
+    .input-group { width: 100%; margin-bottom: 16px; text-align: left; }
+    .input-group label { font-size: 12px; font-weight: 600; color: var(--text-sub); margin-bottom: 6px; display: block; }
+    .input-group input { width: 100%; height: 52px; border-radius: 10px; border: 1px solid var(--border); padding: 0 16px; font-size: 15px; outline: none; background: #f9fafb; }
+    .input-group input:focus { border-color: var(--primary); background: #fff; }
 
-    .section-title { font-size: 13px; font-weight: 700; color: var(--text-gray); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
-    .btn-demo { background: rgba(59, 130, 246, 0.2); color: var(--blue); border: 1px solid var(--blue); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
+    /* HEADER */
+    .app-header { background: #fff; padding: 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
+    .app-header h1 { font-size: 18px; font-weight: 700; }
+    .app-header p { font-size: 12px; color: var(--text-sub); }
+    .status-toggle { background: var(--primary-light); color: var(--primary); padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); }
 
-    /* RADAR SCANNING ANIMATION (360 SWEEP + PULSE) */
-    .radar-container { position: relative; width: 180px; height: 180px; margin: 40px auto; display: flex; align-items: center; justify-content: center; }
-    .radar-circle { position: absolute; width: 100%; height: 100%; border: 2px solid var(--primary); border-radius: 50%; opacity: 0; animation: radarPulse 2s linear infinite; }
-    .radar-circle:nth-child(2) { animation-delay: 0.6s; }
-    .radar-circle:nth-child(3) { animation-delay: 1.2s; }
+    /* MAP AREA */
+    .map-area { position: relative; height: 45vh; background: #e5e7eb; overflow: hidden; }
+    .map-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px); background-size: 40px 40px; }
+    .map-pin { position: absolute; width: 30px; height: 30px; background: var(--primary); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+    .map-pin span { transform: rotate(45deg); font-size: 14px; }
+    .map-pin.pin-customer { background: var(--danger); }
+    .map-route { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .map-route svg { width: 100%; height: 100%; }
+    .map-route path { fill: none; stroke: var(--primary); stroke-width: 5; stroke-dasharray: 10 10; animation: dash 5s linear infinite; }
+    @keyframes dash { to { stroke-dashoffset: -100; } }
     
-    /* The 360 degree sweeping line */
-    .radar-sweep { position: absolute; width: 50%; height: 50%; background: conic-gradient(from 0deg, transparent 0deg, rgba(0, 168, 89, 0.5) 90deg, transparent 90deg); border-radius: 100% 0 0 0; transform-origin: bottom right; animation: radarRotate 2s linear infinite; top: 0; left: 0; }
-    
-    .radar-icon { font-size: 50px; z-index: 2; animation: iconPulse 1s infinite alternate; }
-    
-    @keyframes radarRotate { 100% { transform: rotate(360deg); } }
-    @keyframes radarPulse { 0% { transform: scale(0.3); opacity: 0.8; } 100% { transform: scale(1.2); opacity: 0; } }
-    @keyframes iconPulse { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; } }
-    
-    .radar-text { text-align: center; color: var(--primary); font-size: 15px; font-weight: 700; margin-top: -10px; text-shadow: 0 0 10px rgba(0, 168, 89, 0.5); }
-    .radar-subtext { text-align: center; color: var(--text-gray); font-size: 11px; margin-top: 6px; opacity: 0.7; }
+    .map-overlay-btn { position: absolute; bottom: 20px; right: 20px; background: #fff; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; font-size: 20px; }
 
-    /* ORDER CARDS */
-    .order-card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); position: relative; overflow: hidden; }
-    .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .order-id { font-weight: 800; font-size: 16px; color: var(--text-white); }
-    .order-badge { font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
-    .badge-pickup { background: rgba(59, 130, 246, 0.2); color: var(--blue); }
-    .badge-deliver { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+    /* BOTTOM SHEET */
+    .bottom-sheet { background: #fff; border-radius: 24px 24px 0 0; padding: 20px; margin-top: -24px; position: relative; z-index: 5; min-height: 55vh; box-shadow: 0 -10px 20px rgba(0,0,0,0.05); }
+    .sheet-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px auto; }
+    .sheet-title { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+    .sheet-subtitle { font-size: 13px; color: var(--text-sub); margin-bottom: 20px; }
 
-    .progress-bar { display: flex; justify-content: space-between; margin: 16px 0; position: relative; }
-    .progress-step { display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 2; flex: 1; }
-    .step-circle { width: 24px; height: 24px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: var(--text-gray); transition: 0.3s; }
-    .step-circle.active { background: var(--primary); color: #fff; box-shadow: 0 0 10px rgba(0, 168, 89, 0.5); }
-    .step-circle.done { background: var(--primary); color: #fff; }
-    .step-label { font-size: 9px; color: var(--text-gray); font-weight: 600; text-align: center; }
-    .progress-line { position: absolute; top: 12px; left: 12%; right: 12%; height: 2px; background: var(--border); z-index: 1; }
-    .progress-line-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--primary); transition: 0.3s; width: 0%; }
+    /* ORDER CARD IN SHEET */
+    .order-preview { background: var(--bg-body); border-radius: 16px; padding: 16px; display: flex; gap: 12px; align-items: center; margin-bottom: 20px; cursor: pointer; border: 1px solid var(--border); }
+    .order-preview img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; background: #ddd; }
+    .order-preview-info { flex: 1; }
+    .order-preview-info h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .order-preview-info p { font-size: 12px; color: var(--text-sub); margin-bottom: 4px; }
+    .order-preview-info .price { font-size: 14px; font-weight: 800; color: var(--primary); }
+    .order-preview .arrow { font-size: 20px; color: var(--text-sub); }
 
-    .detail-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: var(--text-gray); }
-    .detail-row b { color: var(--text-white); font-weight: 600; }
-    
-    .address-box { background: var(--bg-dark); padding: 12px; border-radius: 10px; margin: 12px 0; border-left: 3px solid var(--primary); font-size: 13px; line-height: 1.5; }
-    .address-box b { color: var(--primary); display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; }
-    .address-box a { color: var(--blue); text-decoration: none; font-size: 11px; font-weight: 700; display: inline-block; margin-top: 4px; }
+    /* ACTIVE ORDER DETAILS */
+    .order-details { background: var(--bg-body); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+    .order-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .order-status-badge { font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
+    .badge-pickup { background: rgba(59, 130, 246, 0.15); color: #3B82F6; }
+    .badge-deliver { background: rgba(245, 158, 11, 0.15); color: #D97706; }
+    .order-item { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 6px; }
+    .order-item span:first-child { color: var(--text-sub); }
+    .order-item span:last-child { font-weight: 700; }
+    .order-total { border-top: 1px dashed var(--border); padding-top: 8px; margin-top: 8px; font-weight: 800; font-size: 16px; display: flex; justify-content: space-between; }
+    .order-total span:last-child { color: var(--primary); }
 
-    .action-row { display: flex; gap: 10px; margin-top: 16px; }
-    .btn { flex: 1; min-height: 50px; border-radius: 12px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
-    .btn:active { transform: scale(0.97); }
-    .btn-green { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; box-shadow: 0 4px 15px rgba(0, 168, 89, 0.3); }
-    .btn-blue { background: linear-gradient(135deg, var(--blue), #2563EB); color: #fff; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
-    .btn-gray { background: var(--card-bg-light); color: var(--text-white); }
+    .action-row { display: flex; gap: 12px; margin-top: 16px; }
+    .btn-accept { flex: 1; height: 50px; border-radius: 12px; border: none; background: var(--primary); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+    .btn-decline { flex: 1; height: 50px; border-radius: 12px; border: 1px solid var(--border); background: #fff; color: var(--text-main); font-size: 15px; font-weight: 700; cursor: pointer; }
+
+    /* STEP PROGRESS */
+    .progress-steps { display: flex; justify-content: space-between; margin: 20px 0; position: relative; }
+    .progress-steps::before { content: ''; position: absolute; top: 12px; left: 10%; right: 10%; height: 2px; background: var(--border); z-index: 1; }
+    .step { display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 2; flex: 1; }
+    .step-circle { width: 24px; height: 24px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #fff; }
+    .step.active .step-circle { background: var(--primary); }
+    .step.done .step-circle { background: var(--primary); }
+    .step-label { font-size: 10px; color: var(--text-sub); font-weight: 600; }
 
     /* BOTTOM NAV */
-    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; max-width: 480px; margin: 0 auto; right: 0; }
-    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: var(--text-gray); cursor: pointer; padding: 8px 0; transition: 0.2s; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0 12px 0; z-index: 100; max-width: 480px; margin: 0 auto; right: 0; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); }
+    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: var(--text-sub); cursor: pointer; padding: 4px 0; transition: 0.2s; }
     .nav-item.active { color: var(--primary); }
-    .nav-icon { font-size: 20px; }
+    .nav-icon { font-size: 22px; }
     .nav-label { font-size: 10px; font-weight: 700; }
 
-    /* SCANNING MODAL */
-    .scan-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 17, 32, 0.98); backdrop-filter: blur(10px); z-index: 999; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-    .scan-overlay.active { display: flex; animation: fadeIn 0.2s ease; }
-    
-    .camera-view { position: relative; width: 100%; max-width: 320px; height: 320px; background: #000; border-radius: 24px; overflow: hidden; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--border); }
-    
-    .qr-target { position: relative; width: 180px; height: 180px; border: 2px solid rgba(0, 168, 89, 0.3); border-radius: 16px; }
-    .qr-target::before, .qr-target::after { content: ''; position: absolute; width: 30px; height: 30px; border: 4px solid var(--primary); border-radius: 4px; }
-    .qr-target::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
-    .qr-target::after { bottom: -2px; right: -2px; border-left: none; border-top: none; }
-    
-    .scan-line { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--primary); box-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary); animation: scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
-    @keyframes scan { 0% { top: -10%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
+    /* SUCCESS OVERLAY */
+    .success-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+    .success-overlay.active { display: flex; animation: fadeIn 0.3s; }
+    .check-circle { width: 100px; height: 100px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 50px; margin-bottom: 20px; }
+    .success-overlay h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+    .success-overlay p { color: var(--text-sub); font-size: 14px; margin-bottom: 20px; }
+    .earnings-breakdown { background: var(--bg-body); border-radius: 16px; padding: 16px; width: 100%; margin-bottom: 20px; }
+    .earn-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; }
+    .earn-row.total { border-top: 1px dashed var(--border); padding-top: 8px; font-weight: 800; font-size: 18px; color: var(--primary); }
 
-    .scan-text { font-size: 14px; color: var(--text-gray); margin-bottom: 24px; font-weight: 600; }
-    
-    .pin-fallback { display: none; flex-direction: column; align-items: center; width: 100%; }
-    .pin-fallback.active { display: flex; }
-    .pin-input { width: 100%; max-width: 280px; height: 70px; font-size: 36px; letter-spacing: 16px; text-align: center; background: var(--bg-dark); border: 2px solid var(--border); border-radius: 16px; color: #fff; font-weight: 800; outline: none; margin-bottom: 24px; transition: 0.3s; }
-    .pin-input:focus { border-color: var(--primary); box-shadow: 0 0 20px rgba(0, 168, 89, 0.2); }
-    
-    .btn-simulate { background: rgba(0, 168, 89, 0.2); color: var(--primary); border: 1px dashed var(--primary); width: 100%; max-width: 320px; margin-bottom: 16px; }
-    .btn-toggle-mode { background: transparent; color: var(--text-gray); font-size: 12px; text-decoration: underline; border: none; cursor: pointer; margin-top: 10px; }
-    .close-scan { color: var(--danger); font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 16px; text-decoration: underline; }
+    /* PROFILE SCREEN */
+    .profile-header { text-align: center; padding: 30px 20px; background: #fff; border-bottom: 1px solid var(--border); }
+    .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 12px auto; }
+    .profile-header h2 { font-size: 20px; font-weight: 800; }
+    .profile-header p { color: var(--text-sub); font-size: 13px; }
+    .profile-stats { display: flex; justify-content: space-around; margin-top: 20px; }
+    .profile-stat { text-align: center; }
+    .profile-stat b { display: block; font-size: 18px; font-weight: 800; }
+    .profile-stat span { font-size: 11px; color: var(--text-sub); }
+    .menu-list { background: #fff; margin-top: 12px; }
+    .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .menu-item span { font-size: 15px; font-weight: 600; }
+    .menu-item .arrow { color: var(--text-sub); font-size: 18px; }
+
+    /* EARNINGS SCREEN */
+    .earn-card { background: #fff; margin: 16px; padding: 24px; border-radius: 16px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .earn-card p { font-size: 13px; color: var(--text-sub); margin-bottom: 8px; }
+    .earn-card h2 { font-size: 32px; font-weight: 800; color: var(--primary); }
+    .transaction-list { background: #fff; margin: 0 16px; border-radius: 16px; padding: 0 16px; }
+    .transaction-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
+    .transaction-row:last-child { border-bottom: none; }
+    .transaction-info h4 { font-size: 14px; font-weight: 700; }
+    .transaction-info p { font-size: 12px; color: var(--text-sub); }
+    .transaction-amount { font-weight: 800; font-size: 15px; color: var(--primary); }
   </style>
 </head>
 <body>
 
 <div class="app-wrapper">
-  <!-- HEADER -->
-  <div class="header">
-    <div class="header-info">
-      <h1 id="riderName">Loading...</h1>
-      <p>Rider App</p>
-    </div>
-    <div class="status-toggle" id="onlineToggle" onclick="toggleOnline()">
-      <div class="status-dot"></div>
-      <span>ONLINE</span>
+
+  <!-- SCREEN 1: LOGIN -->
+  <div id="screen-login" class="screen active">
+    <div class="logo-circle"><span>🛵</span></div>
+    <h1>QuickEats</h1>
+    <p>Delivering Good Food, Faster!</p>
+    <div style="width: 100%; max-width: 320px;">
+      <div class="input-group"><label>Email</label><input type="email" value="rider@quickeats.com" readonly></div>
+      <div class="input-group"><label>Password</label><input type="password" value="password123" readonly></div>
+      <button class="btn-primary" onclick="login()">Log In</button>
+      <button class="btn-secondary">Sign Up</button>
     </div>
   </div>
 
-  <!-- HOME VIEW -->
-  <div id="view-home" class="view active">
-    <div class="stats-grid">
-      <div class="stat-card"><span>Today's Deliveries</span><b id="statDeliveries">0</b></div>
-      <div class="stat-card"><span>Today's Earnings</span><b id="statEarnings">₦0</b></div>
-    </div>
-
-    <div class="section-title">
-      <span>Active Deliveries</span>
-      <button class="btn-demo" onclick="addDemoOrder()">+ Demo Order</button>
-    </div>
-    <div id="ordersContainer"></div>
-  </div>
-
-  <!-- HISTORY VIEW -->
-  <div id="view-history" class="view">
-    <div class="section-title">Delivery History</div>
-    <div id="historyContainer">
-      <div class="radar-text" style="margin-top: 40px; color: var(--text-gray);">No history yet</div>
-    </div>
-  </div>
-
-  <!-- EARNINGS VIEW -->
-  <div id="view-earnings" class="view">
-    <div class="stats-grid">
-      <div class="stat-card"><span>Today</span><b id="earnToday">₦0</b></div>
-      <div class="stat-card"><span>This Week</span><b id="earnWeek">₦0</b></div>
-      <div class="stat-card"><span>This Month</span><b id="earnMonth">₦0</b></div>
-      <div class="stat-card"><span>Pending Payout</span><b id="earnPending">₦0</b></div>
-    </div>
-    <div class="section-title">Recent Payouts</div>
-    <div class="radar-text" style="margin-top: 40px; color: var(--text-gray);">No payouts requested yet</div>
-  </div>
-
-  <!-- SETTINGS VIEW -->
-  <div id="view-settings" class="view">
-    <div class="order-card">
-      <div class="section-title">Profile Information</div>
-      <div class="detail-row"><span>Name:</span><b id="setName">-</b></div>
-      <div class="detail-row"><span>Phone:</span><b id="setPhone">-</b></div>
-      <div class="detail-row"><span>Vehicle:</span><b id="setVehicle">-</b></div>
-      <div class="detail-row"><span>Rating:</span><b id="setRating">⭐ 5.0</b></div>
-      <div class="action-row" style="margin-top: 20px;">
-        <button class="btn btn-gray" onclick="handleSignOut()">SIGN OUT</button>
+  <!-- SCREEN 2: HOME / MAP -->
+  <div id="screen-home" class="screen">
+    <div class="app-header">
+      <div>
+        <h1 id="greetingName">Good morning, David! 👋</h1>
+        <p>You're online</p>
       </div>
+      <div class="status-toggle" onclick="toggleOnline()">
+        <div class="status-dot"></div>
+        <span>ONLINE</span>
+      </div>
+    </div>
+
+    <div class="map-area" id="mapHome">
+      <div class="map-grid"></div>
+      <!-- Simulated Map Pins -->
+      <div class="map-pin" style="top: 30%; left: 40%;"><span>🏪</span></div>
+      <div class="map-pin pin-customer" style="top: 60%; left: 70%;"><span>📍</span></div>
+      <div class="map-route">
+        <svg><path d="M 150 150 Q 250 200 300 300" /></svg>
+      </div>
+      <div class="map-overlay-btn">📍</div>
+    </div>
+
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">New orders nearby!</div>
+      <div class="sheet-subtitle">Tap to view available orders</div>
+      
+      <!-- Incoming Order Preview -->
+      <div class="order-preview" onclick="showOrderDetails()">
+        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=100&h=100&fit=crop" alt="Food">
+        <div class="order-preview-info">
+          <h4>Tasty Bites Restaurant</h4>
+          <p>Jollof Rice + Grilled Chicken</p>
+          <div class="price">₦3,750</div>
+        </div>
+        <div class="arrow">›</div>
+      </div>
+
+      <!-- Active Order Progress (Hidden initially) -->
+      <div id="activeOrderSection" style="display: none;">
+        <div class="order-details">
+          <div class="order-header-row">
+            <span style="font-weight: 800;">Order #4821</span>
+            <span class="order-status-badge badge-pickup" id="statusBadge">Pickup</span>
+          </div>
+          <div class="progress-steps">
+            <div class="step done"><div class="step-circle">✓</div><div class="step-label">Accepted</div></div>
+            <div class="step active" id="stepPickup"><div class="step-circle">2</div><div class="step-label">Pickup</div></div>
+            <div class="step" id="stepDeliver"><div class="step-circle">3</div><div class="step-label">Deliver</div></div>
+          </div>
+          <div class="order-item"><span>Customer:</span><span>Hawa B.</span></div>
+          <div class="order-item"><span>Address:</span><span>18, Unity Road, Lekki</span></div>
+          <div class="order-item"><span>Distance:</span><span>2.5 km</span></div>
+          <div class="order-total"><span>Total Earnings</span><span>₦3,750</span></div>
+        </div>
+        <div class="action-row">
+          <button class="btn-primary" style="flex:1;" onclick="advanceOrder()" id="actionBtn">Navigate to Restaurant</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: EARNINGS -->
+  <div id="screen-earnings" class="screen">
+    <div class="app-header"><h1>Earnings</h1></div>
+    <div class="earn-card">
+      <p>Today's Earnings</p>
+      <h2 id="todayEarnings">₦18,750</h2>
+    </div>
+    <div class="transaction-list">
+      <div class="transaction-row">
+        <div class="transaction-info"><h4>Tasty Bites</h4><p>Completed · 10:24 AM</p></div>
+        <div class="transaction-amount">₦3,750</div>
+      </div>
+      <div class="transaction-row">
+        <div class="transaction-info"><h4>Spice Hub</h4><p>Completed · 10:45 AM</p></div>
+        <div class="transaction-amount">₦4,200</div>
+      </div>
+      <div class="transaction-row">
+        <div class="transaction-info"><h4>Mama's Kitchen</h4><p>Completed · 1:20 PM</p></div>
+        <div class="transaction-amount">₦2,800</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: PROFILE -->
+  <div id="screen-profile" class="screen">
+    <div class="profile-header">
+      <div class="profile-avatar">👤</div>
+      <h2>David Johnson</h2>
+      <p>✅ Verified Rider</p>
+      <div class="profile-stats">
+        <div class="profile-stat"><b>5.0</b><span>Rating</span></div>
+        <div class="profile-stat"><b>120</b><span>Deliveries</span></div>
+        <div class="profile-stat"><b>98%</b><span>On-time</span></div>
+      </div>
+    </div>
+    <div class="menu-list">
+      <div class="menu-item"><span>Edit Profile</span><span class="arrow">›</span></div>
+      <div class="menu-item"><span>Vehicle & Documents</span><span class="arrow">›</span></div>
+      <div class="menu-item"><span>Bank Account</span><span class="arrow">›</span></div>
+      <div class="menu-item"><span>Notifications</span><span class="arrow">›</span></div>
+      <div class="menu-item"><span>Help & Support</span><span class="arrow">›</span></div>
     </div>
   </div>
 
   <!-- BOTTOM NAVIGATION -->
-  <div class="bottom-nav">
+  <div class="bottom-nav" id="bottomNav" style="display: none;">
     <button class="nav-item active" onclick="switchTab('home', this)">
-      <span class="nav-icon">🏠</span>
-      <span class="nav-label">Home</span>
-    </button>
-    <button class="nav-item" onclick="switchTab('history', this)">
-      <span class="nav-icon">🕒</span>
-      <span class="nav-label">History</span>
+      <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
     </button>
     <button class="nav-item" onclick="switchTab('earnings', this)">
-      <span class="nav-icon">💰</span>
-      <span class="nav-label">Earnings</span>
+      <span class="nav-icon">💰</span><span class="nav-label">Earnings</span>
     </button>
-    <button class="nav-item" onclick="switchTab('settings', this)">
-      <span class="nav-icon">⚙️</span>
-      <span class="nav-label">Settings</span>
+    <button class="nav-item" onclick="switchTab('profile', this)">
+      <span class="nav-icon">👤</span><span class="nav-label">Profile</span>
     </button>
   </div>
 </div>
 
-<!-- SCANNING MODAL -->
-<div id="scanModal" class="scan-overlay">
-  
-  <!-- CAMERA SCANNER VIEW -->
-  <div id="cameraScanner" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-    <div class="camera-view">
-      <div class="scan-line"></div>
-      <div class="qr-target">
-        <div class="radar-icon" style="font-size: 40px; opacity: 0.5;">QR</div>
-      </div>
-    </div>
-    <div class="scan-text" id="scanText">Point camera at the order QR code</div>
-    <button class="btn btn-simulate" onclick="simulateScan()">⚡ Simulate QR Scan</button>
-    <button class="btn-toggle-mode" onclick="toggleScanMode()">Enter code manually instead</button>
+<!-- SUCCESS OVERLAY -->
+<div id="successOverlay" class="success-overlay">
+  <div class="check-circle">✅</div>
+  <h2>Delivery Completed!</h2>
+  <p>You've successfully delivered the order.</p>
+  <div class="earnings-breakdown">
+    <div class="earn-row"><span>Base Pay</span><span>₦2,500</span></div>
+    <div class="earn-row"><span>Distance Pay</span><span>₦1,000</span></div>
+    <div class="earn-row"><span>Bonus</span><span>₦250</span></div>
+    <div class="earn-row total"><span>Total Earnings</span><span>₦3,750</span></div>
   </div>
-
-  <!-- MANUAL PIN VIEW -->
-  <div id="manualPin" class="pin-fallback">
-    <div class="scan-text" id="pinText">Enter the 4-digit code</div>
-    <input type="tel" id="pinInput" class="pin-input" placeholder="----" maxlength="4" inputmode="numeric">
-    <button class="btn btn-green" style="width:280px; margin-bottom: 16px;" onclick="verifyPin()">VERIFY CODE</button>
-    <button class="btn-toggle-mode" onclick="toggleScanMode()">← Back to camera scanner</button>
-  </div>
-
-  <div class="close-scan" onclick="closeScan()">Cancel</div>
+  <button class="btn-primary" style="width: 100%;" onclick="closeSuccess()">Back to Home</button>
 </div>
 
 <script>
-  const SUPABASE_URL = "https://glkutdkwbrjpiuqcmgwe.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdsa3V0ZGt3YnJqcGl1cWNtZ3dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NzU3MTMsImV4cCI6MjEwNTU1MTcxM30.f2SgZJvP681imm0Qe1fKsATnCk_86z2guwvZWASXoZM";
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let currentOrderState = 'preview'; // preview, accepted, picked_up, delivered
 
-  let rider = null;
-  let activeOrders = [];
-  let historyOrders = [];
-  let pendingVerifyOrderId = null;
-  let pendingAction = null;
-  let isOnline = true;
-
-  // AUDIO VARIABLES
-  let audioCtx = null;
-  let beepInterval = null;
-
-  window.onload = async function() {
-    // Enable audio on first user interaction to bypass browser autoplay policy
-    document.body.addEventListener('click', initAudio, { once: true });
-    
-    const s = await sb.auth.getSession();
-    if (s.data.session) {
-       initApp(s.data.session.user);
-    } else {
-       document.getElementById('riderName').innerText = 'Demo Rider';
-       document.getElementById('setName').innerText = 'Demo Rider';
-       document.getElementById('setPhone').innerText = '08012345678';
-       document.getElementById('setVehicle').innerText = 'Bajaj Boxer';
-       rider = { id: 'demo-rider-id', profiles: { name: 'Demo Rider' } };
-       loadOrders();
-       setInterval(loadOrders, 15000);
-    }
-  };
-
-  function initAudio() {
-     if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-     }
-  }
-
-  // BEEP SOUND GENERATOR
-  function startBeeping() {
-     if (beepInterval) return;
-     if (!audioCtx) return; // Wait for user interaction
-     
-     beepInterval = setInterval(() => {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
-        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-        
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.15);
-     }, 1500); // Beep every 1.5 seconds
-  }
-
-  function stopBeeping() {
-     if (beepInterval) {
-        clearInterval(beepInterval);
-        beepInterval = null;
-     }
-  }
-
-  async function initApp(user) {
-    const { data, error } = await sb.from('riders').select('*, profiles(name, phone)').eq('owner_id', user.id).maybeSingle();
-    if (error || !data) { alert('No rider account found.'); return; }
-    rider = data;
-    document.getElementById('riderName').innerText = rider.profiles.name || 'Rider';
-    document.getElementById('setName').innerText = rider.profiles.name || '-';
-    document.getElementById('setPhone').innerText = rider.profiles.phone || '-';
-    loadOrders();
-    setInterval(loadOrders, 15000);
+  function login() {
+    document.getElementById('screen-login').classList.remove('active');
+    document.getElementById('screen-home').classList.add('active');
+    document.getElementById('bottomNav').style.display = 'flex';
   }
 
   function switchTab(tabId, btn) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById('view-' + tabId).classList.add('active');
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + tabId).classList.add('active');
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    
-    // Stop beeping if we leave the home tab
-    if (tabId !== 'home') {
-       stopBeeping();
-    } else if (activeOrders.length === 0 && isOnline) {
-       startBeeping();
-    }
   }
 
   function toggleOnline() {
-    isOnline = !isOnline;
-    const el = document.getElementById('onlineToggle');
-    if (isOnline) {
-       el.classList.remove('offline');
-       el.innerHTML = '<div class="status-dot"></div><span>ONLINE</span>';
-       if (activeOrders.length === 0) startBeeping();
+    const el = document.querySelector('.status-toggle');
+    const dot = el.querySelector('.status-dot');
+    const span = el.querySelector('span');
+    if (span.innerText === 'ONLINE') {
+      span.innerText = 'OFFLINE';
+      dot.style.background = 'var(--danger)';
+      el.style.background = 'rgba(239, 68, 68, 0.1)';
+      el.style.color = 'var(--danger)';
     } else {
-       el.classList.add('offline');
-       el.innerHTML = '<div class="status-dot"></div><span>OFFLINE</span>';
-       stopBeeping();
+      span.innerText = 'ONLINE';
+      dot.style.background = 'var(--primary)';
+      el.style.background = 'var(--primary-light)';
+      el.style.color = 'var(--primary)';
     }
   }
 
-  async function loadOrders() {
-    if (!rider) return;
-    renderOrders();
-    updateStats();
+  function showOrderDetails() {
+    // Hide preview, show active order
+    document.querySelector('.order-preview').style.display = 'none';
+    document.getElementById('activeOrderSection').style.display = 'block';
+    currentOrderState = 'accepted';
+    updateUI();
   }
 
-  function addDemoOrder(silent = false) {
-    stopBeeping(); // Stop beeping when an order comes in
-    
-    if (!silent) {
-      const num = '#' + Math.floor(1000 + Math.random() * 9000);
-      activeOrders.unshift({
-        id: 'demo-' + Date.now(),
-        order_number: num,
-        customer_name: 'Hawa B.',
-        customer_phone: '08011112222',
-        delivery_address: 'Lat: 6.5244, Long: 3.3792',
-        vendor_address: '12 Allen Avenue, Ikeja',
-        items: [{ name: 'Jollof Rice & Chicken', qty: 1, price: 3500 }],
-        total: 4500,
-        status: 'accepted',
-        pickup_code: '1234',
-        delivery_code: '5678'
-      });
-    }
-    renderOrders();
-  }
-
-  function renderOrders() {
-    const container = document.getElementById('ordersContainer');
-
-    if (activeOrders.length === 0) {
-      // SLICK RADAR SCANNING ANIMATION WHEN NO ORDERS
-      container.innerHTML = `
-        <div class="empty-state" style="border:none; padding:0;">
-          <div class="radar-container">
-            <div class="radar-sweep"></div>
-            <div class="radar-circle"></div>
-            <div class="radar-circle"></div>
-            <div class="radar-circle"></div>
-            <div class="radar-icon">🛵</div>
-          </div>
-          <div class="radar-text">Scanning for new orders...</div>
-          <div class="radar-subtext">You will be notified automatically</div>
-        </div>`;
-        
-      // Start beeping only if on Home tab and online
-      if (isOnline && document.getElementById('view-home').classList.contains('active')) {
-         startBeeping();
-      }
-    } else {
-      container.innerHTML = activeOrders.map(o => {
-        let actionBtn = '';
-        let badgeClass = '';
-        let badgeText = '';
-        let progress = 0;
-
-        if (o.status === 'accepted' || o.status === 'arrived_at_vendor') {
-           badgeClass = 'badge-pickup'; badgeText = 'Pickup'; progress = 33;
-           actionBtn = `<button class="btn btn-blue" onclick="openScan('${o.id}', 'pickup')">📷 Scan QR to Pick Up</button>`;
-        } else if (o.status === 'picked_up' || o.status === 'arrived_at_customer') {
-           badgeClass = 'badge-deliver'; badgeText = 'Deliver'; progress = 66;
-           actionBtn = `<button class="btn btn-green" onclick="openScan('${o.id}', 'deliver')">✅ Scan QR to Deliver</button>`;
-        }
-
-        const vendorMapLink = `https://maps.google.com/?q=${encodeURIComponent(o.vendor_address || '')}`;
-        const customerMapLink = o.delivery_address.includes('Lat:') 
-           ? `https://maps.google.com/?q=${o.delivery_address.replace('Lat: ', '').replace(', Long: ', ',')}` 
-           : `https://maps.google.com/?q=${encodeURIComponent(o.delivery_address)}`;
-
-        return `
-        <div class="order-card">
-          <div class="order-header">
-            <span class="order-id">${o.order_number}</span>
-            <span class="order-badge ${badgeClass}">${badgeText}</span>
-          </div>
-          
-          <div class="progress-bar">
-            <div class="progress-line"><div class="progress-line-fill" style="width:${progress}%"></div></div>
-            <div class="progress-step"><div class="step-circle done">✓</div><div class="step-label">Accepted</div></div>
-            <div class="progress-step"><div class="step-circle ${progress >= 33 ? 'active' : ''}">${progress >= 33 ? '✓' : '2'}</div><div class="step-label">Pickup</div></div>
-            <div class="progress-step"><div class="step-circle ${progress >= 66 ? 'active' : ''}">${progress >= 66 ? '✓' : '3'}</div><div class="step-label">Deliver</div></div>
-          </div>
-
-          <div class="detail-row"><span>Customer:</span><b>${o.customer_name}</b></div>
-          <div class="detail-row"><span>Items:</span><b>${o.items.length} item(s)</b></div>
-          <div class="detail-row"><span>Total:</span><b>₦${Number(o.total).toLocaleString()}</b></div>
-          
-          <div class="address-box">
-            <b>🏪 Pickup</b>${o.vendor_address || 'Restaurant Address'}<br>
-            <a href="${vendorMapLink}" target="_blank">Open in Google Maps ↗</a>
-          </div>
-          <div class="address-box">
-            <b>📍 Dropoff</b>${o.delivery_address}<br>
-            <a href="${customerMapLink}" target="_blank">Open in Google Maps ↗</a>
-          </div>
-
-          <div class="action-row">
-            <a class="btn btn-gray" href="tel:${o.customer_phone}">📞 Call</a>
-            ${actionBtn}
-          </div>
-        </div>`;
-      }).join('');
+  function advanceOrder() {
+    if (currentOrderState === 'accepted') {
+      currentOrderState = 'picked_up';
+      updateUI();
+    } else if (currentOrderState === 'picked_up') {
+      currentOrderState = 'delivered';
+      document.getElementById('successOverlay').classList.add('active');
     }
   }
 
-  function updateStats() {
-    const delivered = historyOrders.length;
-    document.getElementById('statDeliveries').innerText = delivered;
-    document.getElementById('statEarnings').innerText = '₦' + (delivered * 500).toLocaleString();
-    document.getElementById('earnToday').innerText = '₦' + (delivered * 500).toLocaleString();
-  }
+  function updateUI() {
+    const badge = document.getElementById('statusBadge');
+    const actionBtn = document.getElementById('actionBtn');
+    const stepPickup = document.getElementById('stepPickup');
+    const stepDeliver = document.getElementById('stepDeliver');
 
-  // ---------- SCANNING LOGIC ----------
-  function openScan(orderId, action) {
-    stopBeeping();
-    pendingVerifyOrderId = orderId;
-    pendingAction = action;
-    
-    document.getElementById('cameraScanner').style.display = 'flex';
-    document.getElementById('manualPin').classList.remove('active');
-    document.getElementById('pinInput').value = '';
-    document.getElementById('pinInput').classList.remove('error', 'success');
-    
-    document.getElementById('scanText').innerText = action === 'pickup' 
-      ? 'Point camera at Vendor QR Code' 
-      : 'Point camera at Customer QR Code';
-    document.getElementById('pinText').innerText = action === 'pickup' 
-      ? 'Enter Vendor Pickup Code' 
-      : 'Enter Customer Delivery PIN';
-      
-    document.getElementById('scanModal').classList.add('active');
-  }
-
-  function toggleScanMode() {
-    const camera = document.getElementById('cameraScanner');
-    const manual = document.getElementById('manualPin');
-    if (camera.style.display === 'flex') {
-      camera.style.display = 'none';
-      manual.classList.add('active');
-      setTimeout(() => document.getElementById('pinInput').focus(), 300);
-    } else {
-      camera.style.display = 'flex';
-      manual.classList.remove('active');
+    if (currentOrderState === 'accepted') {
+      badge.innerText = 'Pickup';
+      badge.className = 'order-status-badge badge-pickup';
+      actionBtn.innerText = 'Navigate to Restaurant';
+      stepPickup.classList.add('active');
+      stepPickup.querySelector('.step-circle').innerText = '2';
+      stepDeliver.classList.remove('active');
+      stepDeliver.querySelector('.step-circle').innerText = '3';
+    } else if (currentOrderState === 'picked_up') {
+      badge.innerText = 'Delivering';
+      badge.className = 'order-status-badge badge-deliver';
+      actionBtn.innerText = 'Navigate to Customer';
+      stepPickup.classList.remove('active'); stepPickup.classList.add('done');
+      stepPickup.querySelector('.step-circle').innerText = '✓';
+      stepDeliver.classList.add('active');
+      stepDeliver.querySelector('.step-circle').innerText = '3';
     }
   }
 
-  function closeScan() {
-    document.getElementById('scanModal').classList.remove('active');
-    pendingVerifyOrderId = null;
-    pendingAction = null;
-    // Resume beeping if no orders
-    if (activeOrders.length === 0 && isOnline) startBeeping();
-  }
-
-  function simulateScan() {
-    if (!pendingVerifyOrderId) return;
-    const order = activeOrders.find(o => o.id === pendingVerifyOrderId);
-    if (!order) return;
-    
-    const qrTarget = document.querySelector('.qr-target');
-    qrTarget.style.borderColor = 'var(--primary)';
-    qrTarget.style.boxShadow = '0 0 30px rgba(0, 168, 89, 0.8)';
-    document.getElementById('scanText').innerHTML = '<span style="color:var(--primary); font-weight:800;">✅ QR CODE SCANNED!</span>';
-    
-    setTimeout(() => {
-       processSuccess(order);
-    }, 1000);
-  }
-
-  async function verifyPin() {
-    const input = document.getElementById('pinInput');
-    const pin = input.value.trim();
-    if (pin.length !== 4) { 
-       input.classList.add('error');
-       setTimeout(() => input.classList.remove('error'), 500);
-       return; 
-    }
-
-    const order = activeOrders.find(o => o.id === pendingVerifyOrderId);
-    if (!order) { closeScan(); return; }
-
-    let isValid = false;
-    if (pendingAction === 'pickup' && order.pickup_code === pin) isValid = true;
-    if (pendingAction === 'deliver' && order.delivery_code === pin) isValid = true;
-
-    if (isValid) {
-       input.classList.add('success');
-       processSuccess(order);
-    } else {
-       input.classList.add('error');
-       document.getElementById('pinText').innerHTML = '<span style="color:var(--danger); font-weight:800;">❌ INVALID CODE. TRY AGAIN.</span>';
-       setTimeout(() => {
-          input.classList.remove('error');
-          document.getElementById('pinText').innerText = 'Enter the 4-digit code';
-          input.value = '';
-          input.focus();
-       }, 1500);
-    }
-  }
-
-  function processSuccess(order) {
-    const nextStatus = pendingAction === 'pickup' ? 'picked_up' : 'delivered';
-    order.status = nextStatus;
-    
-    setTimeout(() => {
-       closeScan();
-       if (nextStatus === 'delivered') {
-          const idx = activeOrders.findIndex(o => o.id === order.id);
-          if (idx > -1) activeOrders.splice(idx, 1);
-          historyOrders.unshift(order);
-          alert('Delivery Complete! ₦500 added to your earnings.');
-       }
-       renderOrders();
-       updateStats();
-    }, 1000);
-  }
-
-  document.getElementById('pinInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') verifyPin();
-  });
-
-  function handleSignOut() {
-     sb.auth.signOut();
-     location.reload();
+  function closeSuccess() {
+    document.getElementById('successOverlay').classList.remove('active');
+    // Reset UI
+    currentOrderState = 'preview';
+    document.querySelector('.order-preview').style.display = 'flex';
+    document.getElementById('activeOrderSection').style.display = 'none';
+    switchTab('home', document.querySelector('.nav-item'));
   }
 </script>
 
