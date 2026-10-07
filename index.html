@@ -45,16 +45,23 @@
     .section-title { font-size: 13px; font-weight: 700; color: var(--text-gray); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
     .btn-demo { background: rgba(59, 130, 246, 0.2); color: var(--blue); border: 1px solid var(--blue); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
 
-    /* RADAR SCANNING ANIMATION */
-    .radar-container { position: relative; width: 160px; height: 160px; margin: 40px auto; display: flex; align-items: center; justify-content: center; }
-    .radar-circle { position: absolute; width: 100%; height: 100%; border: 2px solid var(--primary); border-radius: 50%; opacity: 0; animation: radar 2s linear infinite; }
+    /* RADAR SCANNING ANIMATION (360 SWEEP + PULSE) */
+    .radar-container { position: relative; width: 180px; height: 180px; margin: 40px auto; display: flex; align-items: center; justify-content: center; }
+    .radar-circle { position: absolute; width: 100%; height: 100%; border: 2px solid var(--primary); border-radius: 50%; opacity: 0; animation: radarPulse 2s linear infinite; }
     .radar-circle:nth-child(2) { animation-delay: 0.6s; }
     .radar-circle:nth-child(3) { animation-delay: 1.2s; }
-    .radar-icon { font-size: 50px; z-index: 2; animation: pulse 1.5s infinite; }
-    @keyframes radar { 0% { transform: scale(0.3); opacity: 0.8; } 100% { transform: scale(1.2); opacity: 0; } }
-    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-    .radar-text { text-align: center; color: var(--text-gray); font-size: 14px; font-weight: 600; margin-top: -10px; }
-    .radar-subtext { text-align: center; color: var(--text-gray); font-size: 11px; margin-top: 4px; opacity: 0.7; }
+    
+    /* The 360 degree sweeping line */
+    .radar-sweep { position: absolute; width: 50%; height: 50%; background: conic-gradient(from 0deg, transparent 0deg, rgba(0, 168, 89, 0.5) 90deg, transparent 90deg); border-radius: 100% 0 0 0; transform-origin: bottom right; animation: radarRotate 2s linear infinite; top: 0; left: 0; }
+    
+    .radar-icon { font-size: 50px; z-index: 2; animation: iconPulse 1s infinite alternate; }
+    
+    @keyframes radarRotate { 100% { transform: rotate(360deg); } }
+    @keyframes radarPulse { 0% { transform: scale(0.3); opacity: 0.8; } 100% { transform: scale(1.2); opacity: 0; } }
+    @keyframes iconPulse { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; } }
+    
+    .radar-text { text-align: center; color: var(--primary); font-size: 15px; font-weight: 700; margin-top: -10px; text-shadow: 0 0 10px rgba(0, 168, 89, 0.5); }
+    .radar-subtext { text-align: center; color: var(--text-gray); font-size: 11px; margin-top: 6px; opacity: 0.7; }
 
     /* ORDER CARDS */
     .order-card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); position: relative; overflow: hidden; }
@@ -98,9 +105,7 @@
     .scan-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 17, 32, 0.98); backdrop-filter: blur(10px); z-index: 999; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
     .scan-overlay.active { display: flex; animation: fadeIn 0.2s ease; }
     
-    /* CAMERA VIEWFINDER MOCK */
     .camera-view { position: relative; width: 100%; max-width: 320px; height: 320px; background: #000; border-radius: 24px; overflow: hidden; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--border); }
-    .camera-view::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="none" stroke="%23334155" stroke-width="1"/></svg>'); opacity: 0.2; }
     
     .qr-target { position: relative; width: 180px; height: 180px; border: 2px solid rgba(0, 168, 89, 0.3); border-radius: 16px; }
     .qr-target::before, .qr-target::after { content: ''; position: absolute; width: 30px; height: 30px; border: 4px solid var(--primary); border-radius: 4px; }
@@ -112,7 +117,6 @@
 
     .scan-text { font-size: 14px; color: var(--text-gray); margin-bottom: 24px; font-weight: 600; }
     
-    /* PIN FALLBACK */
     .pin-fallback { display: none; flex-direction: column; align-items: center; width: 100%; }
     .pin-fallback.active { display: flex; }
     .pin-input { width: 100%; max-width: 280px; height: 70px; font-size: 36px; letter-spacing: 16px; text-align: center; background: var(--bg-dark); border: 2px solid var(--border); border-radius: 16px; color: #fff; font-weight: 800; outline: none; margin-bottom: 24px; transition: 0.3s; }
@@ -156,7 +160,7 @@
   <div id="view-history" class="view">
     <div class="section-title">Delivery History</div>
     <div id="historyContainer">
-      <div class="radar-text" style="margin-top: 40px;">No history yet</div>
+      <div class="radar-text" style="margin-top: 40px; color: var(--text-gray);">No history yet</div>
     </div>
   </div>
 
@@ -169,7 +173,7 @@
       <div class="stat-card"><span>Pending Payout</span><b id="earnPending">₦0</b></div>
     </div>
     <div class="section-title">Recent Payouts</div>
-    <div class="radar-text" style="margin-top: 40px;">No payouts requested yet</div>
+    <div class="radar-text" style="margin-top: 40px; color: var(--text-gray);">No payouts requested yet</div>
   </div>
 
   <!-- SETTINGS VIEW -->
@@ -246,7 +250,14 @@
   let pendingAction = null;
   let isOnline = true;
 
+  // AUDIO VARIABLES
+  let audioCtx = null;
+  let beepInterval = null;
+
   window.onload = async function() {
+    // Enable audio on first user interaction to bypass browser autoplay policy
+    document.body.addEventListener('click', initAudio, { once: true });
+    
     const s = await sb.auth.getSession();
     if (s.data.session) {
        initApp(s.data.session.user);
@@ -260,6 +271,41 @@
        setInterval(loadOrders, 15000);
     }
   };
+
+  function initAudio() {
+     if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+     }
+  }
+
+  // BEEP SOUND GENERATOR
+  function startBeeping() {
+     if (beepInterval) return;
+     if (!audioCtx) return; // Wait for user interaction
+     
+     beepInterval = setInterval(() => {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+        
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
+     }, 1500); // Beep every 1.5 seconds
+  }
+
+  function stopBeeping() {
+     if (beepInterval) {
+        clearInterval(beepInterval);
+        beepInterval = null;
+     }
+  }
 
   async function initApp(user) {
     const { data, error } = await sb.from('riders').select('*, profiles(name, phone)').eq('owner_id', user.id).maybeSingle();
@@ -277,6 +323,13 @@
     document.getElementById('view-' + tabId).classList.add('active');
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
+    
+    // Stop beeping if we leave the home tab
+    if (tabId !== 'home') {
+       stopBeeping();
+    } else if (activeOrders.length === 0 && isOnline) {
+       startBeeping();
+    }
   }
 
   function toggleOnline() {
@@ -285,9 +338,11 @@
     if (isOnline) {
        el.classList.remove('offline');
        el.innerHTML = '<div class="status-dot"></div><span>ONLINE</span>';
+       if (activeOrders.length === 0) startBeeping();
     } else {
        el.classList.add('offline');
        el.innerHTML = '<div class="status-dot"></div><span>OFFLINE</span>';
+       stopBeeping();
     }
   }
 
@@ -298,6 +353,8 @@
   }
 
   function addDemoOrder(silent = false) {
+    stopBeeping(); // Stop beeping when an order comes in
+    
     if (!silent) {
       const num = '#' + Math.floor(1000 + Math.random() * 9000);
       activeOrders.unshift({
@@ -325,6 +382,7 @@
       container.innerHTML = `
         <div class="empty-state" style="border:none; padding:0;">
           <div class="radar-container">
+            <div class="radar-sweep"></div>
             <div class="radar-circle"></div>
             <div class="radar-circle"></div>
             <div class="radar-circle"></div>
@@ -333,6 +391,11 @@
           <div class="radar-text">Scanning for new orders...</div>
           <div class="radar-subtext">You will be notified automatically</div>
         </div>`;
+        
+      // Start beeping only if on Home tab and online
+      if (isOnline && document.getElementById('view-home').classList.contains('active')) {
+         startBeeping();
+      }
     } else {
       container.innerHTML = activeOrders.map(o => {
         let actionBtn = '';
@@ -398,10 +461,10 @@
 
   // ---------- SCANNING LOGIC ----------
   function openScan(orderId, action) {
+    stopBeeping();
     pendingVerifyOrderId = orderId;
     pendingAction = action;
     
-    // Reset modal state
     document.getElementById('cameraScanner').style.display = 'flex';
     document.getElementById('manualPin').classList.remove('active');
     document.getElementById('pinInput').value = '';
@@ -434,15 +497,15 @@
     document.getElementById('scanModal').classList.remove('active');
     pendingVerifyOrderId = null;
     pendingAction = null;
+    // Resume beeping if no orders
+    if (activeOrders.length === 0 && isOnline) startBeeping();
   }
 
-  // Simulate a successful QR scan
   function simulateScan() {
     if (!pendingVerifyOrderId) return;
     const order = activeOrders.find(o => o.id === pendingVerifyOrderId);
     if (!order) return;
     
-    // Play success animation
     const qrTarget = document.querySelector('.qr-target');
     qrTarget.style.borderColor = 'var(--primary)';
     qrTarget.style.boxShadow = '0 0 30px rgba(0, 168, 89, 0.8)';
@@ -486,14 +549,11 @@
 
   function processSuccess(order) {
     const nextStatus = pendingAction === 'pickup' ? 'picked_up' : 'delivered';
-    
-    // Update status in local array
     order.status = nextStatus;
     
     setTimeout(() => {
        closeScan();
        if (nextStatus === 'delivered') {
-          // Move to history
           const idx = activeOrders.findIndex(o => o.id === order.id);
           if (idx > -1) activeOrders.splice(idx, 1);
           historyOrders.unshift(order);
