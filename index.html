@@ -1,489 +1,464 @@
-
-html = r'''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#00A859">
 <title>QuickEats Rider</title>
 
-<!-- Supabase is optional. The rider UI and Demo Rider mode work without it. -->
-<script
-  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-  defer
-  onerror="window.supabaseLoadFailed=true">
-</script>
-
 <style>
 :root{
-  --primary:#00A859;--primary-light:#E6F6EE;--bg:#F6F8F7;--card:#fff;
-  --text:#171A19;--muted:#6B7280;--border:#E5E7EB;--danger:#EF4444;
-}
-*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-html,body{min-height:100%;background:var(--bg);color:var(--text)}
-body{display:flex;justify-content:center}
-button,input{font:inherit}
-button{cursor:pointer}
-.app{width:100%;max-width:480px;min-height:100vh;background:var(--bg);position:relative;padding-bottom:76px}
-.screen{display:none;min-height:100vh}
-.screen.active{display:block;animation:fade .2s ease}
-@keyframes fade{from{opacity:.3;transform:translateY(5px)}to{opacity:1;transform:none}}
-
-#login{background:#fff;min-height:100vh;padding:28px 24px;display:none;flex-direction:column;justify-content:center;align-items:center;text-align:center}
-#login.active{display:flex}
-.logo{width:104px;height:104px;border-radius:50%;background:var(--primary);display:grid;place-items:center;box-shadow:0 10px 24px rgba(0,168,89,.25);margin-bottom:18px}
-.logo span{font-size:52px}
-.login-title{font-size:30px;font-weight:850;margin-bottom:6px}
-.login-sub{font-size:14px;color:var(--muted);margin-bottom:30px}
-.form{width:100%;max-width:340px}
-.field{text-align:left;margin-bottom:15px}
-.field label{display:block;font-size:13px;font-weight:700;color:#4B5563;margin-bottom:7px}
-.field input{width:100%;height:54px;border:1px solid var(--border);border-radius:12px;padding:0 15px;background:#F9FAFB;outline:none}
-.field input:focus{border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(0,168,89,.1)}
-.primary,.secondary{width:100%;height:55px;border-radius:12px;font-weight:800;border:0}
-.primary{background:var(--primary);color:#fff}
-.secondary{background:#fff;color:var(--text);border:2px solid var(--border);margin-top:11px}
-.primary:disabled{opacity:.65}
-.demo-note{font-size:11px;color:var(--muted);margin-top:13px;line-height:1.5}
-
-.header{height:70px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:20}
-.header h1{font-size:18px}
-.header p{font-size:12px;color:var(--muted);margin-top:2px}
-.online{border:0;border-radius:22px;padding:9px 13px;background:var(--primary-light);color:var(--primary);font-size:12px;font-weight:800;display:flex;align-items:center;gap:7px}
-.online.offline{background:#FEECEC;color:var(--danger)}
-.dot{width:8px;height:8px;border-radius:50%;background:currentColor}
-
-.map{height:43vh;min-height:290px;position:relative;overflow:hidden;background:#E9EEEC}
-.map:before,.map:after{content:"";position:absolute;inset:-30%;background:
-linear-gradient(28deg,transparent 48%,rgba(255,255,255,.85) 49%,rgba(255,255,255,.85) 51%,transparent 52%),
-linear-gradient(116deg,transparent 48%,rgba(255,255,255,.8) 49%,rgba(255,255,255,.8) 51%,transparent 52%);
-background-size:115px 90px;transform:rotate(3deg);opacity:.8}
-.map:after{background-size:170px 130px;transform:rotate(-18deg);opacity:.5}
-.route{position:absolute;inset:0}
-.route svg{width:100%;height:100%}
-.route path{fill:none;stroke:#2388FF;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
-.pin{position:absolute;width:36px;height:36px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center;color:#fff;font-size:17px;box-shadow:0 4px 12px #0003;z-index:3}
-.pin span{transform:rotate(45deg)}
-.restaurant{background:var(--primary);left:30%;top:23%}
-.customer{background:#EF4444;right:18%;bottom:20%}
-.rider{position:absolute;left:47%;top:48%;width:22px;height:22px;border-radius:50%;background:#1677FF;border:4px solid #fff;box-shadow:0 2px 8px #0004;z-index:4}
-.locate{position:absolute;right:16px;bottom:16px;width:46px;height:46px;border:0;border-radius:50%;background:#fff;box-shadow:0 4px 12px #0002;font-size:20px;z-index:5}
-
-.sheet{background:#fff;margin-top:-22px;border-radius:24px 24px 0 0;position:relative;z-index:10;padding:18px 16px 28px;min-height:48vh;box-shadow:0 -8px 20px #0000000d}
-.handle{width:42px;height:4px;border-radius:5px;background:#D8DDE0;margin:0 auto 17px}
-.sheet h2{font-size:18px;margin-bottom:4px}
-.sheet .sub{font-size:13px;color:var(--muted);margin-bottom:16px}
-.order-card{border:1px solid var(--border);background:#FAFBFB;border-radius:16px;padding:13px;display:flex;gap:12px;align-items:center}
-.food-img{width:64px;height:64px;border-radius:12px;object-fit:cover;background:#ddd}
-.order-info{flex:1}
-.order-info h3{font-size:14px;margin-bottom:4px}
-.order-info p{font-size:12px;color:var(--muted);margin-bottom:5px}
-.price{font-size:14px;font-weight:850;color:var(--primary)}
-.arrow{font-size:25px;color:#9CA3AF}
-
-.details{margin-top:14px;background:#F8FAF9;border-radius:16px;padding:15px}
-.detail-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}
-.badge{font-size:10px;font-weight:850;text-transform:uppercase;padding:5px 9px;border-radius:15px;background:#E8F2FF;color:#2475C9}
-.badge.delivering{background:#FFF4DE;color:#C77700}
-.row{display:flex;justify-content:space-between;gap:15px;font-size:13px;margin:8px 0}
-.row span:first-child{color:var(--muted)}
-.row span:last-child{font-weight:700;text-align:right}
-.total{border-top:1px dashed var(--border);padding-top:10px;margin-top:10px;font-weight:850}
-.total span:last-child{color:var(--primary)}
-.progress{display:flex;justify-content:space-between;position:relative;margin:15px 0 18px}
-.progress:before{content:"";position:absolute;top:12px;left:12%;right:12%;height:2px;background:#DDE2DF}
-.step{z-index:2;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;color:var(--muted);font-weight:700}
-.circle{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#DDE2DF;color:#fff;font-size:10px}
-.step.active .circle,.step.done .circle{background:var(--primary)}
-.full{margin-top:14px}
-
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:76px;background:#fff;border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:5px}
-.nav button{flex:1;border:0;background:transparent;color:#7A8280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
-.nav button.active{color:var(--primary)}
-.nav .icon{font-size:22px;line-height:1}
-.nav small{font-size:10px;font-weight:800}
-
-.earn-card{margin:16px;background:#fff;border-radius:17px;padding:22px;text-align:center;box-shadow:0 4px 12px #0000000a}
-.earn-card p{color:var(--muted);font-size:13px}
-.earn-card h2{font-size:32px;color:var(--primary);margin-top:7px}
-.transactions{margin:0 16px;background:#fff;border-radius:17px;padding:0 16px}
-.tx{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border)}
-.tx:last-child{border:0}
-.tx h3{font-size:14px}.tx p{font-size:11px;color:var(--muted);margin-top:3px}.tx b{color:var(--primary);font-size:14px}
-
-.profile-head{background:#fff;text-align:center;padding:28px 20px;border-bottom:1px solid var(--border)}
-.avatar{width:82px;height:82px;border-radius:50%;background:var(--primary-light);display:grid;place-items:center;font-size:42px;margin:0 auto 10px}
-.profile-head h2{font-size:20px}.profile-head p{font-size:12px;color:var(--primary);font-weight:800;margin-top:4px}
-.stats{display:flex;justify-content:space-around;margin-top:20px}.stat b{display:block;font-size:18px}.stat span{font-size:10px;color:var(--muted)}
-.menu{margin-top:12px;background:#fff}.menu button{width:100%;height:56px;border:0;border-bottom:1px solid var(--border);background:#fff;display:flex;justify-content:space-between;align-items:center;padding:0 20px;font-weight:650}.menu .logout{color:var(--danger)}
-
-.overlay{display:none;position:fixed;inset:0;background:#fff;z-index:500;padding:25px;align-items:center;justify-content:center;text-align:center}
-.overlay.active{display:flex}
-.success{width:100%;max-width:380px}
-.check{width:95px;height:95px;border-radius:50%;background:var(--primary-light);display:grid;place-items:center;font-size:50px;margin:0 auto 18px}
-.success h2{font-size:24px}.success p{color:var(--muted);font-size:13px;margin:7px 0 18px}
-.breakdown{background:#F7F9F8;border-radius:16px;padding:16px;margin-bottom:18px}
-.breakdown div{display:flex;justify-content:space-between;font-size:13px;margin:8px 0}
-.breakdown .sum{border-top:1px dashed var(--border);padding-top:10px;font-size:18px;font-weight:850;color:var(--primary)}
-
-.toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:#18201D;color:#fff;padding:11px 16px;border-radius:12px;font-size:12px;opacity:0;pointer-events:none;z-index:700;transition:.25s;max-width:90%;text-align:center}
-.toast.show{opacity:1;transform:translate(-50%,0)}
-</style>
-</head>
-
-<body>
-<div class="app">
-
-  <section id="login" class="screen active">
-    <div class="logo"><span>🛵</span></div>
-    <div class="login-title">QuickEats</div>
-    <div class="login-sub">Delivering Good Food, Faster!</div>
-
-    <div class="form">
-      <div class="field">
-        <label>Email</label>
-        <input id="email" type="email" value="rider@quickeats.com" autocomplete="username">
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <input id="password" type="password" value="password123" autocomplete="current-password">
-      </div>
-      <button id="loginBtn" class="primary" onclick="login()">Log In</button>
-      <button class="secondary" onclick="demoLogin()">Continue as Demo Rider</button>
-      <div class="demo-note">Demo mode does not require Supabase and is available even if the database is offline.</div>
-    </div>
-  </section>
-
-  <section id="home" class="screen">
-    <header class="header">
-      <div><h1 id="greeting">Good morning, David! 👋</h1><p id="onlineText">You're online</p></div>
-      <button id="onlineBtn" class="online" onclick="toggleOnline()"><span class="dot"></span><span id="onlineLabel">ONLINE</span></button>
-    </header>
-
-    <div class="map">
-      <div class="route">
-        <svg viewBox="0 0 480 420" preserveAspectRatio="none">
-          <path d="M150 105 C205 150 195 205 255 245 S360 315 390 350"/>
-        </svg>
-      </div>
-      <div class="pin restaurant"><span>🍴</span></div>
-      <div class="pin customer"><span>📍</span></div>
-      <div class="rider"></div>
-      <button class="locate" onclick="toast('Your location updated')">📍</button>
-    </div>
-
-    <div class="sheet">
-      <div class="handle"></div>
-      <h2>New orders nearby!</h2>
-      <p class="sub">Tap an order to view the delivery details.</p>
-
-      <div id="orderPreview" class="order-card" onclick="acceptOrder()">
-        <img class="food-img" src="https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=160&h=160&fit=crop" alt="Food">
-        <div class="order-info">
-          <h3>Tasty Bites Restaurant</h3>
-          <p>Jollof Rice + Grilled Chicken</p>
-          <div class="price">₦3,750</div>
-        </div>
-        <div class="arrow">›</div>
-      </div>
-
-      <div id="details" class="details" style="display:none">
-        <div class="detail-top">
-          <strong>Order #4821</strong>
-          <span id="badge" class="badge">Pickup</span>
-        </div>
-
-        <div class="progress">
-          <div class="step done"><span class="circle">✓</span><span>Accepted</span></div>
-          <div id="pickupStep" class="step active"><span class="circle">2</span><span>Pickup</span></div>
-          <div id="deliverStep" class="step"><span class="circle">3</span><span>Deliver</span></div>
-        </div>
-
-        <div class="row"><span>Customer</span><span>Hawa B.</span></div>
-        <div class="row"><span>Pickup</span><span>12, Adeola Street, Ikeja</span></div>
-        <div class="row"><span>Drop-off</span><span>18, Unity Road, Lekki</span></div>
-        <div class="row"><span>Distance</span><span>2.5 km</span></div>
-        <div class="row total"><span>Total Earnings</span><span>₦3,750</span></div>
-
-        <button id="actionBtn" class="primary full" onclick="advanceOrder()">Navigate to Restaurant</button>
-      </div>
-    </div>
-  </section>
-
-  <section id="earnings" class="screen">
-    <header class="header"><h1>Earnings</h1></header>
-    <div class="earn-card"><p>Today's Earnings</p><h2>₦18,750</h2></div>
-    <div class="transactions">
-      <div class="tx"><div><h3>Tasty Bites</h3><p>Completed · 10:24 AM</p></div><b>₦3,750</b></div>
-      <div class="tx"><div><h3>Spice Hub</h3><p>Completed · 10:45 AM</p></div><b>₦4,200</b></div>
-      <div class="tx"><div><h3>Mama's Kitchen</h3><p>Completed · 1:20 PM</p></div><b>₦2,800</b></div>
-      <div class="tx"><div><h3>Food Palace</h3><p>Completed · 3:10 PM</p></div><b>₦3,500</b></div>
-    </div>
-  </section>
-
-  <section id="profile" class="screen">
-    <div class="profile-head">
-      <div class="avatar">👤</div>
-      <h2 id="profileName">David Johnson</h2>
-      <p>✓ Verified Rider</p>
-      <div class="stats">
-        <div class="stat"><b>5.0</b><span>Rating</span></div>
-        <div class="stat"><b>120</b><span>Deliveries</span></div>
-        <div class="stat"><b>98%</b><span>On-time</span></div>
-      </div>
-    </div>
-    <div class="menu">
-      <button onclick="toast('Edit Profile opened')"><span>Edit Profile</span><span>›</span></button>
-      <button onclick="toast('Vehicle & Documents opened')"><span>Vehicle & Documents</span><span>›</span></button>
-      <button onclick="toast('Bank Account opened')"><span>Bank Account</span><span>›</span></button>
-      <button onclick="toast('Notifications opened')"><span>Notifications</span><span>›</span></button>
-      <button onclick="toast('Help & Support opened')"><span>Help & Support</span><span>›</span></button>
-      <button class="logout" onclick="logout()"><span>Log Out</span><span>›</span></button>
-    </div>
-  </section>
-
-  <nav id="nav" class="nav" style="display:none">
-    <button class="active" data-tab="home" onclick="switchTab('home',this)"><span class="icon">🏠</span><small>Home</small></button>
-    <button data-tab="earnings" onclick="switchTab('earnings',this)"><span class="icon">💰</span><small>Earnings</small></button>
-    <button data-tab="profile" onclick="switchTab('profile',this)"><span class="icon">👤</span><small>Profile</small></button>
-  </nav>
-</div>
-
-<div id="success" class="overlay">
-  <div class="success">
-    <div class="check">✓</div>
-    <h2>Delivery Completed!</h2>
-    <p>You've successfully delivered the order.</p>
-    <div class="breakdown">
-      <div><span>Base Pay</span><span>₦2,500</span></div>
-      <div><span>Distance Pay</span><span>₦1,000</span></div>
-      <div><span>Bonus</span><span>₦250</span></div>
-      <div class="sum"><span>Total Earnings</span><span>₦3,750</span></div>
-    </div>
-    <button class="primary" onclick="closeSuccess()">Back to Home</button>
-  </div>
-</div>
-
-<div id="toast" class="toast"></div>
-
-<script>
-/* ---------------------------
-   QUICK EATS RIDER APP
-   Supabase is deliberately non-blocking.
----------------------------- */
-
-const SUPABASE_URL = "https://glkutdkwbrjpiuqcmgwe.supabase.co";
-
-/*
-  Put your Supabase ANON/PUBLISHABLE key here if you want real login.
-  Never put a Supabase service_role/secret key in browser code.
-*/
-const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
-
-let sb = null;
-let demoMode = false;
-let online = true;
-let orderState = "preview";
-let toastTimer = null;
-
-function initSupabase(){
-  try{
-    if(window.supabase && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes("PASTE_")){
-      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    }
-  }catch(e){
-    console.warn("Supabase initialization skipped:", e);
-    sb = null;
-  }
+  --green:#00A859;
+  --green-dark:#008F4C;
+  --green-soft:#E8F8F0;
+  --bg:#F5F7F6;
+  --white:#fff;
+  --text:#171A19;
+  --muted:#68716D;
+  --line:#E1E6E3;
+  --red:#EF4444;
+  --blue:#1677FF;
+  --orange:#F59E0B;
 }
 
-window.addEventListener("load", initSupabase);
-
-function withTimeout(promise, ms=10000){
-  return Promise.race([
-    promise,
-    new Promise((_,reject)=>setTimeout(()=>reject(new Error("Connection timed out after 10 seconds.")),ms))
-  ]);
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
 }
 
-function demoLogin(){
-  demoMode = true;
-  showDashboard("Demo Rider");
-  toast("Demo mode started");
+html,body{
+  min-height:100%;
+  background:#e9eeec;
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
 }
 
-async function login(){
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  const btn = document.getElementById("loginBtn");
+body{
+  display:flex;
+  justify-content:center;
+}
 
-  if(!email || !password){
-    toast("Enter your email and password");
-    return;
-  }
+button,input{
+  font:inherit;
+}
 
-  if(!sb){
-    toast("Supabase is not connected. Use Demo Rider or add your anon key.");
-    return;
-  }
+button{
+  cursor:pointer;
+}
 
-  btn.disabled = true;
-  btn.textContent = "Logging in...";
+#app{
+  width:100%;
+  max-width:480px;
+  min-height:100vh;
+  background:var(--bg);
+  position:relative;
+}
 
-  try{
-    const result = await withTimeout(
-      sb.auth.signInWithPassword({email,password}),
-      10000
+.screen{
+  display:none;
+  min-height:100vh;
+  padding-bottom:82px;
+}
+
+.screen.active{
+  display:block;
+}
+
+/* LOGIN */
+
+#login{
+  background:#fff;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:25px;
+}
+
+#login.active{
+  display:flex;
+}
+
+.login-wrap{
+  width:100%;
+  max-width:360px;
+  text-align:center;
+}
+
+.logo{
+  width:105px;
+  height:105px;
+  border-radius:50%;
+  background:var(--green);
+  display:grid;
+  place-items:center;
+  margin:0 auto 18px;
+  box-shadow:0 12px 30px #00a85935;
+}
+
+.logo span{
+  font-size:52px;
+}
+
+.login-wrap h1{
+  font-size:31px;
+  font-weight:850;
+}
+
+.login-wrap .tag{
+  color:var(--muted);
+  margin:6px 0 30px;
+}
+
+.field{
+  text-align:left;
+  margin-bottom:14px;
+}
+
+.field label{
+  display:block;
+  font-size:12px;
+  font-weight:750;
+  margin-bottom:6px;
+}
+
+.field input{
+  width:100%;
+  height:52px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  padding:0 14px;
+  background:#fafbfb;
+  outline:none;
+}
+
+.field input:focus{
+  border-color:var(--green);
+  box-shadow:0 0 0 3px #00a85918;
+}
+
+.btn{
+  width:100%;
+  height:53px;
+  border-radius:13px;
+  border:0;
+  font-weight:800;
+}
+
+.btn-green{
+  background:var(--green);
+  color:white;
+}
+
+.btn-outline{
+  background:white;
+  border:1px solid #CBD2CF;
+  color:var(--text);
+  margin-top:10px;
+}
+
+.login-help{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:16px;
+}
+
+/* TOP BAR */
+
+.top{
+  height:70px;
+  background:white;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 16px;
+  border-bottom:1px solid var(--line);
+  position:sticky;
+  top:0;
+  z-index:30;
+}
+
+.top h2{
+  font-size:18px;
+}
+
+.top p{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:2px;
+}
+
+.online{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  border:0;
+  border-radius:22px;
+  background:var(--green-soft);
+  color:var(--green);
+  padding:9px 13px;
+  font-size:12px;
+  font-weight:850;
+}
+
+.online.off{
+  background:#FDECEC;
+  color:var(--red);
+}
+
+.dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:currentColor;
+}
+
+/* HOME MAP */
+
+.map{
+  height:48vh;
+  min-height:315px;
+  position:relative;
+  overflow:hidden;
+  background:#e4e9e7;
+}
+
+.map::before{
+  content:"";
+  position:absolute;
+  inset:-20%;
+  background:
+    linear-gradient(
+      25deg,
+      transparent 47%,
+      #fff 48%,
+      #fff 50%,
+      transparent 51%
+    ),
+    linear-gradient(
+      110deg,
+      transparent 47%,
+      #fff 48%,
+      #fff 50%,
+      transparent 51%
+    ),
+    linear-gradient(
+      0deg,
+      transparent 48%,
+      #d5ddda 49%,
+      #d5ddda 50%,
+      transparent 51%
     );
 
-    if(result.error) throw result.error;
-
-    let name = "Rider";
-
-    try{
-      const profileResult = await withTimeout(
-        sb.from("riders")
-          .select("*, profiles(name)")
-          .eq("owner_id", result.data.user.id)
-          .maybeSingle(),
-        10000
-      );
-
-      if(!profileResult.error && profileResult.data){
-        name = profileResult.data.profiles?.name || "Rider";
-      }
-    }catch(profileError){
-      console.warn("Rider profile lookup failed:", profileError);
-      /* Login still succeeds; the UI can use a fallback name. */
-    }
-
-    demoMode = false;
-    showDashboard(name);
-    toast("Welcome back!");
-  }catch(error){
-    console.error(error);
-    toast("Login failed: " + (error.message || "Please try again."));
-  }finally{
-    btn.disabled = false;
-    btn.textContent = "Log In";
-  }
+  background-size:125px 90px,150px 125px,85px 85px;
+  transform:rotate(3deg);
+  opacity:.8;
 }
 
-function showDashboard(name){
-  document.getElementById("login").classList.remove("active");
-  document.getElementById("home").classList.add("active");
-  document.getElementById("nav").style.display = "flex";
-  document.getElementById("greeting").textContent = "Good morning, " + name + "! 👋";
-  document.getElementById("profileName").textContent = name;
+.road{
+  position:absolute;
+  background:#d2dad7;
+  border-radius:50px;
 }
 
-function switchTab(tab, button){
-  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-  document.getElementById(tab).classList.add("active");
-
-  document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
-  button.classList.add("active");
-
-  window.scrollTo({top:0,behavior:"smooth"});
+.road.r1{
+  width:120%;
+  height:24px;
+  left:-10%;
+  top:28%;
+  transform:rotate(22deg);
 }
 
-function toggleOnline(){
-  online = !online;
-  const btn = document.getElementById("onlineBtn");
-  const label = document.getElementById("onlineLabel");
-  const text = document.getElementById("onlineText");
-
-  btn.classList.toggle("offline", !online);
-  label.textContent = online ? "ONLINE" : "OFFLINE";
-  text.textContent = online ? "You're online" : "You're offline";
-  toast(online ? "You are now online" : "You are now offline");
+.road.r2{
+  width:120%;
+  height:18px;
+  left:-8%;
+  top:58%;
+  transform:rotate(-28deg);
 }
 
-function acceptOrder(){
-  if(!online){
-    toast("Go online to accept new orders");
-    return;
-  }
-  orderState = "accepted";
-  document.getElementById("orderPreview").style.display = "none";
-  document.getElementById("details").style.display = "block";
-  updateOrderUI();
-  toast("Order accepted");
+.route{
+  position:absolute;
+  inset:0;
+  z-index:3;
 }
 
-function advanceOrder(){
-  if(orderState === "accepted"){
-    orderState = "picked_up";
-    updateOrderUI();
-    toast("Order marked as picked up");
-    return;
-  }
-
-  if(orderState === "picked_up"){
-    orderState = "delivered";
-    document.getElementById("success").classList.add("active");
-  }
+.route svg{
+  width:100%;
+  height:100%;
 }
 
-function updateOrderUI(){
-  const badge = document.getElementById("badge");
-  const action = document.getElementById("actionBtn");
-  const pickup = document.getElementById("pickupStep");
-  const deliver = document.getElementById("deliverStep");
-
-  if(orderState === "accepted"){
-    badge.textContent = "Pickup";
-    badge.className = "badge";
-    action.textContent = "Navigate to Restaurant";
-    pickup.classList.add("active");
-    pickup.classList.remove("done");
-    pickup.querySelector(".circle").textContent = "2";
-    deliver.classList.remove("active","done");
-    deliver.querySelector(".circle").textContent = "3";
-  }else if(orderState === "picked_up"){
-    badge.textContent = "Delivering";
-    badge.className = "badge delivering";
-    action.textContent = "Navigate to Customer";
-    pickup.classList.remove("active");
-    pickup.classList.add("done");
-    pickup.querySelector(".circle").textContent = "✓";
-    deliver.classList.add("active");
-    deliver.querySelector(".circle").textContent = "3";
-  }
+.route path{
+  fill:none;
+  stroke:#1677FF;
+  stroke-width:7;
+  stroke-linecap:round;
+  stroke-linejoin:round;
 }
 
-function closeSuccess(){
-  document.getElementById("success").classList.remove("active");
-  orderState = "preview";
-  document.getElementById("details").style.display = "none";
-  document.getElementById("orderPreview").style.display = "flex";
-  switchTab("home", document.querySelector('.nav button[data-tab="home"]'));
+.marker{
+  position:absolute;
+  z-index:5;
+  width:39px;
+  height:39px;
+  border-radius:50% 50% 50% 0;
+  transform:rotate(-45deg);
+  display:grid;
+  place-items:center;
+  color:white;
+  box-shadow:0 5px 12px #0003;
 }
 
-async function logout(){
-  try{
-    if(sb && !demoMode){
-      await withTimeout(sb.auth.signOut(),5000);
-    }
-  }catch(e){
-    console.warn("Logout request failed:",e);
-  }finally{
-    demoMode = false;
-    document.getElementById("nav").style.display = "none";
-    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-    document.getElementById("login").classList.add("active");
-    toast("Logged out");
-  }
+.marker span{
+  transform:rotate(45deg);
 }
 
-function toast(message){
-  const el = document.getElementById("toast");
-  clearTimeout(toastTimer);
-  el.textContent = message;
-  el.classList.add("show");
-  toastTimer = setTimeout(()=>el.classList.remove("show"),2800);
+.restaurant{
+  background:var(--green);
+  left:62%;
+  top:18%;
 }
-</script>
-</body>
-</html>
-'''
+
+.customer{
+  background:var(--red);
+  right:15%;
+  bottom:17%;
+}
+
+.rider-dot{
+  position:absolute;
+  z-index:6;
+  left:46%;
+  top:49%;
+  width:23px;
+  height:23px;
+  border-radius:50%;
+  background:var(--blue);
+  border:4px solid white;
+  box-shadow:0 2px 10px #0005;
+}
+
+.locate{
+  position:absolute;
+  z-index:8;
+  right:15px;
+  bottom:18px;
+  width:48px;
+  height:48px;
+  border:0;
+  border-radius:50%;
+  background:white;
+  box-shadow:0 5px 15px #0002;
+  font-size:20px;
+}
+
+.map-label{
+  position:absolute;
+  z-index:7;
+  background:#fff;
+  border-radius:10px;
+  padding:7px 9px;
+  box-shadow:0 3px 10px #0002;
+  font-size:11px;
+  font-weight:750;
+}
+
+.restaurant-label{
+  right:9%;
+  top:22%;
+}
+
+.customer-label{
+  right:7%;
+  bottom:8%;
+}
+
+/* HOME SHEET */
+
+.sheet{
+  position:relative;
+  margin-top:-22px;
+  z-index:10;
+  background:#fff;
+  border-radius:24px 24px 0 0;
+  padding:16px;
+  min-height:35vh;
+  box-shadow:0 -8px 20px #0000000d;
+}
+
+.handle{
+  width:42px;
+  height:4px;
+  background:#d7ddda;
+  border-radius:4px;
+  margin:0 auto 17px;
+}
+
+.sheet-title{
+  font-size:19px;
+  font-weight:850;
+}
+
+.sheet-sub{
+  font-size:13px;
+  color:var(--muted);
+  margin:4px 0 15px;
+}
+
+.order-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:17px;
+  padding:12px;
+  box-shadow:0 3px 10px #00000007;
+}
+
+.food{
+  width:74px;
+  height:74px;
+  object-fit:cover;
+  border-radius:12px;
+  float:left;
+  margin-right:12px;
+}
+
+.order-main{
+  min-height:74px;
+}
+
+.order-main h3{
+  font-size:14px;
+  padding-top:2px;
+}
+
+.order-main p{
+  font-size:12px;
+  color:var(--muted);
+  margin:4px 0;
+}
+
+.rating{
+  color:#16A34A;
+  font-weight:800;
+}
+
+.price{
+  color:var(--green);
+  font-size:17px;
+  font-weight:900;
+}
+
+.clear{
+  clear:both;
+}
+
+.order-buttons{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+}
+
+.order-buttons button{
+  height:48px;
+  border-radius:12px;
+  font-weight
