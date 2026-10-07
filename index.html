@@ -2,52 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0,
-      maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>QuickEats Rider</title>
+<title>QuickEats Rider - Active Delivery</title>
 
 <style>
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    -webkit-tap-highlight-color: transparent;
-}
-
-:root {
-    --green: #00A859;
-    --green-dark: #008f4d;
-    --green-light: #E8F8F0;
-
-    --black: #171717;
-    --gray: #6B7280;
-    --light-gray: #F3F4F6;
-    --border: #E5E7EB;
-    --white: #FFFFFF;
-
-    --blue: #3B82F6;
-    --red: #EF4444;
-    --orange: #F59E0B;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        Arial,
-        sans-serif;
-
-    background: #F5F7F6;
-    color: var(--black);
-    min-height: 100vh;
-}
-
-button {
-    font-family: inherit;
+    background: #f5f7f6;
+    color: #171717;
 }
 
 .app {
@@ -55,891 +24,537 @@ button {
     max-width: 480px;
     min-height: 100vh;
     margin: auto;
-    background: #F5F7F6;
+    background: #f5f7f6;
     position: relative;
 }
 
-/* =========================
-   HEADER
-========================= */
+/* ================= HEADER ================= */
 
 .header {
-    height: 82px;
+    height: 70px;
     background: white;
-    padding: 16px 18px;
-
     display: flex;
     align-items: center;
-    justify-content: space-between;
-
-    border-bottom: 1px solid var(--border);
+    padding: 0 18px;
+    border-bottom: 1px solid #e8e8e8;
+    position: sticky;
+    top: 0;
+    z-index: 20;
 }
 
-.header-left h1 {
-    font-size: 20px;
-    font-weight: 800;
-    margin-bottom: 4px;
-}
-
-.header-left p {
-    color: var(--gray);
-    font-size: 13px;
-}
-
-.online-button {
+.back {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #f1f3f2;
     border: none;
-    background: var(--green-light);
-    color: var(--green);
-    border-radius: 30px;
-
-    padding: 10px 14px;
-
-    display: flex;
-    align-items: center;
-    gap: 7px;
-
-    font-size: 12px;
-    font-weight: 800;
-
+    font-size: 24px;
     cursor: pointer;
 }
 
-.online-dot {
-    width: 9px;
-    height: 9px;
-    background: var(--green);
+.header-title {
+    flex: 1;
+    text-align: center;
+}
+
+.header-title h2 {
+    font-size: 18px;
+}
+
+.header-title p {
+    color: #777;
+    font-size: 12px;
+    margin-top: 3px;
+}
+
+.help {
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
+    border: none;
+    background: #e8f8f0;
+    color: #00a859;
+    font-weight: bold;
+    font-size: 18px;
 }
 
-.online-button.offline {
-    background: #FEECEC;
-    color: var(--red);
-}
-
-.online-button.offline .online-dot {
-    background: var(--red);
-}
-
-/* =========================
-   MAP
-========================= */
+/* ================= MAP ================= */
 
 .map {
-    height: 310px;
+    height: 280px;
     position: relative;
     overflow: hidden;
-
     background:
-        linear-gradient(
-            35deg,
-            transparent 45%,
-            rgba(255,255,255,.8) 46%,
-            rgba(255,255,255,.8) 48%,
-            transparent 49%
-        ),
-        linear-gradient(
-            125deg,
-            transparent 45%,
-            rgba(255,255,255,.8) 46%,
-            rgba(255,255,255,.8) 48%,
-            transparent 49%
-        ),
-        #E9EEEC;
-
-    background-size: 130px 130px;
+        linear-gradient(30deg, transparent 48%, #ffffff 49%, #ffffff 51%, transparent 52%),
+        linear-gradient(120deg, transparent 48%, #ffffff 49%, #ffffff 51%, transparent 52%),
+        #e7ecea;
+    background-size: 90px 90px;
 }
 
-/* roads */
+/* Roads */
 
 .road {
     position: absolute;
-    background: rgba(255,255,255,.8);
+    background: white;
+    height: 18px;
+    width: 150%;
     transform: rotate(25deg);
-}
-
-.road.one {
-    width: 500px;
-    height: 25px;
-    left: -100px;
-    top: 70px;
+    left: -80px;
+    top: 110px;
+    opacity: .9;
 }
 
 .road.two {
-    width: 500px;
-    height: 20px;
-    left: -50px;
-    top: 190px;
-    transform: rotate(-20deg);
+    transform: rotate(-30deg);
+    top: 185px;
 }
 
 .road.three {
-    width: 500px;
-    height: 16px;
-    left: -20px;
-    top: 250px;
-    transform: rotate(35deg);
+    transform: rotate(5deg);
+    top: 65px;
 }
 
-/* route */
+/* Route */
 
 .route {
     position: absolute;
-    left: 90px;
-    top: 70px;
-
-    width: 300px;
+    width: 250px;
     height: 180px;
-
-    border-bottom: 7px solid #2F80ED;
-    border-right: 7px solid #2F80ED;
-
-    border-radius: 0 0 80px 0;
-
-    transform: rotate(8deg);
+    border-left: 7px solid #1683ed;
+    border-bottom: 7px solid #1683ed;
+    border-radius: 0 0 0 120px;
+    transform: rotate(-15deg);
+    left: 90px;
+    top: 35px;
 }
 
-/* rider location */
+/* Rider marker */
 
-.rider-location {
+.rider-marker {
     position: absolute;
-
-    width: 25px;
-    height: 25px;
-
+    left: 125px;
+    top: 135px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
-
-    background: #2F80ED;
-
+    background: #1683ed;
     border: 5px solid white;
-
-    box-shadow: 0 2px 10px rgba(0,0,0,.2);
-
-    left: 48%;
-    top: 48%;
-
+    box-shadow: 0 3px 10px rgba(0,0,0,.2);
     z-index: 5;
 }
 
-/* restaurant marker */
-
-.marker {
+.rider-marker::after {
+    content: "🛵";
     position: absolute;
+    font-size: 17px;
+    left: 7px;
+    top: 5px;
+}
 
-    width: 48px;
-    height: 48px;
+/* Restaurant */
 
+.restaurant-pin {
+    position: absolute;
+    left: 55px;
+    top: 45px;
+    width: 45px;
+    height: 45px;
     border-radius: 50% 50% 50% 0;
-
     transform: rotate(-45deg);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    box-shadow: 0 4px 12px rgba(0,0,0,.15);
-
-    z-index: 4;
+    background: #00a859;
+    box-shadow: 0 3px 8px rgba(0,0,0,.2);
 }
 
-.marker span {
+.restaurant-pin span {
+    display: block;
     transform: rotate(45deg);
-    font-size: 21px;
+    text-align: center;
+    margin-top: 12px;
+    font-size: 18px;
 }
 
-.restaurant-marker {
-    background: var(--green);
-    left: 23%;
-    top: 18%;
+/* Customer */
+
+.customer-pin {
+    position: absolute;
+    right: 55px;
+    bottom: 35px;
+    width: 45px;
+    height: 45px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    background: #ef4444;
+    box-shadow: 0 3px 8px rgba(0,0,0,.2);
 }
 
-.customer-marker {
-    background: var(--red);
-    right: 19%;
-    bottom: 17%;
+.customer-pin span {
+    display: block;
+    transform: rotate(45deg);
+    text-align: center;
+    margin-top: 12px;
+    font-size: 18px;
 }
 
-/* map button */
+/* Map button */
 
 .location-button {
     position: absolute;
-
     right: 18px;
     bottom: 18px;
-
     width: 48px;
     height: 48px;
-
-    border: none;
     border-radius: 50%;
-
     background: white;
-
-    box-shadow: 0 4px 15px rgba(0,0,0,.15);
-
-    font-size: 21px;
-
-    cursor: pointer;
+    border: none;
+    box-shadow: 0 3px 12px rgba(0,0,0,.15);
+    font-size: 20px;
 }
 
-/* =========================
-   CONTENT
-========================= */
+/* ================= CONTENT ================= */
 
 .content {
     background: white;
-
-    border-radius: 25px 25px 0 0;
-
-    margin-top: -18px;
-
+    border-radius: 26px 26px 0 0;
+    margin-top: -20px;
     position: relative;
     z-index: 10;
-
-    padding: 22px 18px 110px;
+    padding: 22px 18px 120px;
 }
 
 .handle {
     width: 42px;
     height: 5px;
-
-    background: #D9DDDB;
-
     border-radius: 10px;
-
-    margin: -5px auto 22px;
+    background: #d9dddb;
+    margin: -5px auto 20px;
 }
 
-.section-title {
-    font-size: 20px;
-    font-weight: 800;
+/* Status */
 
-    margin-bottom: 5px;
-}
-
-.section-subtitle {
-    color: var(--gray);
-    font-size: 14px;
-
+.status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
 }
 
-/* =========================
-   ORDER CARD
-========================= */
-
-.order-card {
-    border: 1px solid var(--border);
-
-    border-radius: 18px;
-
-    background: white;
-
-    padding: 18px;
-
-    box-shadow: 0 5px 20px rgba(0,0,0,.04);
-}
-
-.order-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    margin-bottom: 17px;
-}
-
-.order-number {
-    font-size: 18px;
-    font-weight: 800;
+.status h1 {
+    font-size: 23px;
 }
 
 .badge {
-    padding: 7px 11px;
-
+    background: #e8f8f0;
+    color: #00a859;
+    font-weight: bold;
+    padding: 8px 13px;
     border-radius: 20px;
-
-    background: #EAF2FF;
-
-    color: #3478C9;
-
-    font-size: 11px;
-    font-weight: 800;
+    font-size: 12px;
 }
 
-/* =========================
-   PROGRESS
-========================= */
+/* ================= PROGRESS ================= */
 
 .progress {
     display: flex;
-    align-items: flex-start;
-
-    margin-bottom: 23px;
-
-    position: relative;
+    align-items: center;
+    margin-bottom: 24px;
 }
 
-.progress-line {
-    position: absolute;
-
-    top: 14px;
-    left: 15%;
-    right: 15%;
-
-    height: 3px;
-
-    background: #E5E7EB;
-
-    z-index: 0;
-}
-
-.progress-step {
-    width: 33.333%;
-
+.progress-item {
     text-align: center;
-
-    position: relative;
-    z-index: 1;
+    width: 80px;
 }
 
 .circle {
-    width: 29px;
-    height: 29px;
-
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
-
-    background: #E5E7EB;
-
-    color: white;
-
+    background: #e5e7e6;
+    color: #888;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    margin: auto auto 7px;
-
-    font-size: 12px;
-    font-weight: 800;
+    margin: auto;
+    font-weight: bold;
 }
 
-.progress-step.active .circle,
-.progress-step.done .circle {
-    background: var(--green);
+.progress-item.active .circle,
+.progress-item.done .circle {
+    background: #00a859;
+    color: white;
 }
 
-.progress-step span {
-    color: var(--gray);
-
-    font-size: 11px;
-    font-weight: 600;
+.progress-item p {
+    font-size: 10px;
+    margin-top: 7px;
+    color: #777;
+    font-weight: bold;
 }
 
-/* =========================
-   DETAILS
-========================= */
+.progress-line {
+    height: 3px;
+    flex: 1;
+    background: #e0e3e1;
+    margin-top: -17px;
+}
 
-.detail {
+.progress-line.active {
+    background: #00a859;
+}
+
+/* ================= INFO CARD ================= */
+
+.card {
+    background: #f7f9f8;
+    border: 1px solid #e8ecea;
+    border-radius: 17px;
+    padding: 17px;
+    margin-bottom: 14px;
+}
+
+.card-title {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.restaurant-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.address {
+    color: #666;
+    font-size: 13px;
+    margin-top: 6px;
+    line-height: 1.5;
+}
+
+/* Customer */
+
+.customer {
     display: flex;
+    align-items: center;
+}
 
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #e5f6ee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 23px;
+    margin-right: 12px;
+}
+
+.customer-info {
+    flex: 1;
+}
+
+.customer-info h3 {
+    font-size: 16px;
+}
+
+.customer-info p {
+    font-size: 12px;
+    color: #777;
+    margin-top: 4px;
+}
+
+.call {
+    width: 43px;
+    height: 43px;
+    border-radius: 50%;
+    border: none;
+    background: #e8f8f0;
+    color: #00a859;
+    font-size: 19px;
+}
+
+/* ================= EARNINGS ================= */
+
+.earnings {
+    display: flex;
     justify-content: space-between;
-
-    gap: 15px;
-
-    margin-bottom: 13px;
+    align-items: center;
 }
 
-.detail-label {
-    color: var(--gray);
-
-    font-size: 14px;
+.earnings p {
+    color: #777;
+    font-size: 13px;
 }
 
-.detail-value {
-    font-size: 14px;
-    font-weight: 700;
+.earnings h2 {
+    color: #00a859;
+    font-size: 22px;
+    margin-top: 4px;
+}
 
+.distance {
     text-align: right;
 }
 
-.earnings {
-    border-top: 1px dashed var(--border);
-
-    margin-top: 5px;
-    padding-top: 14px;
-
-    display: flex;
-    justify-content: space-between;
-
-    font-size: 16px;
-    font-weight: 800;
+.distance strong {
+    font-size: 17px;
 }
 
-.earnings-value {
-    color: var(--green);
+.distance p {
+    margin-top: 4px;
 }
 
-/* =========================
-   ACTION BUTTON
-========================= */
+/* ================= BUTTONS ================= */
 
-.action-button {
+.main-button {
     width: 100%;
-
-    height: 54px;
-
+    height: 56px;
     border: none;
-    border-radius: 13px;
-
-    background: var(--green);
-
+    border-radius: 14px;
+    background: #00a859;
     color: white;
-
-    font-size: 15px;
-    font-weight: 800;
-
-    margin-top: 18px;
-
+    font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
-
-    box-shadow: 0 6px 14px rgba(0,168,89,.2);
+    margin-top: 5px;
 }
 
-.action-button:active {
+.main-button:active {
     transform: scale(.98);
 }
 
 .secondary-button {
     width: 100%;
     height: 50px;
-
+    border-radius: 14px;
+    background: white;
+    border: 1px solid #dfe4e1;
+    color: #222;
+    font-size: 14px;
+    font-weight: bold;
     margin-top: 10px;
-
-    border: 1px solid var(--border);
-
-    background: white;
-
-    border-radius: 13px;
-
-    font-size: 14px;
-    font-weight: 700;
-
-    cursor: pointer;
 }
 
-/* =========================
-   EARNINGS SCREEN
-========================= */
-
-.screen {
-    display: none;
-    min-height: 100vh;
-}
-
-.screen.active {
-    display: block;
-}
-
-.earnings-header {
-    background: white;
-    padding: 22px 18px;
-
-    border-bottom: 1px solid var(--border);
-}
-
-.earnings-header h2 {
-    font-size: 22px;
-}
-
-.earnings-card {
-    margin: 18px;
-
-    padding: 25px;
-
-    background: var(--green);
-
-    color: white;
-
-    border-radius: 20px;
-
-    box-shadow: 0 8px 20px rgba(0,168,89,.2);
-}
-
-.earnings-card p {
-    font-size: 13px;
-    opacity: .85;
-
-    margin-bottom: 8px;
-}
-
-.earnings-card h1 {
-    font-size: 32px;
-}
-
-.stats {
-    display: flex;
-
-    background: white;
-
-    margin: 0 18px;
-
-    border-radius: 17px;
-
-    padding: 18px 5px;
-}
-
-.stat {
-    width: 33.333%;
-
-    text-align: center;
-
-    border-right: 1px solid var(--border);
-}
-
-.stat:last-child {
-    border-right: none;
-}
-
-.stat strong {
-    display: block;
-
-    font-size: 18px;
-
-    margin-bottom: 4px;
-}
-
-.stat span {
-    color: var(--gray);
-
-    font-size: 11px;
-}
-
-/* transactions */
-
-.transactions {
-    margin: 20px 18px;
-
-    background: white;
-
-    border-radius: 18px;
-
-    padding: 18px;
-}
-
-.transactions h3 {
-    margin-bottom: 12px;
-}
-
-.transaction {
-    display: flex;
-
-    justify-content: space-between;
-
-    padding: 15px 0;
-
-    border-bottom: 1px solid var(--border);
-}
-
-.transaction:last-child {
-    border-bottom: none;
-}
-
-.transaction-name {
-    font-weight: 700;
-    font-size: 14px;
-}
-
-.transaction-time {
-    color: var(--gray);
-    font-size: 11px;
-
-    margin-top: 3px;
-}
-
-.transaction-money {
-    color: var(--green);
-
-    font-weight: 800;
-}
-
-/* =========================
-   PROFILE
-========================= */
-
-.profile {
-    padding-bottom: 110px;
-}
-
-.profile-top {
-    background: white;
-
-    text-align: center;
-
-    padding: 30px 18px 25px;
-}
-
-.avatar {
-    width: 78px;
-    height: 78px;
-
-    margin: auto auto 12px;
-
-    border-radius: 50%;
-
-    background: var(--green-light);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-size: 35px;
-}
-
-.profile-top h2 {
-    font-size: 20px;
-}
-
-.verified {
-    color: var(--green);
-
-    font-size: 12px;
-
-    margin-top: 5px;
-}
-
-.profile-stats {
-    display: flex;
-
-    margin-top: 22px;
-}
-
-.profile-stat {
-    flex: 1;
-
-    border-right: 1px solid var(--border);
-}
-
-.profile-stat:last-child {
-    border-right: none;
-}
-
-.profile-stat strong {
-    display: block;
-
-    font-size: 18px;
-}
-
-.profile-stat span {
-    font-size: 11px;
-
-    color: var(--gray);
-}
-
-.menu {
-    margin-top: 12px;
-
-    background: white;
-}
-
-.menu-item {
-    height: 58px;
-
-    padding: 0 20px;
-
-    display: flex;
-
-    justify-content: space-between;
-    align-items: center;
-
-    border-bottom: 1px solid var(--border);
-
-    font-size: 14px;
-    font-weight: 600;
-
-    cursor: pointer;
-}
-
-.menu-arrow {
-    color: #9CA3AF;
-    font-size: 20px;
-}
-
-.logout {
-    color: var(--red);
-}
-
-/* =========================
-   BOTTOM NAVIGATION
-========================= */
+/* ================= BOTTOM NAV ================= */
 
 .bottom-nav {
     position: fixed;
-
     bottom: 0;
     left: 50%;
-
     transform: translateX(-50%);
-
     width: 100%;
     max-width: 480px;
-
-    height: 75px;
-
+    height: 78px;
     background: white;
-
-    border-top: 1px solid var(--border);
-
+    border-top: 1px solid #e6e8e7;
     display: flex;
-
-    z-index: 100;
+    z-index: 50;
 }
 
-.nav-item {
+.nav {
     flex: 1;
-
     border: none;
-
     background: transparent;
-
-    display: flex;
-    flex-direction: column;
-
-    align-items: center;
-    justify-content: center;
-
-    gap: 4px;
-
-    color: #8A8F8D;
-
-    cursor: pointer;
-}
-
-.nav-item.active {
-    color: var(--green);
+    color: #777;
+    font-size: 11px;
+    font-weight: bold;
 }
 
 .nav-icon {
+    display: block;
     font-size: 22px;
+    margin-bottom: 5px;
 }
 
-.nav-label {
-    font-size: 10px;
-
-    font-weight: 700;
+.nav.active {
+    color: #00a859;
 }
 
-/* =========================
-   ORDER COMPLETE
-========================= */
+/* ================= SUCCESS ================= */
 
-.overlay {
-    position: fixed;
-
-    inset: 0;
-
-    background: rgba(255,255,255,.97);
-
-    z-index: 500;
-
+.success {
     display: none;
-
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,.98);
+    z-index: 100;
     align-items: center;
     justify-content: center;
-
-    padding: 25px;
-
     text-align: center;
+    padding: 25px;
 }
 
-.overlay.show {
+.success.show {
     display: flex;
 }
 
 .success-box {
     width: 100%;
-    max-width: 400px;
 }
 
 .success-icon {
-    width: 90px;
-    height: 90px;
-
-    margin: 0 auto 20px;
-
-    background: var(--green-light);
-
+    width: 95px;
+    height: 95px;
     border-radius: 50%;
-
+    background: #e7f8ef;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    font-size: 42px;
+    font-size: 45px;
+    margin: 0 auto 20px;
 }
 
-.success-box h2 {
-    font-size: 25px;
-
+.success h1 {
+    font-size: 26px;
     margin-bottom: 8px;
 }
 
-.success-box p {
-    color: var(--gray);
-
-    font-size: 14px;
-
-    margin-bottom: 22px;
+.success p {
+    color: #777;
+    margin-bottom: 25px;
 }
 
-.breakdown {
-    background: #F7F8F8;
-
+.payment {
+    background: #f6f8f7;
     border-radius: 16px;
-
     padding: 18px;
-
     margin-bottom: 20px;
 }
 
-.breakdown-row {
+.payment-row {
     display: flex;
-
     justify-content: space-between;
-
-    padding: 8px 0;
-
+    padding: 7px 0;
     font-size: 14px;
 }
 
-.breakdown-total {
-    border-top: 1px dashed var(--border);
-
-    margin-top: 7px;
-    padding-top: 14px;
-
-    font-size: 17px;
-    font-weight: 800;
-
-    color: var(--green);
+.payment-total {
+    border-top: 1px dashed #ddd;
+    margin-top: 8px;
+    padding-top: 12px;
+    color: #00a859;
+    font-size: 18px;
+    font-weight: bold;
 }
 
-/* =========================
-   MOBILE
-========================= */
+/* ================= RESPONSIVE ================= */
 
-@media (max-width: 360px) {
-
-    .header-left h1 {
-        font-size: 18px;
+@media (min-width: 481px) {
+    body {
+        padding: 20px 0;
     }
 
-    .content {
-        padding-left: 14px;
-        padding-right: 14px;
+    .app {
+        box-shadow: 0 0 30px rgba(0,0,0,.08);
+        border-radius: 15px;
+        overflow: hidden;
     }
 
-    .order-card {
-        padding: 14px;
+    .bottom-nav {
+        bottom: 20px;
+        border-radius: 0 0 15px 15px;
     }
-
 }
 </style>
 </head>
@@ -948,508 +563,228 @@ button {
 
 <div class="app">
 
-<!-- =========================
-     HOME
-========================= -->
-
-<div id="homeScreen" class="screen active">
-
+    <!-- HEADER -->
     <header class="header">
 
-        <div class="header-left">
-            <h1>Good morning, Rider! 👋</h1>
-            <p id="onlineText">You're online</p>
+        <button class="back" onclick="goBack()">‹</button>
+
+        <div class="header-title">
+            <h2>Active Delivery</h2>
+            <p>Order #4821</p>
         </div>
 
-        <button
-            id="onlineButton"
-            class="online-button"
-            onclick="toggleOnline()">
-
-            <span class="online-dot"></span>
-            <span id="onlineLabel">ONLINE</span>
-
-        </button>
+        <button class="help" onclick="showHelp()">?</button>
 
     </header>
 
 
     <!-- MAP -->
+    <section class="map">
 
-    <div class="map">
-
-        <div class="road one"></div>
+        <div class="road"></div>
         <div class="road two"></div>
         <div class="road three"></div>
 
         <div class="route"></div>
 
-        <div class="marker restaurant-marker">
+        <div class="restaurant-pin">
             <span>🍴</span>
         </div>
 
-        <div class="rider-location"></div>
+        <div class="rider-marker"></div>
 
-        <div class="marker customer-marker">
+        <div class="customer-pin">
             <span>📍</span>
         </div>
 
-        <button class="location-button">
+        <button class="location-button" onclick="centerLocation()">
             📍
         </button>
 
-    </div>
+    </section>
 
 
-    <!-- ORDER AREA -->
-
+    <!-- CONTENT -->
     <main class="content">
 
         <div class="handle"></div>
 
-        <h2 class="section-title">
-            New order nearby!
-        </h2>
 
-        <p class="section-subtitle">
-            Tap the button below to manage your delivery.
-        </p>
+        <!-- STATUS -->
+        <div class="status">
+
+            <div>
+                <h1 id="statusTitle">Pick up the order</h1>
+            </div>
+
+            <div class="badge" id="statusBadge">
+                PICKUP
+            </div>
+
+        </div>
 
 
-        <div class="order-card">
+        <!-- PROGRESS -->
+        <div class="progress">
 
-            <div class="order-top">
+            <div class="progress-item done">
 
-                <div class="order-number">
-                    Order #4821
+                <div class="circle">✓</div>
+
+                <p>Accepted</p>
+
+            </div>
+
+
+            <div class="progress-line active"></div>
+
+
+            <div class="progress-item active" id="pickupStep">
+
+                <div class="circle">2</div>
+
+                <p>Pickup</p>
+
+            </div>
+
+
+            <div class="progress-line" id="deliveryLine"></div>
+
+
+            <div class="progress-item" id="deliveryStep">
+
+                <div class="circle">3</div>
+
+                <p>Deliver</p>
+
+            </div>
+
+        </div>
+
+
+        <!-- RESTAURANT -->
+        <div class="card">
+
+            <div class="card-title">
+                Pickup from
+            </div>
+
+            <div class="restaurant-name">
+                Tasty Bites Restaurant
+            </div>
+
+            <div class="address">
+                📍 12, Adeola Street, Ikeja, Lagos
+            </div>
+
+        </div>
+
+
+        <!-- CUSTOMER -->
+        <div class="card">
+
+            <div class="card-title">
+                Deliver to
+            </div>
+
+            <div class="customer">
+
+                <div class="avatar">
+                    👤
                 </div>
 
-                <div id="orderBadge" class="badge">
-                    PICKUP
-                </div>
+                <div class="customer-info">
 
-            </div>
+                    <h3>Hawa B.</h3>
 
-
-            <!-- PROGRESS -->
-
-            <div class="progress">
-
-                <div class="progress-line"></div>
-
-                <div
-                    id="step1"
-                    class="progress-step active">
-
-                    <div class="circle">
-                        ✓
-                    </div>
-
-                    <span>
-                        Accepted
-                    </span>
+                    <p>
+                        18, Unity Road, Lekki
+                    </p>
 
                 </div>
 
-
-                <div
-                    id="step2"
-                    class="progress-step active">
-
-                    <div class="circle">
-                        2
-                    </div>
-
-                    <span>
-                        Pickup
-                    </span>
-
-                </div>
-
-
-                <div
-                    id="step3"
-                    class="progress-step">
-
-                    <div class="circle">
-                        3
-                    </div>
-
-                    <span>
-                        Deliver
-                    </span>
-
-                </div>
+                <button class="call" onclick="callCustomer()">
+                    ☎
+                </button>
 
             </div>
 
-
-            <!-- DETAILS -->
-
-            <div class="detail">
-
-                <span class="detail-label">
-                    Customer
-                </span>
-
-                <span class="detail-value">
-                    Hawa B.
-                </span>
-
-            </div>
+        </div>
 
 
-            <div class="detail">
-
-                <span class="detail-label">
-                    Pickup
-                </span>
-
-                <span class="detail-value">
-                    12, Adeola Street, Ikeja
-                </span>
-
-            </div>
-
-
-            <div class="detail">
-
-                <span class="detail-label">
-                    Drop-off
-                </span>
-
-                <span class="detail-value">
-                    18, Unity Road, Lekki
-                </span>
-
-            </div>
-
-
-            <div class="detail">
-
-                <span class="detail-label">
-                    Distance
-                </span>
-
-                <span class="detail-value">
-                    2.5 km
-                </span>
-
-            </div>
-
+        <!-- EARNINGS -->
+        <div class="card">
 
             <div class="earnings">
 
-                <span>
-                    Total Earnings
-                </span>
+                <div>
 
-                <span class="earnings-value">
-                    ₦3,750
-                </span>
+                    <p>Your earnings</p>
+
+                    <h2>₦3,750</h2>
+
+                </div>
+
+
+                <div class="distance">
+
+                    <strong>2.5 km</strong>
+
+                    <p>Total distance</p>
+
+                </div>
 
             </div>
 
-
-            <button
-                id="actionButton"
-                class="action-button"
-                onclick="nextOrderStep()">
-
-                Navigate to Restaurant
-
-            </button>
-
         </div>
+
+
+        <!-- BUTTON -->
+        <button
+            class="main-button"
+            id="mainButton"
+            onclick="mainAction()"
+        >
+            🗺️ Navigate to Restaurant
+        </button>
+
+
+        <button
+            class="secondary-button"
+            onclick="showOrderInfo()"
+        >
+            View Order Details
+        </button>
 
     </main>
 
-</div>
 
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
 
-<!-- =========================
-     EARNINGS
-========================= -->
-
-<div id="earningsScreen" class="screen">
-
-    <div class="earnings-header">
-        <h2>My Earnings</h2>
-    </div>
-
-
-    <div class="earnings-card">
-
-        <p>
-            Today's Earnings
-        </p>
-
-        <h1>
-            ₦18,750
-        </h1>
-
-    </div>
-
-
-    <div class="stats">
-
-        <div class="stat">
-            <strong>8</strong>
-            <span>Deliveries</span>
-        </div>
-
-        <div class="stat">
-            <strong>5.0</strong>
-            <span>Rating</span>
-        </div>
-
-        <div class="stat">
-            <strong>98%</strong>
-            <span>On-time</span>
-        </div>
-
-    </div>
-
-
-    <div class="transactions">
-
-        <h3>
-            Recent Deliveries
-        </h3>
-
-
-        <div class="transaction">
-
-            <div>
-                <div class="transaction-name">
-                    Tasty Bites
-                </div>
-
-                <div class="transaction-time">
-                    Today · 10:24 AM
-                </div>
-            </div>
-
-            <div class="transaction-money">
-                +₦3,750
-            </div>
-
-        </div>
-
-
-        <div class="transaction">
-
-            <div>
-                <div class="transaction-name">
-                    Spice Hub
-                </div>
-
-                <div class="transaction-time">
-                    Today · 11:05 AM
-                </div>
-            </div>
-
-            <div class="transaction-money">
-                +₦4,200
-            </div>
-
-        </div>
-
-
-        <div class="transaction">
-
-            <div>
-                <div class="transaction-name">
-                    Mama's Kitchen
-                </div>
-
-                <div class="transaction-time">
-                    Today · 1:20 PM
-                </div>
-            </div>
-
-            <div class="transaction-money">
-                +₦2,800
-            </div>
-
-        </div>
-
-
-        <div class="transaction">
-
-            <div>
-                <div class="transaction-name">
-                    Chicken Republic
-                </div>
-
-                <div class="transaction-time">
-                    Today · 2:45 PM
-                </div>
-            </div>
-
-            <div class="transaction-money">
-                +₦4,500
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =========================
-     PROFILE
-========================= -->
-
-<div id="profileScreen" class="screen profile">
-
-    <div class="profile-top">
-
-        <div class="avatar">
-            👤
-        </div>
-
-        <h2>
-            Demo Rider
-        </h2>
-
-        <div class="verified">
-            ✓ Verified Rider
-        </div>
-
-
-        <div class="profile-stats">
-
-            <div class="profile-stat">
-                <strong>5.0</strong>
-                <span>Rating</span>
-            </div>
-
-            <div class="profile-stat">
-                <strong>120</strong>
-                <span>Deliveries</span>
-            </div>
-
-            <div class="profile-stat">
-                <strong>98%</strong>
-                <span>On-time</span>
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="menu">
-
-        <div class="menu-item">
-            <span>👤 Edit Profile</span>
-            <span class="menu-arrow">›</span>
-        </div>
-
-        <div class="menu-item">
-            <span>🏍️ Vehicle & Documents</span>
-            <span class="menu-arrow">›</span>
-        </div>
-
-        <div class="menu-item">
-            <span>🏦 Bank Account</span>
-            <span class="menu-arrow">›</span>
-        </div>
-
-        <div class="menu-item">
-            <span>🔔 Notifications</span>
-            <span class="menu-arrow">›</span>
-        </div>
-
-        <div class="menu-item">
-            <span>❓ Help & Support</span>
-            <span class="menu-arrow">›</span>
-        </div>
-
-        <div
-            class="menu-item logout"
-            onclick="alert('Logout functionality can be connected to your authentication system.')">
-
-            <span>
-                🚪 Log Out
-            </span>
-
-            <span class="menu-arrow">
-                ›
-            </span>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =========================
-     BOTTOM NAV
-========================= -->
-
-<nav class="bottom-nav">
-
-    <button
-        id="navHome"
-        class="nav-item active"
-        onclick="showScreen('home')">
-
-        <span class="nav-icon">
-            🏠
-        </span>
-
-        <span class="nav-label">
+        <button class="nav active">
+            <span class="nav-icon">🏠</span>
             Home
-        </span>
+        </button>
 
-    </button>
-
-
-    <button
-        id="navEarnings"
-        class="nav-item"
-        onclick="showScreen('earnings')">
-
-        <span class="nav-icon">
-            💰
-        </span>
-
-        <span class="nav-label">
+        <button class="nav">
+            <span class="nav-icon">💰</span>
             Earnings
-        </span>
+        </button>
 
-    </button>
-
-
-    <button
-        id="navProfile"
-        class="nav-item"
-        onclick="showScreen('profile')">
-
-        <span class="nav-icon">
-            👤
-        </span>
-
-        <span class="nav-label">
+        <button class="nav">
+            <span class="nav-icon">👤</span>
             Profile
-        </span>
+        </button>
 
-    </button>
+    </nav>
 
-</nav>
+</div>
 
 
-<!-- =========================
-     SUCCESS
-========================= -->
+<!-- SUCCESS SCREEN -->
 
-<div
-    id="successOverlay"
-    class="overlay">
+<div class="success" id="success">
 
     <div class="success-box">
 
@@ -1457,34 +792,32 @@ button {
             ✓
         </div>
 
-        <h2>
-            Delivery Completed!
-        </h2>
+        <h1>Delivery Completed!</h1>
 
         <p>
             Great job! The order has been successfully delivered.
         </p>
 
 
-        <div class="breakdown">
+        <div class="payment">
 
-            <div class="breakdown-row">
-                <span>Base Pay</span>
-                <span>₦2,500</span>
+            <div class="payment-row">
+                <span>Base pay</span>
+                <strong>₦2,500</strong>
             </div>
 
-            <div class="breakdown-row">
-                <span>Distance Pay</span>
-                <span>₦1,000</span>
+            <div class="payment-row">
+                <span>Distance pay</span>
+                <strong>₦1,000</strong>
             </div>
 
-            <div class="breakdown-row">
+            <div class="payment-row">
                 <span>Bonus</span>
-                <span>₦250</span>
+                <strong>₦250</strong>
             </div>
 
-            <div class="breakdown-row breakdown-total">
-                <span>Total</span>
+            <div class="payment-row payment-total">
+                <span>Total earnings</span>
                 <span>₦3,750</span>
             </div>
 
@@ -1492,189 +825,88 @@ button {
 
 
         <button
-            class="action-button"
-            onclick="finishDelivery()">
-
+            class="main-button"
+            onclick="finishDelivery()"
+        >
             Back to Home
-
         </button>
 
     </div>
 
 </div>
 
-</div>
-
 
 <script>
 
-/* =================================
-   CURRENT ORDER
-================================= */
-
-let orderStep = 1;
+let deliveryState = "pickup";
 
 
-/* =================================
-   SCREEN NAVIGATION
-================================= */
+function mainAction() {
 
-function showScreen(screen) {
+    const button = document.getElementById("mainButton");
 
-    document
-        .querySelectorAll(".screen")
-        .forEach(function(item) {
-            item.classList.remove("active");
-        });
+    const title = document.getElementById("statusTitle");
 
+    const badge = document.getElementById("statusBadge");
 
-    document
-        .getElementById(screen + "Screen")
-        .classList.add("active");
+    const deliveryStep =
+        document.getElementById("deliveryStep");
+
+    const deliveryLine =
+        document.getElementById("deliveryLine");
 
 
-    document
-        .querySelectorAll(".nav-item")
-        .forEach(function(item) {
-            item.classList.remove("active");
-        });
+    /* STEP 1 */
 
+    if (deliveryState === "pickup") {
 
-    if (screen === "home") {
-        document
-            .getElementById("navHome")
-            .classList.add("active");
-    }
+        deliveryState = "delivering";
 
-
-    if (screen === "earnings") {
-        document
-            .getElementById("navEarnings")
-            .classList.add("active");
-    }
-
-
-    if (screen === "profile") {
-        document
-            .getElementById("navProfile")
-            .classList.add("active");
-    }
-
-
-    window.scrollTo(0, 0);
-}
-
-
-/* =================================
-   ONLINE / OFFLINE
-================================= */
-
-function toggleOnline() {
-
-    const button =
-        document.getElementById("onlineButton");
-
-    const label =
-        document.getElementById("onlineLabel");
-
-    const text =
-        document.getElementById("onlineText");
-
-
-    if (label.innerText === "ONLINE") {
-
-        label.innerText = "OFFLINE";
-
-        text.innerText = "You're offline";
-
-        button.classList.add("offline");
-
-    } else {
-
-        label.innerText = "ONLINE";
-
-        text.innerText = "You're online";
-
-        button.classList.remove("offline");
-
-    }
-
-}
-
-
-/* =================================
-   ORDER PROCESS
-================================= */
-
-function nextOrderStep() {
-
-    const button =
-        document.getElementById("actionButton");
-
-    const badge =
-        document.getElementById("orderBadge");
-
-
-    const step2 =
-        document.getElementById("step2");
-
-    const step3 =
-        document.getElementById("step3");
-
-
-    if (orderStep === 1) {
-
-        orderStep = 2;
-
-        button.innerText =
-            "Mark Order as Picked Up";
-
-        badge.innerText =
-            "PICKUP";
-
-        step2.classList.add("done");
-
-        step2.querySelector(".circle").innerText =
-            "✓";
-
-    }
-
-
-    else if (orderStep === 2) {
-
-        orderStep = 3;
-
-        button.innerText =
-            "Navigate to Customer";
+        title.innerText =
+            "Deliver the order";
 
         badge.innerText =
             "DELIVERING";
 
         badge.style.background =
-            "#FFF4DE";
+            "#fff4df";
 
         badge.style.color =
-            "#C47A00";
-
-        step3.classList.add("active");
-
-    }
-
-
-    else if (orderStep === 3) {
-
-        orderStep = 4;
+            "#d97706";
 
         button.innerText =
-            "Complete Delivery";
+            "🗺️ Navigate to Customer";
 
+
+        deliveryStep.classList.add("active");
+
+        deliveryLine.classList.add("active");
+
+        document.getElementById("pickupStep")
+            .classList.remove("active");
+
+        document.getElementById("pickupStep")
+            .classList.add("done");
+
+        document.querySelector(
+            "#pickupStep .circle"
+        ).innerText = "✓";
+
+        alert(
+            "Order picked up! Navigate to the customer."
+        );
+
+        return;
     }
 
 
-    else {
+    /* STEP 2 */
 
-        document
-            .getElementById("successOverlay")
+    if (deliveryState === "delivering") {
+
+        deliveryState = "complete";
+
+        document.getElementById("success")
             .classList.add("show");
 
     }
@@ -1682,83 +914,89 @@ function nextOrderStep() {
 }
 
 
-/* =================================
-   COMPLETE DELIVERY
-================================= */
-
 function finishDelivery() {
 
-    document
-        .getElementById("successOverlay")
+    document.getElementById("success")
         .classList.remove("show");
 
+    deliveryState = "pickup";
 
-    orderStep = 1;
-
-
-    document
-        .getElementById("actionButton")
-        .innerText =
-        "Navigate to Restaurant";
-
-
-    document
-        .getElementById("orderBadge")
-        .innerText =
-        "PICKUP";
-
-
-    document
-        .getElementById("orderBadge")
-        .style.background =
-        "#EAF2FF";
-
-
-    document
-        .getElementById("orderBadge")
-        .style.color =
-        "#3478C9";
-
-
-    document
-        .getElementById("step2")
-        .classList.remove("done");
-
-
-    document
-        .getElementById("step2")
-        .classList.add("active");
-
-
-    document
-        .getElementById("step2")
-        .querySelector(".circle")
-        .innerText =
-        "2";
-
-
-    document
-        .getElementById("step3")
-        .classList.remove("active");
-
-
-    showScreen("home");
+    location.reload();
 
 }
 
 
-/* =================================
-   PREVENT ERRORS
-================================= */
+function goBack() {
 
-window.addEventListener("error", function(event) {
+    if (
+        confirm(
+            "Return to the home screen?"
+        )
+    ) {
 
-    console.log(
-        "QuickEats error:",
-        event.message
+        alert(
+            "Returning to Home..."
+        );
+
+    }
+
+}
+
+
+function showHelp() {
+
+    alert(
+        "Need help?\n\n" +
+        "Contact QuickEats Rider Support:\n" +
+        "0800-QUICKEATS"
     );
 
-});
+}
+
+
+function callCustomer() {
+
+    alert(
+        "Calling Hawa B..."
+    );
+
+}
+
+
+function centerLocation() {
+
+    alert(
+        "Your current location is centered on the map."
+    );
+
+}
+
+
+function showOrderInfo() {
+
+    alert(
+        "ORDER #4821\n\n" +
+
+        "Restaurant:\n" +
+        "Tasty Bites Restaurant\n\n" +
+
+        "Items:\n" +
+        "Jollof Rice + Grilled Chicken\n\n" +
+
+        "Customer:\n" +
+        "Hawa B.\n\n" +
+
+        "Pickup:\n" +
+        "12, Adeola Street, Ikeja\n\n" +
+
+        "Drop-off:\n" +
+        "18, Unity Road, Lekki\n\n" +
+
+        "Distance: 2.5 km\n" +
+        "Earnings: ₦3,750"
+    );
+
+}
 
 </script>
 
