@@ -32,8 +32,10 @@
     .logo-circle span { font-size: 50px; }
     #screen-login h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
     #screen-login p { color: var(--text-sub); font-size: 14px; margin-bottom: 40px; }
+    
     .btn-primary { width: 100%; height: 56px; border-radius: 12px; border: none; background: var(--primary); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
     .btn-primary:active { transform: scale(0.97); }
+    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
     .btn-secondary { width: 100%; height: 56px; border-radius: 12px; border: 2px solid var(--border); background: transparent; color: var(--text-main); font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 12px; }
     .input-group { width: 100%; margin-bottom: 16px; text-align: left; }
     .input-group label { font-size: 12px; font-weight: 600; color: var(--text-sub); margin-bottom: 6px; display: block; }
@@ -66,7 +68,7 @@
     .sheet-title { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
     .sheet-subtitle { font-size: 13px; color: var(--text-sub); margin-bottom: 20px; }
 
-    /* ORDER CARD IN SHEET */
+    /* ORDER PREVIEW */
     .order-preview { background: var(--bg-body); border-radius: 16px; padding: 16px; display: flex; gap: 12px; align-items: center; margin-bottom: 20px; cursor: pointer; border: 1px solid var(--border); }
     .order-preview img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; background: #ddd; }
     .order-preview-info { flex: 1; }
@@ -101,7 +103,8 @@
     .step-label { font-size: 10px; color: var(--text-sub); font-weight: 600; }
 
     /* BOTTOM NAV */
-    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0 12px 0; z-index: 100; max-width: 480px; margin: 0 auto; right: 0; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 1px solid var(--border); display: none; justify-content: space-around; padding: 8px 0 12px 0; z-index: 100; max-width: 480px; margin: 0 auto; right: 0; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); }
+    .bottom-nav.active { display: flex; }
     .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: var(--text-sub); cursor: pointer; padding: 4px 0; transition: 0.2s; }
     .nav-item.active { color: var(--primary); }
     .nav-icon { font-size: 22px; }
@@ -153,10 +156,10 @@
     <h1>QuickEats</h1>
     <p>Delivering Good Food, Faster!</p>
     <div style="width: 100%; max-width: 320px;">
-      <div class="input-group"><label>Email</label><input type="email" value="rider@quickeats.com" readonly></div>
-      <div class="input-group"><label>Password</label><input type="password" value="password123" readonly></div>
-      <button class="btn-primary" onclick="login()">Log In</button>
-      <button class="btn-secondary">Sign Up</button>
+      <div class="input-group"><label>Email</label><input type="email" id="loginEmail" placeholder="rider@quickeats.com"></div>
+      <div class="input-group"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
+      <button class="btn-primary" id="loginBtn" onclick="handleLogin()">Log In</button>
+      <button class="btn-secondary" onclick="demoLogin()">Continue as Demo Rider</button>
     </div>
   </div>
 
@@ -175,7 +178,6 @@
 
     <div class="map-area" id="mapHome">
       <div class="map-grid"></div>
-      <!-- Simulated Map Pins -->
       <div class="map-pin" style="top: 30%; left: 40%;"><span>🏪</span></div>
       <div class="map-pin pin-customer" style="top: 60%; left: 70%;"><span>📍</span></div>
       <div class="map-route">
@@ -189,7 +191,6 @@
       <div class="sheet-title">New orders nearby!</div>
       <div class="sheet-subtitle">Tap to view available orders</div>
       
-      <!-- Incoming Order Preview -->
       <div class="order-preview" onclick="showOrderDetails()">
         <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=100&h=100&fit=crop" alt="Food">
         <div class="order-preview-info">
@@ -200,7 +201,6 @@
         <div class="arrow">›</div>
       </div>
 
-      <!-- Active Order Progress (Hidden initially) -->
       <div id="activeOrderSection" style="display: none;">
         <div class="order-details">
           <div class="order-header-row">
@@ -251,7 +251,7 @@
   <div id="screen-profile" class="screen">
     <div class="profile-header">
       <div class="profile-avatar">👤</div>
-      <h2>David Johnson</h2>
+      <h2 id="profileName">David Johnson</h2>
       <p>✅ Verified Rider</p>
       <div class="profile-stats">
         <div class="profile-stat"><b>5.0</b><span>Rating</span></div>
@@ -269,7 +269,7 @@
   </div>
 
   <!-- BOTTOM NAVIGATION -->
-  <div class="bottom-nav" id="bottomNav" style="display: none;">
+  <div class="bottom-nav" id="bottomNav">
     <button class="nav-item active" onclick="switchTab('home', this)">
       <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
     </button>
@@ -297,12 +297,66 @@
 </div>
 
 <script>
-  let currentOrderState = 'preview'; // preview, accepted, picked_up, delivered
+  const SUPABASE_URL = "https://glkutdkwbrjpiuqcmgwe.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdsa3V0ZGt3YnJqcGl1cWNtZ3dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NzU3MTMsImV4cCI6MjEwNTU1MTcxM30.f2SgZJvP681imm0Qe1fKsATnCk_86z2guwvZWASXoZM";
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  function login() {
+  let currentOrderState = 'preview'; 
+
+  window.onload = async function() {
+    // Check if rider is already logged in
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      const { data: rider } = await sb.from('riders').select('*, profiles(name)').eq('owner_id', session.user.id).maybeSingle();
+      if (rider) {
+         showDashboard(rider.profiles.name);
+      }
+    }
+  };
+
+  async function handleLogin() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const btn = document.getElementById('loginBtn');
+    
+    btn.innerText = 'Logging in...';
+    btn.disabled = true;
+
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    
+    if (error) {
+      alert("Login failed: " + error.message);
+      btn.innerText = 'Log In';
+      btn.disabled = false;
+      return;
+    }
+
+    // Fetch rider profile
+    const { data: riderData, error: riderError } = await sb.from('riders').select('*, profiles(name)').eq('owner_id', data.user.id).maybeSingle();
+    
+    if (riderError || !riderData) {
+      alert('No rider account found for this email. Contact admin or use Demo Mode.');
+      await sb.auth.signOut();
+      btn.innerText = 'Log In';
+      btn.disabled = false;
+      return;
+    }
+
+    // Success
+    showDashboard(riderData.profiles.name);
+  }
+
+  function demoLogin() {
+    // Bypass auth for UI testing
+    showDashboard('Demo Rider');
+  }
+
+  function showDashboard(name) {
+    document.getElementById('greetingName').innerText = 'Good morning, ' + name + '! 👋';
+    document.getElementById('profileName').innerText = name;
     document.getElementById('screen-login').classList.remove('active');
     document.getElementById('screen-home').classList.add('active');
-    document.getElementById('bottomNav').style.display = 'flex';
+    document.getElementById('bottomNav').classList.add('active');
   }
 
   function switchTab(tabId, btn) {
@@ -330,7 +384,6 @@
   }
 
   function showOrderDetails() {
-    // Hide preview, show active order
     document.querySelector('.order-preview').style.display = 'none';
     document.getElementById('activeOrderSection').style.display = 'block';
     currentOrderState = 'accepted';
@@ -374,7 +427,6 @@
 
   function closeSuccess() {
     document.getElementById('successOverlay').classList.remove('active');
-    // Reset UI
     currentOrderState = 'preview';
     document.querySelector('.order-preview').style.display = 'flex';
     document.getElementById('activeOrderSection').style.display = 'none';
