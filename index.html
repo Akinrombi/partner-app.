@@ -2,560 +2,727 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0,
+      maximum-scale=1.0,user-scalable=no">
 
-<title>QuickEats Rider - Active Delivery</title>
+<title>QuickEats Rider</title>
 
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, Helvetica, sans-serif;
+
+:root{
+    --green:#00A859;
+    --green-dark:#008f4d;
+    --green-light:#E9F8F0;
+    --bg:#F5F7F6;
+    --white:#ffffff;
+    --text:#151515;
+    --muted:#747474;
+    --border:#E5E7EB;
+    --red:#E53935;
+    --orange:#F59E0B;
+    --blue:#2F80ED;
 }
 
-body {
-    background: #f5f7f6;
-    color: #171717;
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,Helvetica,sans-serif;
 }
 
-.app {
-    width: 100%;
-    max-width: 480px;
-    min-height: 100vh;
-    margin: auto;
-    background: #f5f7f6;
-    position: relative;
+body{
+    background:#e9eeec;
+    color:var(--text);
 }
 
-/* ================= HEADER ================= */
-
-.header {
-    height: 70px;
-    background: white;
-    display: flex;
-    align-items: center;
-    padding: 0 18px;
-    border-bottom: 1px solid #e8e8e8;
-    position: sticky;
-    top: 0;
-    z-index: 20;
+.app{
+    width:100%;
+    max-width:480px;
+    min-height:100vh;
+    margin:auto;
+    background:var(--bg);
+    position:relative;
+    padding-bottom:80px;
 }
 
-.back {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: #f1f3f2;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
+/* HEADER */
+
+.header{
+    background:white;
+    padding:18px 18px 15px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid var(--border);
 }
 
-.header-title {
-    flex: 1;
-    text-align: center;
+.header h1{
+    font-size:21px;
+    margin-bottom:4px;
 }
 
-.header-title h2 {
-    font-size: 18px;
+.header p{
+    font-size:13px;
+    color:var(--muted);
 }
 
-.header-title p {
-    color: #777;
-    font-size: 12px;
-    margin-top: 3px;
+/* ONLINE BUTTON */
+
+.online{
+    border:0;
+    background:var(--green-light);
+    color:var(--green);
+    border-radius:30px;
+    padding:10px 14px;
+    font-weight:bold;
+    display:flex;
+    align-items:center;
+    gap:7px;
+    cursor:pointer;
 }
 
-.help {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: none;
-    background: #e8f8f0;
-    color: #00a859;
-    font-weight: bold;
-    font-size: 18px;
+.online.offline{
+    background:#fdecec;
+    color:var(--red);
 }
 
-/* ================= MAP ================= */
+.dot{
+    width:9px;
+    height:9px;
+    background:var(--green);
+    border-radius:50%;
+}
 
-.map {
-    height: 280px;
-    position: relative;
-    overflow: hidden;
+.offline .dot{
+    background:var(--red);
+}
+
+/* MAP */
+
+.map{
+    height:280px;
+    position:relative;
+    overflow:hidden;
     background:
-        linear-gradient(30deg, transparent 48%, #ffffff 49%, #ffffff 51%, transparent 52%),
-        linear-gradient(120deg, transparent 48%, #ffffff 49%, #ffffff 51%, transparent 52%),
-        #e7ecea;
-    background-size: 90px 90px;
+    linear-gradient(30deg,transparent 45%,#fff 46%,#fff 48%,transparent 49%),
+    linear-gradient(150deg,transparent 45%,#fff 46%,#fff 48%,transparent 49%),
+    #e1e7e5;
+    background-size:120px 100px;
 }
 
-/* Roads */
-
-.road {
-    position: absolute;
-    background: white;
-    height: 18px;
-    width: 150%;
-    transform: rotate(25deg);
-    left: -80px;
-    top: 110px;
-    opacity: .9;
+.map::after{
+    content:"";
+    position:absolute;
+    width:100%;
+    height:100%;
+    background:
+    linear-gradient(90deg,transparent 48%,rgba(255,255,255,.7) 49%,transparent 51%);
+    background-size:100px 100px;
+    opacity:.7;
 }
 
-.road.two {
-    transform: rotate(-30deg);
-    top: 185px;
+.route{
+    position:absolute;
+    width:270px;
+    height:7px;
+    background:#2584ed;
+    transform:rotate(27deg);
+    left:100px;
+    top:125px;
+    border-radius:10px;
+    z-index:3;
 }
 
-.road.three {
-    transform: rotate(5deg);
-    top: 65px;
+.route:after{
+    content:"";
+    position:absolute;
+    width:130px;
+    height:7px;
+    background:#2584ed;
+    transform:rotate(-35deg);
+    right:-70px;
+    top:35px;
+    border-radius:10px;
 }
 
-/* Route */
-
-.route {
-    position: absolute;
-    width: 250px;
-    height: 180px;
-    border-left: 7px solid #1683ed;
-    border-bottom: 7px solid #1683ed;
-    border-radius: 0 0 0 120px;
-    transform: rotate(-15deg);
-    left: 90px;
-    top: 35px;
+.restaurant-pin,
+.customer-pin,
+.rider-pin{
+    position:absolute;
+    z-index:5;
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:22px;
+    box-shadow:0 4px 15px rgba(0,0,0,.2);
 }
 
-/* Rider marker */
-
-.rider-marker {
-    position: absolute;
-    left: 125px;
-    top: 135px;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: #1683ed;
-    border: 5px solid white;
-    box-shadow: 0 3px 10px rgba(0,0,0,.2);
-    z-index: 5;
+.restaurant-pin{
+    background:var(--green);
+    left:70px;
+    top:65px;
 }
 
-.rider-marker::after {
-    content: "🛵";
-    position: absolute;
-    font-size: 17px;
-    left: 7px;
-    top: 5px;
+.customer-pin{
+    background:#ef4444;
+    right:55px;
+    bottom:55px;
 }
 
-/* Restaurant */
-
-.restaurant-pin {
-    position: absolute;
-    left: 55px;
-    top: 45px;
-    width: 45px;
-    height: 45px;
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    background: #00a859;
-    box-shadow: 0 3px 8px rgba(0,0,0,.2);
+.rider-pin{
+    background:#2584ed;
+    border:5px solid white;
+    left:190px;
+    top:120px;
+    width:30px;
+    height:30px;
+    font-size:0;
 }
 
-.restaurant-pin span {
-    display: block;
-    transform: rotate(45deg);
-    text-align: center;
-    margin-top: 12px;
-    font-size: 18px;
+/* MAP BUTTON */
+
+.map-button{
+    position:absolute;
+    right:15px;
+    bottom:15px;
+    width:48px;
+    height:48px;
+    border:0;
+    border-radius:50%;
+    background:white;
+    box-shadow:0 3px 15px rgba(0,0,0,.15);
+    font-size:20px;
+    z-index:10;
 }
 
-/* Customer */
+/* CONTENT */
 
-.customer-pin {
-    position: absolute;
-    right: 55px;
-    bottom: 35px;
-    width: 45px;
-    height: 45px;
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    background: #ef4444;
-    box-shadow: 0 3px 8px rgba(0,0,0,.2);
+.content{
+    padding:18px;
 }
 
-.customer-pin span {
-    display: block;
-    transform: rotate(45deg);
-    text-align: center;
-    margin-top: 12px;
-    font-size: 18px;
+.title{
+    font-size:21px;
+    font-weight:800;
+    margin-bottom:5px;
 }
 
-/* Map button */
-
-.location-button {
-    position: absolute;
-    right: 18px;
-    bottom: 18px;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: white;
-    border: none;
-    box-shadow: 0 3px 12px rgba(0,0,0,.15);
-    font-size: 20px;
+.subtitle{
+    color:var(--muted);
+    font-size:14px;
+    margin-bottom:18px;
 }
 
-/* ================= CONTENT ================= */
+/* ORDER CARD */
 
-.content {
-    background: white;
-    border-radius: 26px 26px 0 0;
-    margin-top: -20px;
-    position: relative;
-    z-index: 10;
-    padding: 22px 18px 120px;
+.order-card{
+    background:white;
+    border-radius:20px;
+    padding:18px;
+    box-shadow:0 4px 18px rgba(0,0,0,.06);
+    margin-bottom:15px;
 }
 
-.handle {
-    width: 42px;
-    height: 5px;
-    border-radius: 10px;
-    background: #d9dddb;
-    margin: -5px auto 20px;
+.order-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
 }
 
-/* Status */
-
-.status {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+.order-number{
+    font-size:19px;
+    font-weight:800;
 }
 
-.status h1 {
-    font-size: 23px;
+.badge{
+    background:#eaf3ff;
+    color:#2777c8;
+    padding:7px 12px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:bold;
 }
 
-.badge {
-    background: #e8f8f0;
-    color: #00a859;
-    font-weight: bold;
-    padding: 8px 13px;
-    border-radius: 20px;
-    font-size: 12px;
+.restaurant{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-bottom:18px;
 }
 
-/* ================= PROGRESS ================= */
-
-.progress {
-    display: flex;
-    align-items: center;
-    margin-bottom: 24px;
+.restaurant-icon{
+    width:52px;
+    height:52px;
+    border-radius:14px;
+    background:#fff0dc;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:25px;
 }
 
-.progress-item {
-    text-align: center;
-    width: 80px;
+.restaurant h3{
+    font-size:16px;
+    margin-bottom:4px;
 }
 
-.circle {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: #e5e7e6;
-    color: #888;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: auto;
-    font-weight: bold;
+.restaurant p{
+    color:var(--muted);
+    font-size:13px;
 }
 
-.progress-item.active .circle,
-.progress-item.done .circle {
-    background: #00a859;
-    color: white;
+/* ADDRESS */
+
+.address{
+    border-top:1px solid var(--border);
+    padding-top:15px;
 }
 
-.progress-item p {
-    font-size: 10px;
-    margin-top: 7px;
-    color: #777;
-    font-weight: bold;
+.location{
+    display:flex;
+    gap:12px;
+    margin-bottom:15px;
 }
 
-.progress-line {
-    height: 3px;
-    flex: 1;
-    background: #e0e3e1;
-    margin-top: -17px;
+.location-icon{
+    width:32px;
+    height:32px;
+    background:var(--green-light);
+    color:var(--green);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
 }
 
-.progress-line.active {
-    background: #00a859;
+.location-icon.red{
+    background:#ffeded;
+    color:var(--red);
 }
 
-/* ================= INFO CARD ================= */
-
-.card {
-    background: #f7f9f8;
-    border: 1px solid #e8ecea;
-    border-radius: 17px;
-    padding: 17px;
-    margin-bottom: 14px;
+.location h4{
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:3px;
 }
 
-.card-title {
-    font-size: 13px;
-    color: #777;
-    margin-bottom: 12px;
-    font-weight: bold;
-    text-transform: uppercase;
+.location p{
+    font-size:14px;
+    font-weight:bold;
 }
 
-.restaurant-name {
-    font-size: 18px;
-    font-weight: bold;
+/* INFO */
+
+.info-row{
+    display:flex;
+    justify-content:space-between;
+    border-top:1px dashed var(--border);
+    padding-top:15px;
+    margin-top:5px;
 }
 
-.address {
-    color: #666;
-    font-size: 13px;
-    margin-top: 6px;
-    line-height: 1.5;
+.info{
+    text-align:left;
 }
 
-/* Customer */
-
-.customer {
-    display: flex;
-    align-items: center;
+.info span{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:4px;
 }
 
-.avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: #e5f6ee;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 23px;
-    margin-right: 12px;
+.info strong{
+    font-size:16px;
 }
 
-.customer-info {
-    flex: 1;
+.green{
+    color:var(--green);
 }
 
-.customer-info h3 {
-    font-size: 16px;
+/* BUTTONS */
+
+.button{
+    width:100%;
+    height:54px;
+    border:0;
+    border-radius:14px;
+    font-size:15px;
+    font-weight:800;
+    cursor:pointer;
+    margin-top:15px;
 }
 
-.customer-info p {
-    font-size: 12px;
-    color: #777;
-    margin-top: 4px;
+.primary{
+    background:var(--green);
+    color:white;
 }
 
-.call {
-    width: 43px;
-    height: 43px;
-    border-radius: 50%;
-    border: none;
-    background: #e8f8f0;
-    color: #00a859;
-    font-size: 19px;
+.primary:active{
+    background:var(--green-dark);
 }
 
-/* ================= EARNINGS ================= */
-
-.earnings {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.secondary{
+    background:white;
+    color:var(--text);
+    border:1px solid var(--border);
 }
 
-.earnings p {
-    color: #777;
-    font-size: 13px;
+.danger{
+    background:#fff0f0;
+    color:var(--red);
 }
 
-.earnings h2 {
-    color: #00a859;
-    font-size: 22px;
-    margin-top: 4px;
+/* PROGRESS */
+
+.progress{
+    display:flex;
+    align-items:flex-start;
+    margin:10px 0 25px;
 }
 
-.distance {
-    text-align: right;
+.step{
+    flex:1;
+    text-align:center;
+    position:relative;
 }
 
-.distance strong {
-    font-size: 17px;
+.step:not(:last-child)::after{
+    content:"";
+    position:absolute;
+    height:3px;
+    background:#ddd;
+    width:100%;
+    top:15px;
+    left:50%;
+    z-index:0;
 }
 
-.distance p {
-    margin-top: 4px;
+.step.done:not(:last-child)::after{
+    background:var(--green);
 }
 
-/* ================= BUTTONS ================= */
-
-.main-button {
-    width: 100%;
-    height: 56px;
-    border: none;
-    border-radius: 14px;
-    background: #00a859;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 5px;
+.circle{
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    background:#ddd;
+    color:white;
+    margin:auto;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    position:relative;
+    z-index:2;
+    font-size:12px;
+    font-weight:bold;
 }
 
-.main-button:active {
-    transform: scale(.98);
+.step.active .circle,
+.step.done .circle{
+    background:var(--green);
 }
 
-.secondary-button {
-    width: 100%;
-    height: 50px;
-    border-radius: 14px;
-    background: white;
-    border: 1px solid #dfe4e1;
-    color: #222;
-    font-size: 14px;
-    font-weight: bold;
-    margin-top: 10px;
+.step span{
+    display:block;
+    font-size:10px;
+    color:var(--muted);
+    margin-top:7px;
+    font-weight:bold;
 }
 
-/* ================= BOTTOM NAV ================= */
+/* SCREEN */
 
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 480px;
-    height: 78px;
-    background: white;
-    border-top: 1px solid #e6e8e7;
-    display: flex;
-    z-index: 50;
+.screen{
+    display:none;
 }
 
-.nav {
-    flex: 1;
-    border: none;
-    background: transparent;
-    color: #777;
-    font-size: 11px;
-    font-weight: bold;
+.screen.active{
+    display:block;
 }
 
-.nav-icon {
-    display: block;
-    font-size: 22px;
-    margin-bottom: 5px;
+/* EARNINGS */
+
+.earnings-card{
+    margin:18px;
+    padding:25px;
+    background:linear-gradient(135deg,#00a859,#008d4b);
+    color:white;
+    border-radius:20px;
 }
 
-.nav.active {
-    color: #00a859;
+.earnings-card p{
+    opacity:.8;
+    font-size:13px;
 }
 
-/* ================= SUCCESS ================= */
-
-.success {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(255,255,255,.98);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 25px;
+.earnings-card h2{
+    font-size:34px;
+    margin:7px 0;
 }
 
-.success.show {
-    display: flex;
+.earnings-card span{
+    font-size:13px;
+    opacity:.85;
 }
 
-.success-box {
-    width: 100%;
+.stats{
+    display:flex;
+    gap:12px;
+    padding:0 18px;
 }
 
-.success-icon {
-    width: 95px;
-    height: 95px;
-    border-radius: 50%;
-    background: #e7f8ef;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 45px;
-    margin: 0 auto 20px;
+.stat{
+    flex:1;
+    background:white;
+    padding:17px;
+    border-radius:15px;
+    text-align:center;
 }
 
-.success h1 {
-    font-size: 26px;
-    margin-bottom: 8px;
+.stat strong{
+    display:block;
+    font-size:20px;
 }
 
-.success p {
-    color: #777;
-    margin-bottom: 25px;
+.stat span{
+    font-size:11px;
+    color:var(--muted);
 }
 
-.payment {
-    background: #f6f8f7;
-    border-radius: 16px;
-    padding: 18px;
-    margin-bottom: 20px;
+.transactions{
+    margin:18px;
+    background:white;
+    border-radius:18px;
+    padding:18px;
 }
 
-.payment-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 7px 0;
-    font-size: 14px;
+.transactions h3{
+    margin-bottom:15px;
 }
 
-.payment-total {
-    border-top: 1px dashed #ddd;
-    margin-top: 8px;
-    padding-top: 12px;
-    color: #00a859;
-    font-size: 18px;
-    font-weight: bold;
+.transaction{
+    display:flex;
+    justify-content:space-between;
+    padding:14px 0;
+    border-bottom:1px solid var(--border);
 }
 
-/* ================= RESPONSIVE ================= */
+.transaction:last-child{
+    border:0;
+}
 
-@media (min-width: 481px) {
-    body {
-        padding: 20px 0;
+.transaction p{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:4px;
+}
+
+.amount{
+    color:var(--green);
+    font-weight:bold;
+}
+
+/* PROFILE */
+
+.profile{
+    padding:20px;
+}
+
+.profile-top{
+    background:white;
+    padding:25px;
+    text-align:center;
+    border-radius:20px;
+}
+
+.avatar{
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    margin:auto;
+    background:var(--green-light);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:38px;
+}
+
+.profile-top h2{
+    margin-top:12px;
+}
+
+.profile-top p{
+    color:var(--muted);
+    font-size:13px;
+    margin-top:5px;
+}
+
+.menu{
+    background:white;
+    margin-top:15px;
+    border-radius:18px;
+    overflow:hidden;
+}
+
+.menu-item{
+    padding:18px;
+    display:flex;
+    justify-content:space-between;
+    border-bottom:1px solid var(--border);
+    font-weight:bold;
+}
+
+.menu-item:last-child{
+    border:0;
+}
+
+.menu-item span:last-child{
+    color:#aaa;
+}
+
+/* BOTTOM NAV */
+
+.nav{
+    position:fixed;
+    bottom:0;
+    left:50%;
+    transform:translateX(-50%);
+    width:100%;
+    max-width:480px;
+    height:70px;
+    background:white;
+    border-top:1px solid var(--border);
+    display:flex;
+    z-index:100;
+}
+
+.nav button{
+    flex:1;
+    border:0;
+    background:white;
+    color:#888;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    font-size:11px;
+    font-weight:bold;
+}
+
+.nav button.active{
+    color:var(--green);
+}
+
+.nav-icon{
+    font-size:22px;
+}
+
+/* MODAL */
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.5);
+    z-index:200;
+    display:none;
+    align-items:flex-end;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-content{
+    background:white;
+    width:100%;
+    max-width:480px;
+    margin:auto;
+    border-radius:25px 25px 0 0;
+    padding:22px;
+    animation:slide .25s ease;
+}
+
+@keyframes slide{
+    from{
+        transform:translateY(100%);
     }
-
-    .app {
-        box-shadow: 0 0 30px rgba(0,0,0,.08);
-        border-radius: 15px;
-        overflow: hidden;
-    }
-
-    .bottom-nav {
-        bottom: 20px;
-        border-radius: 0 0 15px 15px;
+    to{
+        transform:translateY(0);
     }
 }
+
+.modal-handle{
+    width:40px;
+    height:4px;
+    background:#ddd;
+    margin:0 auto 20px;
+    border-radius:5px;
+}
+
+.modal h2{
+    margin-bottom:8px;
+}
+
+.modal p{
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.5;
+}
+
+/* PIN */
+
+.pin-input{
+    width:100%;
+    height:55px;
+    margin-top:15px;
+    border:1px solid var(--border);
+    border-radius:12px;
+    text-align:center;
+    font-size:25px;
+    letter-spacing:10px;
+    outline:none;
+}
+
+.pin-input:focus{
+    border-color:var(--green);
+}
+
+/* TOAST */
+
+.toast{
+    position:fixed;
+    top:20px;
+    left:50%;
+    transform:translateX(-50%) translateY(-100px);
+    background:#111;
+    color:white;
+    padding:13px 18px;
+    border-radius:30px;
+    z-index:500;
+    font-size:13px;
+    transition:.3s;
+}
+
+.toast.show{
+    transform:translateX(-50%) translateY(0);
+}
+
+/* MOBILE */
+
+@media(max-width:480px){
+    .map{
+        height:260px;
+    }
+}
+
 </style>
 </head>
 
@@ -563,440 +730,957 @@ body {
 
 <div class="app">
 
-    <!-- HEADER -->
-    <header class="header">
+<!-- HOME -->
 
-        <button class="back" onclick="goBack()">‹</button>
+<section id="home" class="screen active">
 
-        <div class="header-title">
-            <h2>Active Delivery</h2>
-            <p>Order #4821</p>
-        </div>
+<header class="header">
 
-        <button class="help" onclick="showHelp()">?</button>
+<div>
+<h1>Good morning, Rider! 👋</h1>
+<p id="onlineText">You're online</p>
+</div>
 
-    </header>
+<button class="online" id="onlineButton"
+onclick="toggleOnline()">
 
+<span class="dot"></span>
+<span id="onlineLabel">ONLINE</span>
 
-    <!-- MAP -->
-    <section class="map">
+</button>
 
-        <div class="road"></div>
-        <div class="road two"></div>
-        <div class="road three"></div>
+</header>
 
-        <div class="route"></div>
 
-        <div class="restaurant-pin">
-            <span>🍴</span>
-        </div>
+<div class="map">
 
-        <div class="rider-marker"></div>
+<div class="route"></div>
 
-        <div class="customer-pin">
-            <span>📍</span>
-        </div>
+<div class="restaurant-pin">🍴</div>
 
-        <button class="location-button" onclick="centerLocation()">
-            📍
-        </button>
+<div class="rider-pin"></div>
 
-    </section>
+<div class="customer-pin">📍</div>
 
-
-    <!-- CONTENT -->
-    <main class="content">
-
-        <div class="handle"></div>
-
-
-        <!-- STATUS -->
-        <div class="status">
-
-            <div>
-                <h1 id="statusTitle">Pick up the order</h1>
-            </div>
-
-            <div class="badge" id="statusBadge">
-                PICKUP
-            </div>
-
-        </div>
-
-
-        <!-- PROGRESS -->
-        <div class="progress">
-
-            <div class="progress-item done">
-
-                <div class="circle">✓</div>
-
-                <p>Accepted</p>
-
-            </div>
-
-
-            <div class="progress-line active"></div>
-
-
-            <div class="progress-item active" id="pickupStep">
-
-                <div class="circle">2</div>
-
-                <p>Pickup</p>
-
-            </div>
-
-
-            <div class="progress-line" id="deliveryLine"></div>
-
-
-            <div class="progress-item" id="deliveryStep">
-
-                <div class="circle">3</div>
-
-                <p>Deliver</p>
-
-            </div>
-
-        </div>
-
-
-        <!-- RESTAURANT -->
-        <div class="card">
-
-            <div class="card-title">
-                Pickup from
-            </div>
-
-            <div class="restaurant-name">
-                Tasty Bites Restaurant
-            </div>
-
-            <div class="address">
-                📍 12, Adeola Street, Ikeja, Lagos
-            </div>
-
-        </div>
-
-
-        <!-- CUSTOMER -->
-        <div class="card">
-
-            <div class="card-title">
-                Deliver to
-            </div>
-
-            <div class="customer">
-
-                <div class="avatar">
-                    👤
-                </div>
-
-                <div class="customer-info">
-
-                    <h3>Hawa B.</h3>
-
-                    <p>
-                        18, Unity Road, Lekki
-                    </p>
-
-                </div>
-
-                <button class="call" onclick="callCustomer()">
-                    ☎
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <!-- EARNINGS -->
-        <div class="card">
-
-            <div class="earnings">
-
-                <div>
-
-                    <p>Your earnings</p>
-
-                    <h2>₦3,750</h2>
-
-                </div>
-
-
-                <div class="distance">
-
-                    <strong>2.5 km</strong>
-
-                    <p>Total distance</p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- BUTTON -->
-        <button
-            class="main-button"
-            id="mainButton"
-            onclick="mainAction()"
-        >
-            🗺️ Navigate to Restaurant
-        </button>
-
-
-        <button
-            class="secondary-button"
-            onclick="showOrderInfo()"
-        >
-            View Order Details
-        </button>
-
-    </main>
-
-
-    <!-- BOTTOM NAV -->
-    <nav class="bottom-nav">
-
-        <button class="nav active">
-            <span class="nav-icon">🏠</span>
-            Home
-        </button>
-
-        <button class="nav">
-            <span class="nav-icon">💰</span>
-            Earnings
-        </button>
-
-        <button class="nav">
-            <span class="nav-icon">👤</span>
-            Profile
-        </button>
-
-    </nav>
+<button class="map-button"
+onclick="showToast('Location centered')">
+📍
+</button>
 
 </div>
 
 
-<!-- SUCCESS SCREEN -->
+<div class="content">
 
-<div class="success" id="success">
+<h2 class="title">New order available</h2>
 
-    <div class="success-box">
-
-        <div class="success-icon">
-            ✓
-        </div>
-
-        <h1>Delivery Completed!</h1>
-
-        <p>
-            Great job! The order has been successfully delivered.
-        </p>
+<p class="subtitle">
+A customer nearby needs a delivery.
+</p>
 
 
-        <div class="payment">
+<div class="order-card">
 
-            <div class="payment-row">
-                <span>Base pay</span>
-                <strong>₦2,500</strong>
-            </div>
+<div class="order-top">
 
-            <div class="payment-row">
-                <span>Distance pay</span>
-                <strong>₦1,000</strong>
-            </div>
+<div class="order-number">
+Order #4821
+</div>
 
-            <div class="payment-row">
-                <span>Bonus</span>
-                <strong>₦250</strong>
-            </div>
+<div class="badge">
+NEW ORDER
+</div>
 
-            <div class="payment-row payment-total">
-                <span>Total earnings</span>
-                <span>₦3,750</span>
-            </div>
-
-        </div>
+</div>
 
 
-        <button
-            class="main-button"
-            onclick="finishDelivery()"
-        >
-            Back to Home
-        </button>
+<div class="restaurant">
 
-    </div>
+<div class="restaurant-icon">
+🍗
+</div>
 
+<div>
+<h3>Tasty Bites Restaurant</h3>
+<p>Jollof Rice + Grilled Chicken</p>
+</div>
+
+</div>
+
+
+<div class="address">
+
+<div class="location">
+
+<div class="location-icon">
+🏪
+</div>
+
+<div>
+<h4>PICKUP</h4>
+<p>12, Adeola Street, Ikeja</p>
+</div>
+
+</div>
+
+
+<div class="location">
+
+<div class="location-icon red">
+📍
+</div>
+
+<div>
+<h4>DROP-OFF</h4>
+<p>18, Unity Road, Lekki</p>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="info-row">
+
+<div class="info">
+<span>Distance</span>
+<strong>2.5 km</strong>
+</div>
+
+<div class="info">
+<span>Estimated time</span>
+<strong>18 min</strong>
+</div>
+
+<div class="info">
+<span>You'll earn</span>
+<strong class="green">₦3,750</strong>
+</div>
+
+</div>
+
+
+<button class="button primary"
+onclick="openOrder()">
+
+View Order
+
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- EARNINGS -->
+
+<section id="earnings" class="screen">
+
+<header class="header">
+<div>
+<h1>Earnings</h1>
+<p>Your delivery income</p>
+</div>
+</header>
+
+
+<div class="earnings-card">
+
+<p>Today's Earnings</p>
+
+<h2 id="earningTotal">
+₦18,750
+</h2>
+
+<span>
+Keep delivering to earn more 🚴
+</span>
+
+</div>
+
+
+<div class="stats">
+
+<div class="stat">
+<strong>8</strong>
+<span>Deliveries</span>
+</div>
+
+<div class="stat">
+<strong>4.9</strong>
+<span>Rating</span>
+</div>
+
+<div class="stat">
+<strong>98%</strong>
+<span>On-time</span>
+</div>
+
+</div>
+
+
+<div class="transactions">
+
+<h3>Recent deliveries</h3>
+
+
+<div class="transaction">
+
+<div>
+<strong>Tasty Bites</strong>
+<p>Today · 10:24 AM</p>
+</div>
+
+<div class="amount">
+₦3,750
+</div>
+
+</div>
+
+
+<div class="transaction">
+
+<div>
+<strong>Spice Hub</strong>
+<p>Today · 11:45 AM</p>
+</div>
+
+<div class="amount">
+₦4,200
+</div>
+
+</div>
+
+
+<div class="transaction">
+
+<div>
+<strong>Mama's Kitchen</strong>
+<p>Today · 1:20 PM</p>
+</div>
+
+<div class="amount">
+₦2,800
+</div>
+
+</div>
+
+
+<div class="transaction">
+
+<div>
+<strong>Food Palace</strong>
+<p>Today · 2:10 PM</p>
+</div>
+
+<div class="amount">
+₦3,100
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- PROFILE -->
+
+<section id="profile" class="screen">
+
+<header class="header">
+<div>
+<h1>Profile</h1>
+<p>Your rider account</p>
+</div>
+</header>
+
+
+<div class="profile">
+
+<div class="profile-top">
+
+<div class="avatar">
+👤
+</div>
+
+<h2>Demo Rider</h2>
+
+<p>✓ Verified Rider</p>
+
+</div>
+
+
+<div class="menu">
+
+<div class="menu-item">
+<span>Edit Profile</span>
+<span>›</span>
+</div>
+
+<div class="menu-item">
+<span>Vehicle & Documents</span>
+<span>›</span>
+</div>
+
+<div class="menu-item">
+<span>Bank Account</span>
+<span>›</span>
+</div>
+
+<div class="menu-item">
+<span>Notifications</span>
+<span>›</span>
+</div>
+
+<div class="menu-item">
+<span>Help & Support</span>
+<span>›</span>
+</div>
+
+<div class="menu-item"
+onclick="showToast('Logout is disabled in demo mode')">
+
+<span style="color:#e53935">
+Log Out
+</span>
+
+<span>›</span>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- NAVIGATION -->
+
+<nav class="nav">
+
+<button class="active"
+onclick="switchScreen('home',this)">
+
+<span class="nav-icon">🏠</span>
+Home
+
+</button>
+
+
+<button
+onclick="switchScreen('earnings',this)">
+
+<span class="nav-icon">💰</span>
+Earnings
+
+</button>
+
+
+<button
+onclick="switchScreen('profile',this)">
+
+<span class="nav-icon">👤</span>
+Profile
+
+</button>
+
+</nav>
+
+</div>
+
+
+<!-- ORDER MODAL -->
+
+<div class="modal" id="orderModal">
+
+<div class="modal-content">
+
+<div class="modal-handle"></div>
+
+<h2>Order #4821</h2>
+
+<p>
+Tasty Bites Restaurant → Hawa B.
+</p>
+
+
+<div class="progress">
+
+<div class="step active" id="step1">
+
+<div class="circle">
+1
+</div>
+
+<span>Accepted</span>
+
+</div>
+
+
+<div class="step" id="step2">
+
+<div class="circle">
+2
+</div>
+
+<span>Pickup</span>
+
+</div>
+
+
+<div class="step" id="step3">
+
+<div class="circle">
+3
+</div>
+
+<span>Deliver</span>
+
+</div>
+
+</div>
+
+
+<div id="orderInfo">
+
+<div class="location">
+
+<div class="location-icon">
+🏪
+</div>
+
+<div>
+<h4>PICKUP</h4>
+<p>12, Adeola Street, Ikeja</p>
+</div>
+
+</div>
+
+
+<div class="location">
+
+<div class="location-icon red">
+📍
+</div>
+
+<div>
+<h4>DROP-OFF</h4>
+<p>18, Unity Road, Lekki</p>
+</div>
+
+</div>
+
+</div>
+
+
+<button
+class="button primary"
+id="orderAction"
+onclick="nextDeliveryStep()">
+
+Accept Order
+
+</button>
+
+
+<button
+class="button secondary"
+onclick="closeOrder()">
+
+Close
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- DELIVERY PIN MODAL -->
+
+<div class="modal" id="pinModal">
+
+<div class="modal-content">
+
+<div class="modal-handle"></div>
+
+<h2>Complete Delivery</h2>
+
+<p>
+Ask the customer for their 4-digit delivery PIN.
+</p>
+
+<input
+class="pin-input"
+id="pinInput"
+maxlength="4"
+inputmode="numeric"
+placeholder="••••">
+
+
+<button
+class="button primary"
+onclick="completeDelivery()">
+
+Confirm Delivery
+
+</button>
+
+
+<button
+class="button secondary"
+onclick="closePin()">
+
+Cancel
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- SUCCESS MODAL -->
+
+<div class="modal" id="successModal">
+
+<div class="modal-content"
+style="text-align:center">
+
+<div style="
+font-size:65px;
+margin:10px">
+✅
+</div>
+
+<h2>Delivery Completed!</h2>
+
+<p>
+Great job! The order has been successfully delivered.
+</p>
+
+
+<div style="
+background:#E9F8F0;
+padding:20px;
+border-radius:15px;
+margin-top:20px">
+
+<div style="
+font-size:13px;
+color:#777">
+
+You earned
+
+</div>
+
+<div style="
+font-size:30px;
+font-weight:800;
+color:#00A859;
+margin-top:5px">
+
+₦3,750
+
+</div>
+
+</div>
+
+
+<button
+class="button primary"
+onclick="finishDelivery()">
+
+Back to Home
+
+</button>
+
+</div>
+
+</div>
+
+
+<div class="toast" id="toast">
+Done
 </div>
 
 
 <script>
 
-let deliveryState = "pickup";
+/* -------------------------
+   STATE
+------------------------- */
+
+let deliveryStep = 0;
+
+let online = true;
+
+let earnings = 18750;
 
 
-function mainAction() {
+/* -------------------------
+   SCREEN SWITCHING
+------------------------- */
 
-    const button = document.getElementById("mainButton");
+function switchScreen(screen,button){
 
-    const title = document.getElementById("statusTitle");
+document.querySelectorAll('.screen')
+.forEach(s => s.classList.remove('active'));
 
-    const badge = document.getElementById("statusBadge");
+document.getElementById(screen)
+.classList.add('active');
 
-    const deliveryStep =
-        document.getElementById("deliveryStep");
+document.querySelectorAll('.nav button')
+.forEach(b => b.classList.remove('active'));
 
-    const deliveryLine =
-        document.getElementById("deliveryLine");
+button.classList.add('active');
 
-
-    /* STEP 1 */
-
-    if (deliveryState === "pickup") {
-
-        deliveryState = "delivering";
-
-        title.innerText =
-            "Deliver the order";
-
-        badge.innerText =
-            "DELIVERING";
-
-        badge.style.background =
-            "#fff4df";
-
-        badge.style.color =
-            "#d97706";
-
-        button.innerText =
-            "🗺️ Navigate to Customer";
-
-
-        deliveryStep.classList.add("active");
-
-        deliveryLine.classList.add("active");
-
-        document.getElementById("pickupStep")
-            .classList.remove("active");
-
-        document.getElementById("pickupStep")
-            .classList.add("done");
-
-        document.querySelector(
-            "#pickupStep .circle"
-        ).innerText = "✓";
-
-        alert(
-            "Order picked up! Navigate to the customer."
-        );
-
-        return;
-    }
-
-
-    /* STEP 2 */
-
-    if (deliveryState === "delivering") {
-
-        deliveryState = "complete";
-
-        document.getElementById("success")
-            .classList.add("show");
-
-    }
+window.scrollTo(0,0);
 
 }
 
 
-function finishDelivery() {
+/* -------------------------
+   ONLINE / OFFLINE
+------------------------- */
 
-    document.getElementById("success")
-        .classList.remove("show");
+function toggleOnline(){
 
-    deliveryState = "pickup";
+online = !online;
 
-    location.reload();
+const button =
+document.getElementById('onlineButton');
+
+const label =
+document.getElementById('onlineLabel');
+
+const text =
+document.getElementById('onlineText');
+
+
+if(online){
+
+button.classList.remove('offline');
+
+label.innerText = 'ONLINE';
+
+text.innerText = "You're online";
+
+showToast("You're now online");
+
+}else{
+
+button.classList.add('offline');
+
+label.innerText = 'OFFLINE';
+
+text.innerText = "You're offline";
+
+showToast("You're now offline");
+
+}
 
 }
 
 
-function goBack() {
+/* -------------------------
+   OPEN ORDER
+------------------------- */
 
-    if (
-        confirm(
-            "Return to the home screen?"
-        )
-    ) {
+function openOrder(){
 
-        alert(
-            "Returning to Home..."
-        );
+deliveryStep = 0;
 
-    }
+updateDeliveryUI();
 
-}
-
-
-function showHelp() {
-
-    alert(
-        "Need help?\n\n" +
-        "Contact QuickEats Rider Support:\n" +
-        "0800-QUICKEATS"
-    );
+document
+.getElementById('orderModal')
+.classList.add('show');
 
 }
 
 
-function callCustomer() {
+/* -------------------------
+   CLOSE ORDER
+------------------------- */
 
-    alert(
-        "Calling Hawa B..."
-    );
+function closeOrder(){
 
-}
-
-
-function centerLocation() {
-
-    alert(
-        "Your current location is centered on the map."
-    );
+document
+.getElementById('orderModal')
+.classList.remove('show');
 
 }
 
 
-function showOrderInfo() {
+/* -------------------------
+   DELIVERY FLOW
+------------------------- */
 
-    alert(
-        "ORDER #4821\n\n" +
+function nextDeliveryStep(){
 
-        "Restaurant:\n" +
-        "Tasty Bites Restaurant\n\n" +
+const button =
+document.getElementById('orderAction');
 
-        "Items:\n" +
-        "Jollof Rice + Grilled Chicken\n\n" +
 
-        "Customer:\n" +
-        "Hawa B.\n\n" +
+/* STEP 0 */
 
-        "Pickup:\n" +
-        "12, Adeola Street, Ikeja\n\n" +
+if(deliveryStep === 0){
 
-        "Drop-off:\n" +
-        "18, Unity Road, Lekki\n\n" +
+deliveryStep = 1;
 
-        "Distance: 2.5 km\n" +
-        "Earnings: ₦3,750"
-    );
+button.innerText =
+"I've Arrived at Restaurant";
+
+showToast("Order accepted!");
 
 }
+
+
+/* STEP 1 */
+
+else if(deliveryStep === 1){
+
+deliveryStep = 2;
+
+button.innerText =
+"Confirm Pickup";
+
+showToast("You're at the restaurant");
+
+}
+
+
+/* STEP 2 */
+
+else if(deliveryStep === 2){
+
+deliveryStep = 3;
+
+button.innerText =
+"Navigate to Customer";
+
+showToast("Order picked up!");
+
+}
+
+
+/* STEP 3 */
+
+else if(deliveryStep === 3){
+
+deliveryStep = 4;
+
+button.innerText =
+"Customer Received Order";
+
+showToast("You're at the customer");
+
+}
+
+
+/* STEP 4 */
+
+else if(deliveryStep === 4){
+
+document
+.getElementById('orderModal')
+.classList.remove('show');
+
+document
+.getElementById('pinModal')
+.classList.add('show');
+
+}
+
+updateDeliveryUI();
+
+}
+
+
+/* -------------------------
+   UPDATE PROGRESS
+------------------------- */
+
+function updateDeliveryUI(){
+
+const steps = [
+document.getElementById('step1'),
+document.getElementById('step2'),
+document.getElementById('step3')
+];
+
+steps.forEach((step,index)=>{
+
+step.classList.remove('active');
+step.classList.remove('done');
+
+if(index < deliveryStep){
+
+step.classList.add('done');
+
+}
+
+if(index === deliveryStep){
+
+step.classList.add('active');
+
+}
+
+});
+
+const button =
+document.getElementById('orderAction');
+
+
+if(deliveryStep === 0){
+
+button.innerText =
+"Accept Order";
+
+}
+
+else if(deliveryStep === 1){
+
+button.innerText =
+"I've Arrived at Restaurant";
+
+}
+
+else if(deliveryStep === 2){
+
+button.innerText =
+"Confirm Pickup";
+
+}
+
+else if(deliveryStep === 3){
+
+button.innerText =
+"Navigate to Customer";
+
+}
+
+else if(deliveryStep === 4){
+
+button.innerText =
+"Customer Received Order";
+
+}
+
+}
+
+
+/* -------------------------
+   PIN
+------------------------- */
+
+function closePin(){
+
+document
+.getElementById('pinModal')
+.classList.remove('show');
+
+}
+
+
+function completeDelivery(){
+
+const pin =
+document.getElementById('pinInput').value;
+
+if(pin.length !== 4){
+
+showToast("Enter the customer's 4-digit PIN");
+
+return;
+
+}
+
+document
+.getElementById('pinModal')
+.classList.remove('show');
+
+document
+.getElementById('successModal')
+.classList.add('show');
+
+earnings += 3750;
+
+document
+.getElementById('earningTotal')
+.innerText =
+"₦" + earnings.toLocaleString();
+
+}
+
+
+/* -------------------------
+   FINISH DELIVERY
+------------------------- */
+
+function finishDelivery(){
+
+document
+.getElementById('successModal')
+.classList.remove('show');
+
+document
+.getElementById('pinInput').value = "";
+
+deliveryStep = 0;
+
+showToast("Delivery completed successfully!");
+
+}
+
+
+/* -------------------------
+   TOAST
+------------------------- */
+
+function showToast(message){
+
+const toast =
+document.getElementById('toast');
+
+toast.innerText = message;
+
+toast.classList.add('show');
+
+setTimeout(()=>{
+
+toast.classList.remove('show');
+
+},2500);
+
+}
+
+
+/* -------------------------
+   PREVENT MODAL SCROLL
+------------------------- */
+
+document.addEventListener(
+'touchmove',
+function(e){
+
+if(
+document.querySelector('.modal.show')
+&& e.target.closest('.modal-content')
+){
+
+return;
+
+}
+
+},
+{passive:true}
+);
 
 </script>
 
