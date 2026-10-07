@@ -45,6 +45,18 @@
     .section-title { font-size: 13px; font-weight: 700; color: var(--text-gray); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
     .btn-demo { background: rgba(59, 130, 246, 0.2); color: var(--blue); border: 1px solid var(--blue); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
 
+    /* RADAR SCANNING ANIMATION */
+    .radar-container { position: relative; width: 160px; height: 160px; margin: 40px auto; display: flex; align-items: center; justify-content: center; }
+    .radar-circle { position: absolute; width: 100%; height: 100%; border: 2px solid var(--primary); border-radius: 50%; opacity: 0; animation: radar 2s linear infinite; }
+    .radar-circle:nth-child(2) { animation-delay: 0.6s; }
+    .radar-circle:nth-child(3) { animation-delay: 1.2s; }
+    .radar-icon { font-size: 50px; z-index: 2; animation: pulse 1.5s infinite; }
+    @keyframes radar { 0% { transform: scale(0.3); opacity: 0.8; } 100% { transform: scale(1.2); opacity: 0; } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+    .radar-text { text-align: center; color: var(--text-gray); font-size: 14px; font-weight: 600; margin-top: -10px; }
+    .radar-subtext { text-align: center; color: var(--text-gray); font-size: 11px; margin-top: 4px; opacity: 0.7; }
+
+    /* ORDER CARDS */
     .order-card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); position: relative; overflow: hidden; }
     .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .order-id { font-weight: 800; font-size: 16px; color: var(--text-white); }
@@ -75,10 +87,6 @@
     .btn-blue { background: linear-gradient(135deg, var(--blue), #2563EB); color: #fff; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
     .btn-gray { background: var(--card-bg-light); color: var(--text-white); }
 
-    .empty-state { text-align: center; padding: 40px 20px; background: var(--card-bg); border-radius: 16px; border: 1px dashed var(--border); }
-    .empty-state div { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
-    .empty-state p { color: var(--text-gray); font-size: 13px; }
-
     /* BOTTOM NAV */
     .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; max-width: 480px; margin: 0 auto; right: 0; }
     .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: var(--text-gray); cursor: pointer; padding: 8px 0; transition: 0.2s; }
@@ -87,33 +95,32 @@
     .nav-label { font-size: 10px; font-weight: 700; }
 
     /* SCANNING MODAL */
-    .scan-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 17, 32, 0.95); backdrop-filter: blur(10px); z-index: 999; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+    .scan-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 17, 32, 0.98); backdrop-filter: blur(10px); z-index: 999; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
     .scan-overlay.active { display: flex; animation: fadeIn 0.2s ease; }
-    .scan-box { position: relative; width: 280px; height: 280px; border-radius: 24px; background: var(--card-bg); border: 1px solid var(--border); overflow: hidden; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 40px rgba(0, 168, 89, 0.1); }
     
-    .scan-line { position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--primary); box-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary); animation: scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
-    @keyframes scan {
-      0% { top: -10%; opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { top: 110%; opacity: 0; }
-    }
+    /* CAMERA VIEWFINDER MOCK */
+    .camera-view { position: relative; width: 100%; max-width: 320px; height: 320px; background: #000; border-radius: 24px; overflow: hidden; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--border); }
+    .camera-view::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="none" stroke="%23334155" stroke-width="1"/></svg>'); opacity: 0.2; }
+    
+    .qr-target { position: relative; width: 180px; height: 180px; border: 2px solid rgba(0, 168, 89, 0.3); border-radius: 16px; }
+    .qr-target::before, .qr-target::after { content: ''; position: absolute; width: 30px; height: 30px; border: 4px solid var(--primary); border-radius: 4px; }
+    .qr-target::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+    .qr-target::after { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+    
+    .scan-line { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--primary); box-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary); animation: scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+    @keyframes scan { 0% { top: -10%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
 
-    .scan-box::before, .scan-box::after { content: ''; position: absolute; width: 40px; height: 40px; border: 4px solid var(--primary); border-radius: 8px; }
-    .scan-box::before { top: 15px; left: 15px; border-right: none; border-bottom: none; }
-    .scan-box::after { bottom: 15px; right: 15px; border-left: none; border-top: none; }
-    
-    .scan-icon { font-size: 70px; opacity: 0.2; }
     .scan-text { font-size: 14px; color: var(--text-gray); margin-bottom: 24px; font-weight: 600; }
+    
+    /* PIN FALLBACK */
+    .pin-fallback { display: none; flex-direction: column; align-items: center; width: 100%; }
+    .pin-fallback.active { display: flex; }
     .pin-input { width: 100%; max-width: 280px; height: 70px; font-size: 36px; letter-spacing: 16px; text-align: center; background: var(--bg-dark); border: 2px solid var(--border); border-radius: 16px; color: #fff; font-weight: 800; outline: none; margin-bottom: 24px; transition: 0.3s; }
     .pin-input:focus { border-color: var(--primary); box-shadow: 0 0 20px rgba(0, 168, 89, 0.2); }
-    .pin-input.error { border-color: var(--danger); box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); animation: shake 0.4s; }
-    .pin-input.success { border-color: var(--primary); box-shadow: 0 0 20px rgba(0, 168, 89, 0.5); animation: pulse 0.5s; }
     
-    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-
-    .close-scan { color: var(--text-gray); font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 16px; text-decoration: underline; }
+    .btn-simulate { background: rgba(0, 168, 89, 0.2); color: var(--primary); border: 1px dashed var(--primary); width: 100%; max-width: 320px; margin-bottom: 16px; }
+    .btn-toggle-mode { background: transparent; color: var(--text-gray); font-size: 12px; text-decoration: underline; border: none; cursor: pointer; margin-top: 10px; }
+    .close-scan { color: var(--danger); font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 16px; text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -148,7 +155,9 @@
   <!-- HISTORY VIEW -->
   <div id="view-history" class="view">
     <div class="section-title">Delivery History</div>
-    <div id="historyContainer"></div>
+    <div id="historyContainer">
+      <div class="radar-text" style="margin-top: 40px;">No history yet</div>
+    </div>
   </div>
 
   <!-- EARNINGS VIEW -->
@@ -160,10 +169,7 @@
       <div class="stat-card"><span>Pending Payout</span><b id="earnPending">₦0</b></div>
     </div>
     <div class="section-title">Recent Payouts</div>
-    <div class="empty-state">
-      <div>💸</div>
-      <p>No payouts requested yet.</p>
-    </div>
+    <div class="radar-text" style="margin-top: 40px;">No payouts requested yet</div>
   </div>
 
   <!-- SETTINGS VIEW -->
@@ -203,14 +209,28 @@
 
 <!-- SCANNING MODAL -->
 <div id="scanModal" class="scan-overlay">
-  <div class="scan-box">
-    <div class="scan-line"></div>
-    <div class="scan-icon">📷</div>
-  </div>
-  <div class="scan-text" id="scanText">Enter 4-digit PIN</div>
   
-  <input type="tel" id="pinInput" class="pin-input" placeholder="----" maxlength="4" inputmode="numeric">
-  <button class="btn btn-green" style="width:280px;" onclick="verifyPin()" id="verifyBtn">VERIFY</button>
+  <!-- CAMERA SCANNER VIEW -->
+  <div id="cameraScanner" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+    <div class="camera-view">
+      <div class="scan-line"></div>
+      <div class="qr-target">
+        <div class="radar-icon" style="font-size: 40px; opacity: 0.5;">QR</div>
+      </div>
+    </div>
+    <div class="scan-text" id="scanText">Point camera at the order QR code</div>
+    <button class="btn btn-simulate" onclick="simulateScan()">⚡ Simulate QR Scan</button>
+    <button class="btn-toggle-mode" onclick="toggleScanMode()">Enter code manually instead</button>
+  </div>
+
+  <!-- MANUAL PIN VIEW -->
+  <div id="manualPin" class="pin-fallback">
+    <div class="scan-text" id="pinText">Enter the 4-digit code</div>
+    <input type="tel" id="pinInput" class="pin-input" placeholder="----" maxlength="4" inputmode="numeric">
+    <button class="btn btn-green" style="width:280px; margin-bottom: 16px;" onclick="verifyPin()">VERIFY CODE</button>
+    <button class="btn-toggle-mode" onclick="toggleScanMode()">← Back to camera scanner</button>
+  </div>
+
   <div class="close-scan" onclick="closeScan()">Cancel</div>
 </div>
 
@@ -227,12 +247,10 @@
   let isOnline = true;
 
   window.onload = async function() {
-    // For demo purposes, we mock a rider if not logged in
     const s = await sb.auth.getSession();
     if (s.data.session) {
        initApp(s.data.session.user);
     } else {
-       // Mock login for demo
        document.getElementById('riderName').innerText = 'Demo Rider';
        document.getElementById('setName').innerText = 'Demo Rider';
        document.getElementById('setPhone').innerText = '08012345678';
@@ -275,18 +293,12 @@
 
   async function loadOrders() {
     if (!rider) return;
-    // In a real app, fetch from Supabase. Here we use mock data if empty.
-    if (activeOrders.length === 0 && historyOrders.length === 0) {
-       // Inject a mock order for demo purposes if DB is empty
-       addDemoOrder(true); 
-    }
     renderOrders();
     updateStats();
   }
 
   function addDemoOrder(silent = false) {
     if (!silent) {
-      // Add a fresh demo order to the active list
       const num = '#' + Math.floor(1000 + Math.random() * 9000);
       activeOrders.unshift({
         id: 'demo-' + Date.now(),
@@ -307,10 +319,20 @@
 
   function renderOrders() {
     const container = document.getElementById('ordersContainer');
-    const historyContainer = document.getElementById('historyContainer');
 
     if (activeOrders.length === 0) {
-      container.innerHTML = '<div class="empty-state"><div>🛵</div><p>No active deliveries. You are online and waiting for orders!</p></div>';
+      // SLICK RADAR SCANNING ANIMATION WHEN NO ORDERS
+      container.innerHTML = `
+        <div class="empty-state" style="border:none; padding:0;">
+          <div class="radar-container">
+            <div class="radar-circle"></div>
+            <div class="radar-circle"></div>
+            <div class="radar-circle"></div>
+            <div class="radar-icon">🛵</div>
+          </div>
+          <div class="radar-text">Scanning for new orders...</div>
+          <div class="radar-subtext">You will be notified automatically</div>
+        </div>`;
     } else {
       container.innerHTML = activeOrders.map(o => {
         let actionBtn = '';
@@ -320,10 +342,10 @@
 
         if (o.status === 'accepted' || o.status === 'arrived_at_vendor') {
            badgeClass = 'badge-pickup'; badgeText = 'Pickup'; progress = 33;
-           actionBtn = `<button class="btn btn-blue" onclick="openScan('${o.id}', 'pickup')">📷 Verify Pickup</button>`;
+           actionBtn = `<button class="btn btn-blue" onclick="openScan('${o.id}', 'pickup')">📷 Scan QR to Pick Up</button>`;
         } else if (o.status === 'picked_up' || o.status === 'arrived_at_customer') {
            badgeClass = 'badge-deliver'; badgeText = 'Deliver'; progress = 66;
-           actionBtn = `<button class="btn btn-green" onclick="openScan('${o.id}', 'deliver')">✅ Verify Delivery</button>`;
+           actionBtn = `<button class="btn btn-green" onclick="openScan('${o.id}', 'deliver')">✅ Scan QR to Deliver</button>`;
         }
 
         const vendorMapLink = `https://maps.google.com/?q=${encodeURIComponent(o.vendor_address || '')}`;
@@ -365,12 +387,6 @@
         </div>`;
       }).join('');
     }
-
-    if (historyOrders.length === 0) {
-      historyContainer.innerHTML = '<div class="empty-state"><div>🕒</div><p>No completed deliveries yet.</p></div>';
-    } else {
-      // Render history similar to active orders but with delivered state
-    }
   }
 
   function updateStats() {
@@ -384,21 +400,57 @@
   function openScan(orderId, action) {
     pendingVerifyOrderId = orderId;
     pendingAction = action;
-    const input = document.getElementById('pinInput');
-    input.value = '';
-    input.classList.remove('error', 'success');
-    input.disabled = false;
+    
+    // Reset modal state
+    document.getElementById('cameraScanner').style.display = 'flex';
+    document.getElementById('manualPin').classList.remove('active');
+    document.getElementById('pinInput').value = '';
+    document.getElementById('pinInput').classList.remove('error', 'success');
+    
     document.getElementById('scanText').innerText = action === 'pickup' 
-      ? 'Enter the 4-digit pickup code from the vendor' 
-      : 'Enter the 4-digit delivery PIN from the customer';
+      ? 'Point camera at Vendor QR Code' 
+      : 'Point camera at Customer QR Code';
+    document.getElementById('pinText').innerText = action === 'pickup' 
+      ? 'Enter Vendor Pickup Code' 
+      : 'Enter Customer Delivery PIN';
+      
     document.getElementById('scanModal').classList.add('active');
-    setTimeout(() => input.focus(), 300);
+  }
+
+  function toggleScanMode() {
+    const camera = document.getElementById('cameraScanner');
+    const manual = document.getElementById('manualPin');
+    if (camera.style.display === 'flex') {
+      camera.style.display = 'none';
+      manual.classList.add('active');
+      setTimeout(() => document.getElementById('pinInput').focus(), 300);
+    } else {
+      camera.style.display = 'flex';
+      manual.classList.remove('active');
+    }
   }
 
   function closeScan() {
     document.getElementById('scanModal').classList.remove('active');
     pendingVerifyOrderId = null;
     pendingAction = null;
+  }
+
+  // Simulate a successful QR scan
+  function simulateScan() {
+    if (!pendingVerifyOrderId) return;
+    const order = activeOrders.find(o => o.id === pendingVerifyOrderId);
+    if (!order) return;
+    
+    // Play success animation
+    const qrTarget = document.querySelector('.qr-target');
+    qrTarget.style.borderColor = 'var(--primary)';
+    qrTarget.style.boxShadow = '0 0 30px rgba(0, 168, 89, 0.8)';
+    document.getElementById('scanText').innerHTML = '<span style="color:var(--primary); font-weight:800;">✅ QR CODE SCANNED!</span>';
+    
+    setTimeout(() => {
+       processSuccess(order);
+    }, 1000);
   }
 
   async function verifyPin() {
@@ -410,46 +462,46 @@
        return; 
     }
 
-    const orderIndex = activeOrders.findIndex(o => o.id === pendingVerifyOrderId);
-    if (orderIndex === -1) { closeScan(); return; }
-    const order = activeOrders[orderIndex];
+    const order = activeOrders.find(o => o.id === pendingVerifyOrderId);
+    if (!order) { closeScan(); return; }
 
     let isValid = false;
-    let nextStatus = '';
-
-    if (pendingAction === 'pickup' && order.pickup_code === pin) {
-       isValid = true; nextStatus = 'picked_up';
-    } else if (pendingAction === 'deliver' && order.delivery_code === pin) {
-       isValid = true; nextStatus = 'delivered';
-    }
+    if (pendingAction === 'pickup' && order.pickup_code === pin) isValid = true;
+    if (pendingAction === 'deliver' && order.delivery_code === pin) isValid = true;
 
     if (isValid) {
        input.classList.add('success');
-       document.getElementById('scanText').innerHTML = '<span style="color:var(--primary); font-weight:800;">✅ VERIFIED SUCCESSFULLY!</span>';
-       
-       // Update status in local array (and DB in real app)
-       order.status = nextStatus;
-       
-       setTimeout(() => {
-          closeScan();
-          if (nextStatus === 'delivered') {
-             // Move to history
-             activeOrders.splice(orderIndex, 1);
-             historyOrders.unshift(order);
-          }
-          renderOrders();
-          updateStats();
-       }, 1500);
+       processSuccess(order);
     } else {
        input.classList.add('error');
-       document.getElementById('scanText').innerHTML = '<span style="color:var(--danger); font-weight:800;">❌ INVALID PIN. TRY AGAIN.</span>';
+       document.getElementById('pinText').innerHTML = '<span style="color:var(--danger); font-weight:800;">❌ INVALID CODE. TRY AGAIN.</span>';
        setTimeout(() => {
           input.classList.remove('error');
-          document.getElementById('scanText').innerText = 'Enter the 4-digit PIN';
+          document.getElementById('pinText').innerText = 'Enter the 4-digit code';
           input.value = '';
           input.focus();
        }, 1500);
     }
+  }
+
+  function processSuccess(order) {
+    const nextStatus = pendingAction === 'pickup' ? 'picked_up' : 'delivered';
+    
+    // Update status in local array
+    order.status = nextStatus;
+    
+    setTimeout(() => {
+       closeScan();
+       if (nextStatus === 'delivered') {
+          // Move to history
+          const idx = activeOrders.findIndex(o => o.id === order.id);
+          if (idx > -1) activeOrders.splice(idx, 1);
+          historyOrders.unshift(order);
+          alert('Delivery Complete! ₦500 added to your earnings.');
+       }
+       renderOrders();
+       updateStats();
+    }, 1000);
   }
 
   document.getElementById('pinInput').addEventListener('keypress', function(e) {
