@@ -1,434 +1,495 @@
-<!DOCTYPE html>
+
+html = r'''<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>QuickEats Rider</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root {
-      --primary: #00A859;
-      --primary-light: #E6F6EE;
-      --bg-body: #F8F9FA;
-      --bg-card: #FFFFFF;
-      --text-main: #1A1A1A;
-      --text-sub: #6B7280;
-      --border: #E5E7EB;
-      --danger: #EF4444;
-      --warning: #F59E0B;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; min-height: 100vh; padding-bottom: 70px; }
-    .app-wrapper { width: 100%; max-width: 480px; position: relative; background: var(--bg-body); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#00A859">
+<title>QuickEats Rider</title>
 
-    /* SCREENS */
-    .screen { display: none; min-height: 100vh; }
-    .screen.active { display: block; animation: fadeIn 0.3s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+<!-- Supabase is optional. The rider UI and Demo Rider mode work without it. -->
+<script
+  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  defer
+  onerror="window.supabaseLoadFailed=true">
+</script>
 
-    /* LOGIN SCREEN */
-    #screen-login { background: #fff; padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-    .logo-circle { width: 100px; height: 100px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0, 168, 89, 0.3); }
-    .logo-circle span { font-size: 50px; }
-    #screen-login h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
-    #screen-login p { color: var(--text-sub); font-size: 14px; margin-bottom: 40px; }
-    
-    .btn-primary { width: 100%; height: 56px; border-radius: 12px; border: none; background: var(--primary); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
-    .btn-primary:active { transform: scale(0.97); }
-    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
-    .btn-secondary { width: 100%; height: 56px; border-radius: 12px; border: 2px solid var(--border); background: transparent; color: var(--text-main); font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 12px; }
-    .input-group { width: 100%; margin-bottom: 16px; text-align: left; }
-    .input-group label { font-size: 12px; font-weight: 600; color: var(--text-sub); margin-bottom: 6px; display: block; }
-    .input-group input { width: 100%; height: 52px; border-radius: 10px; border: 1px solid var(--border); padding: 0 16px; font-size: 15px; outline: none; background: #f9fafb; }
-    .input-group input:focus { border-color: var(--primary); background: #fff; }
+<style>
+:root{
+  --primary:#00A859;--primary-light:#E6F6EE;--bg:#F6F8F7;--card:#fff;
+  --text:#171A19;--muted:#6B7280;--border:#E5E7EB;--danger:#EF4444;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+html,body{min-height:100%;background:var(--bg);color:var(--text)}
+body{display:flex;justify-content:center}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{width:100%;max-width:480px;min-height:100vh;background:var(--bg);position:relative;padding-bottom:76px}
+.screen{display:none;min-height:100vh}
+.screen.active{display:block;animation:fade .2s ease}
+@keyframes fade{from{opacity:.3;transform:translateY(5px)}to{opacity:1;transform:none}}
 
-    /* HEADER */
-    .app-header { background: #fff; padding: 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
-    .app-header h1 { font-size: 18px; font-weight: 700; }
-    .app-header p { font-size: 12px; color: var(--text-sub); }
-    .status-toggle { background: var(--primary-light); color: var(--primary); padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); }
+#login{background:#fff;min-height:100vh;padding:28px 24px;display:none;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+#login.active{display:flex}
+.logo{width:104px;height:104px;border-radius:50%;background:var(--primary);display:grid;place-items:center;box-shadow:0 10px 24px rgba(0,168,89,.25);margin-bottom:18px}
+.logo span{font-size:52px}
+.login-title{font-size:30px;font-weight:850;margin-bottom:6px}
+.login-sub{font-size:14px;color:var(--muted);margin-bottom:30px}
+.form{width:100%;max-width:340px}
+.field{text-align:left;margin-bottom:15px}
+.field label{display:block;font-size:13px;font-weight:700;color:#4B5563;margin-bottom:7px}
+.field input{width:100%;height:54px;border:1px solid var(--border);border-radius:12px;padding:0 15px;background:#F9FAFB;outline:none}
+.field input:focus{border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(0,168,89,.1)}
+.primary,.secondary{width:100%;height:55px;border-radius:12px;font-weight:800;border:0}
+.primary{background:var(--primary);color:#fff}
+.secondary{background:#fff;color:var(--text);border:2px solid var(--border);margin-top:11px}
+.primary:disabled{opacity:.65}
+.demo-note{font-size:11px;color:var(--muted);margin-top:13px;line-height:1.5}
 
-    /* MAP AREA */
-    .map-area { position: relative; height: 45vh; background: #e5e7eb; overflow: hidden; }
-    .map-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px); background-size: 40px 40px; }
-    .map-pin { position: absolute; width: 30px; height: 30px; background: var(--primary); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-    .map-pin span { transform: rotate(45deg); font-size: 14px; }
-    .map-pin.pin-customer { background: var(--danger); }
-    .map-route { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-    .map-route svg { width: 100%; height: 100%; }
-    .map-route path { fill: none; stroke: var(--primary); stroke-width: 5; stroke-dasharray: 10 10; animation: dash 5s linear infinite; }
-    @keyframes dash { to { stroke-dashoffset: -100; } }
-    
-    .map-overlay-btn { position: absolute; bottom: 20px; right: 20px; background: #fff; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; font-size: 20px; }
+.header{height:70px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:20}
+.header h1{font-size:18px}
+.header p{font-size:12px;color:var(--muted);margin-top:2px}
+.online{border:0;border-radius:22px;padding:9px 13px;background:var(--primary-light);color:var(--primary);font-size:12px;font-weight:800;display:flex;align-items:center;gap:7px}
+.online.offline{background:#FEECEC;color:var(--danger)}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor}
 
-    /* BOTTOM SHEET */
-    .bottom-sheet { background: #fff; border-radius: 24px 24px 0 0; padding: 20px; margin-top: -24px; position: relative; z-index: 5; min-height: 55vh; box-shadow: 0 -10px 20px rgba(0,0,0,0.05); }
-    .sheet-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px auto; }
-    .sheet-title { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
-    .sheet-subtitle { font-size: 13px; color: var(--text-sub); margin-bottom: 20px; }
+.map{height:43vh;min-height:290px;position:relative;overflow:hidden;background:#E9EEEC}
+.map:before,.map:after{content:"";position:absolute;inset:-30%;background:
+linear-gradient(28deg,transparent 48%,rgba(255,255,255,.85) 49%,rgba(255,255,255,.85) 51%,transparent 52%),
+linear-gradient(116deg,transparent 48%,rgba(255,255,255,.8) 49%,rgba(255,255,255,.8) 51%,transparent 52%);
+background-size:115px 90px;transform:rotate(3deg);opacity:.8}
+.map:after{background-size:170px 130px;transform:rotate(-18deg);opacity:.5}
+.route{position:absolute;inset:0}
+.route svg{width:100%;height:100%}
+.route path{fill:none;stroke:#2388FF;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+.pin{position:absolute;width:36px;height:36px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center;color:#fff;font-size:17px;box-shadow:0 4px 12px #0003;z-index:3}
+.pin span{transform:rotate(45deg)}
+.restaurant{background:var(--primary);left:30%;top:23%}
+.customer{background:#EF4444;right:18%;bottom:20%}
+.rider{position:absolute;left:47%;top:48%;width:22px;height:22px;border-radius:50%;background:#1677FF;border:4px solid #fff;box-shadow:0 2px 8px #0004;z-index:4}
+.locate{position:absolute;right:16px;bottom:16px;width:46px;height:46px;border:0;border-radius:50%;background:#fff;box-shadow:0 4px 12px #0002;font-size:20px;z-index:5}
 
-    /* ORDER PREVIEW */
-    .order-preview { background: var(--bg-body); border-radius: 16px; padding: 16px; display: flex; gap: 12px; align-items: center; margin-bottom: 20px; cursor: pointer; border: 1px solid var(--border); }
-    .order-preview img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; background: #ddd; }
-    .order-preview-info { flex: 1; }
-    .order-preview-info h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-    .order-preview-info p { font-size: 12px; color: var(--text-sub); margin-bottom: 4px; }
-    .order-preview-info .price { font-size: 14px; font-weight: 800; color: var(--primary); }
-    .order-preview .arrow { font-size: 20px; color: var(--text-sub); }
+.sheet{background:#fff;margin-top:-22px;border-radius:24px 24px 0 0;position:relative;z-index:10;padding:18px 16px 28px;min-height:48vh;box-shadow:0 -8px 20px #0000000d}
+.handle{width:42px;height:4px;border-radius:5px;background:#D8DDE0;margin:0 auto 17px}
+.sheet h2{font-size:18px;margin-bottom:4px}
+.sheet .sub{font-size:13px;color:var(--muted);margin-bottom:16px}
+.order-card{border:1px solid var(--border);background:#FAFBFB;border-radius:16px;padding:13px;display:flex;gap:12px;align-items:center}
+.food-img{width:64px;height:64px;border-radius:12px;object-fit:cover;background:#ddd}
+.order-info{flex:1}
+.order-info h3{font-size:14px;margin-bottom:4px}
+.order-info p{font-size:12px;color:var(--muted);margin-bottom:5px}
+.price{font-size:14px;font-weight:850;color:var(--primary)}
+.arrow{font-size:25px;color:#9CA3AF}
 
-    /* ACTIVE ORDER DETAILS */
-    .order-details { background: var(--bg-body); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
-    .order-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .order-status-badge { font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
-    .badge-pickup { background: rgba(59, 130, 246, 0.15); color: #3B82F6; }
-    .badge-deliver { background: rgba(245, 158, 11, 0.15); color: #D97706; }
-    .order-item { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 6px; }
-    .order-item span:first-child { color: var(--text-sub); }
-    .order-item span:last-child { font-weight: 700; }
-    .order-total { border-top: 1px dashed var(--border); padding-top: 8px; margin-top: 8px; font-weight: 800; font-size: 16px; display: flex; justify-content: space-between; }
-    .order-total span:last-child { color: var(--primary); }
+.details{margin-top:14px;background:#F8FAF9;border-radius:16px;padding:15px}
+.detail-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}
+.badge{font-size:10px;font-weight:850;text-transform:uppercase;padding:5px 9px;border-radius:15px;background:#E8F2FF;color:#2475C9}
+.badge.delivering{background:#FFF4DE;color:#C77700}
+.row{display:flex;justify-content:space-between;gap:15px;font-size:13px;margin:8px 0}
+.row span:first-child{color:var(--muted)}
+.row span:last-child{font-weight:700;text-align:right}
+.total{border-top:1px dashed var(--border);padding-top:10px;margin-top:10px;font-weight:850}
+.total span:last-child{color:var(--primary)}
+.progress{display:flex;justify-content:space-between;position:relative;margin:15px 0 18px}
+.progress:before{content:"";position:absolute;top:12px;left:12%;right:12%;height:2px;background:#DDE2DF}
+.step{z-index:2;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;color:var(--muted);font-weight:700}
+.circle{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#DDE2DF;color:#fff;font-size:10px}
+.step.active .circle,.step.done .circle{background:var(--primary)}
+.full{margin-top:14px}
 
-    .action-row { display: flex; gap: 12px; margin-top: 16px; }
-    .btn-accept { flex: 1; height: 50px; border-radius: 12px; border: none; background: var(--primary); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
-    .btn-decline { flex: 1; height: 50px; border-radius: 12px; border: 1px solid var(--border); background: #fff; color: var(--text-main); font-size: 15px; font-weight: 700; cursor: pointer; }
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:76px;background:#fff;border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:5px}
+.nav button{flex:1;border:0;background:transparent;color:#7A8280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.nav button.active{color:var(--primary)}
+.nav .icon{font-size:22px;line-height:1}
+.nav small{font-size:10px;font-weight:800}
 
-    /* STEP PROGRESS */
-    .progress-steps { display: flex; justify-content: space-between; margin: 20px 0; position: relative; }
-    .progress-steps::before { content: ''; position: absolute; top: 12px; left: 10%; right: 10%; height: 2px; background: var(--border); z-index: 1; }
-    .step { display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 2; flex: 1; }
-    .step-circle { width: 24px; height: 24px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #fff; }
-    .step.active .step-circle { background: var(--primary); }
-    .step.done .step-circle { background: var(--primary); }
-    .step-label { font-size: 10px; color: var(--text-sub); font-weight: 600; }
+.earn-card{margin:16px;background:#fff;border-radius:17px;padding:22px;text-align:center;box-shadow:0 4px 12px #0000000a}
+.earn-card p{color:var(--muted);font-size:13px}
+.earn-card h2{font-size:32px;color:var(--primary);margin-top:7px}
+.transactions{margin:0 16px;background:#fff;border-radius:17px;padding:0 16px}
+.tx{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border)}
+.tx:last-child{border:0}
+.tx h3{font-size:14px}.tx p{font-size:11px;color:var(--muted);margin-top:3px}.tx b{color:var(--primary);font-size:14px}
 
-    /* BOTTOM NAV */
-    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 1px solid var(--border); display: none; justify-content: space-around; padding: 8px 0 12px 0; z-index: 100; max-width: 480px; margin: 0 auto; right: 0; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); }
-    .bottom-nav.active { display: flex; }
-    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: var(--text-sub); cursor: pointer; padding: 4px 0; transition: 0.2s; }
-    .nav-item.active { color: var(--primary); }
-    .nav-icon { font-size: 22px; }
-    .nav-label { font-size: 10px; font-weight: 700; }
+.profile-head{background:#fff;text-align:center;padding:28px 20px;border-bottom:1px solid var(--border)}
+.avatar{width:82px;height:82px;border-radius:50%;background:var(--primary-light);display:grid;place-items:center;font-size:42px;margin:0 auto 10px}
+.profile-head h2{font-size:20px}.profile-head p{font-size:12px;color:var(--primary);font-weight:800;margin-top:4px}
+.stats{display:flex;justify-content:space-around;margin-top:20px}.stat b{display:block;font-size:18px}.stat span{font-size:10px;color:var(--muted)}
+.menu{margin-top:12px;background:#fff}.menu button{width:100%;height:56px;border:0;border-bottom:1px solid var(--border);background:#fff;display:flex;justify-content:space-between;align-items:center;padding:0 20px;font-weight:650}.menu .logout{color:var(--danger)}
 
-    /* SUCCESS OVERLAY */
-    .success-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-    .success-overlay.active { display: flex; animation: fadeIn 0.3s; }
-    .check-circle { width: 100px; height: 100px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 50px; margin-bottom: 20px; }
-    .success-overlay h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
-    .success-overlay p { color: var(--text-sub); font-size: 14px; margin-bottom: 20px; }
-    .earnings-breakdown { background: var(--bg-body); border-radius: 16px; padding: 16px; width: 100%; margin-bottom: 20px; }
-    .earn-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; }
-    .earn-row.total { border-top: 1px dashed var(--border); padding-top: 8px; font-weight: 800; font-size: 18px; color: var(--primary); }
+.overlay{display:none;position:fixed;inset:0;background:#fff;z-index:500;padding:25px;align-items:center;justify-content:center;text-align:center}
+.overlay.active{display:flex}
+.success{width:100%;max-width:380px}
+.check{width:95px;height:95px;border-radius:50%;background:var(--primary-light);display:grid;place-items:center;font-size:50px;margin:0 auto 18px}
+.success h2{font-size:24px}.success p{color:var(--muted);font-size:13px;margin:7px 0 18px}
+.breakdown{background:#F7F9F8;border-radius:16px;padding:16px;margin-bottom:18px}
+.breakdown div{display:flex;justify-content:space-between;font-size:13px;margin:8px 0}
+.breakdown .sum{border-top:1px dashed var(--border);padding-top:10px;font-size:18px;font-weight:850;color:var(--primary)}
 
-    /* PROFILE SCREEN */
-    .profile-header { text-align: center; padding: 30px 20px; background: #fff; border-bottom: 1px solid var(--border); }
-    .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 12px auto; }
-    .profile-header h2 { font-size: 20px; font-weight: 800; }
-    .profile-header p { color: var(--text-sub); font-size: 13px; }
-    .profile-stats { display: flex; justify-content: space-around; margin-top: 20px; }
-    .profile-stat { text-align: center; }
-    .profile-stat b { display: block; font-size: 18px; font-weight: 800; }
-    .profile-stat span { font-size: 11px; color: var(--text-sub); }
-    .menu-list { background: #fff; margin-top: 12px; }
-    .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); cursor: pointer; }
-    .menu-item span { font-size: 15px; font-weight: 600; }
-    .menu-item .arrow { color: var(--text-sub); font-size: 18px; }
-    .menu-item.logout span { color: var(--danger); }
-
-    /* EARNINGS SCREEN */
-    .earn-card { background: #fff; margin: 16px; padding: 24px; border-radius: 16px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-    .earn-card p { font-size: 13px; color: var(--text-sub); margin-bottom: 8px; }
-    .earn-card h2 { font-size: 32px; font-weight: 800; color: var(--primary); }
-    .transaction-list { background: #fff; margin: 0 16px; border-radius: 16px; padding: 0 16px; }
-    .transaction-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
-    .transaction-row:last-child { border-bottom: none; }
-    .transaction-info h4 { font-size: 14px; font-weight: 700; }
-    .transaction-info p { font-size: 12px; color: var(--text-sub); }
-    .transaction-amount { font-weight: 800; font-size: 15px; color: var(--primary); }
-  </style>
+.toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:#18201D;color:#fff;padding:11px 16px;border-radius:12px;font-size:12px;opacity:0;pointer-events:none;z-index:700;transition:.25s;max-width:90%;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
 </head>
+
 <body>
+<div class="app">
 
-<div class="app-wrapper">
+  <section id="login" class="screen active">
+    <div class="logo"><span>🛵</span></div>
+    <div class="login-title">QuickEats</div>
+    <div class="login-sub">Delivering Good Food, Faster!</div>
 
-  <!-- SCREEN 1: LOGIN -->
-  <div id="screen-login" class="screen active">
-    <div class="logo-circle"><span>🛵</span></div>
-    <h1>QuickEats</h1>
-    <p>Delivering Good Food, Faster!</p>
-    <div style="width: 100%; max-width: 320px;">
-      <div class="input-group"><label>Email</label><input type="email" id="loginEmail" value="rider@quickeats.com"></div>
-      <div class="input-group"><label>Password</label><input type="password" id="loginPassword" value="password123"></div>
-      <button class="btn-primary" id="loginBtn" onclick="handleLogin()">Log In</button>
-      <button class="btn-secondary" onclick="demoLogin()">Continue as Demo Rider</button>
-    </div>
-  </div>
-
-  <!-- SCREEN 2: HOME / MAP -->
-  <div id="screen-home" class="screen">
-    <div class="app-header">
-      <div>
-        <h1 id="greetingName">Good morning, David! 👋</h1>
-        <p>You're online</p>
+    <div class="form">
+      <div class="field">
+        <label>Email</label>
+        <input id="email" type="email" value="rider@quickeats.com" autocomplete="username">
       </div>
-      <div class="status-toggle" onclick="toggleOnline()">
-        <div class="status-dot"></div>
-        <span>ONLINE</span>
+      <div class="field">
+        <label>Password</label>
+        <input id="password" type="password" value="password123" autocomplete="current-password">
       </div>
+      <button id="loginBtn" class="primary" onclick="login()">Log In</button>
+      <button class="secondary" onclick="demoLogin()">Continue as Demo Rider</button>
+      <div class="demo-note">Demo mode does not require Supabase and is available even if the database is offline.</div>
+    </div>
+  </section>
+
+  <section id="home" class="screen">
+    <header class="header">
+      <div><h1 id="greeting">Good morning, David! 👋</h1><p id="onlineText">You're online</p></div>
+      <button id="onlineBtn" class="online" onclick="toggleOnline()"><span class="dot"></span><span id="onlineLabel">ONLINE</span></button>
+    </header>
+
+    <div class="map">
+      <div class="route">
+        <svg viewBox="0 0 480 420" preserveAspectRatio="none">
+          <path d="M150 105 C205 150 195 205 255 245 S360 315 390 350"/>
+        </svg>
+      </div>
+      <div class="pin restaurant"><span>🍴</span></div>
+      <div class="pin customer"><span>📍</span></div>
+      <div class="rider"></div>
+      <button class="locate" onclick="toast('Your location updated')">📍</button>
     </div>
 
-    <div class="map-area" id="mapHome">
-      <div class="map-grid"></div>
-      <div class="map-pin" style="top: 30%; left: 40%;"><span>🏪</span></div>
-      <div class="map-pin pin-customer" style="top: 60%; left: 70%;"><span>📍</span></div>
-      <div class="map-route">
-        <svg><path d="M 150 150 Q 250 200 300 300" /></svg>
-      </div>
-      <div class="map-overlay-btn">📍</div>
-    </div>
+    <div class="sheet">
+      <div class="handle"></div>
+      <h2>New orders nearby!</h2>
+      <p class="sub">Tap an order to view the delivery details.</p>
 
-    <div class="bottom-sheet">
-      <div class="sheet-handle"></div>
-      <div class="sheet-title">New orders nearby!</div>
-      <div class="sheet-subtitle">Tap to view available orders</div>
-      
-      <div class="order-preview" onclick="showOrderDetails()">
-        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=100&h=100&fit=crop" alt="Food">
-        <div class="order-preview-info">
-          <h4>Tasty Bites Restaurant</h4>
+      <div id="orderPreview" class="order-card" onclick="acceptOrder()">
+        <img class="food-img" src="https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=160&h=160&fit=crop" alt="Food">
+        <div class="order-info">
+          <h3>Tasty Bites Restaurant</h3>
           <p>Jollof Rice + Grilled Chicken</p>
           <div class="price">₦3,750</div>
         </div>
         <div class="arrow">›</div>
       </div>
 
-      <div id="activeOrderSection" style="display: none;">
-        <div class="order-details">
-          <div class="order-header-row">
-            <span style="font-weight: 800;">Order #4821</span>
-            <span class="order-status-badge badge-pickup" id="statusBadge">Pickup</span>
-          </div>
-          <div class="progress-steps">
-            <div class="step done"><div class="step-circle">✓</div><div class="step-label">Accepted</div></div>
-            <div class="step active" id="stepPickup"><div class="step-circle">2</div><div class="step-label">Pickup</div></div>
-            <div class="step" id="stepDeliver"><div class="step-circle">3</div><div class="step-label">Deliver</div></div>
-          </div>
-          <div class="order-item"><span>Customer:</span><span>Hawa B.</span></div>
-          <div class="order-item"><span>Address:</span><span>18, Unity Road, Lekki</span></div>
-          <div class="order-item"><span>Distance:</span><span>2.5 km</span></div>
-          <div class="order-total"><span>Total Earnings</span><span>₦3,750</span></div>
+      <div id="details" class="details" style="display:none">
+        <div class="detail-top">
+          <strong>Order #4821</strong>
+          <span id="badge" class="badge">Pickup</span>
         </div>
-        <div class="action-row">
-          <button class="btn-primary" style="flex:1;" onclick="advanceOrder()" id="actionBtn">Navigate to Restaurant</button>
+
+        <div class="progress">
+          <div class="step done"><span class="circle">✓</span><span>Accepted</span></div>
+          <div id="pickupStep" class="step active"><span class="circle">2</span><span>Pickup</span></div>
+          <div id="deliverStep" class="step"><span class="circle">3</span><span>Deliver</span></div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- SCREEN 3: EARNINGS -->
-  <div id="screen-earnings" class="screen">
-    <div class="app-header"><h1>Earnings</h1></div>
-    <div class="earn-card">
-      <p>Today's Earnings</p>
-      <h2 id="todayEarnings">₦18,750</h2>
-    </div>
-    <div class="transaction-list">
-      <div class="transaction-row">
-        <div class="transaction-info"><h4>Tasty Bites</h4><p>Completed · 10:24 AM</p></div>
-        <div class="transaction-amount">₦3,750</div>
-      </div>
-      <div class="transaction-row">
-        <div class="transaction-info"><h4>Spice Hub</h4><p>Completed · 10:45 AM</p></div>
-        <div class="transaction-amount">₦4,200</div>
-      </div>
-      <div class="transaction-row">
-        <div class="transaction-info"><h4>Mama's Kitchen</h4><p>Completed · 1:20 PM</p></div>
-        <div class="transaction-amount">₦2,800</div>
-      </div>
-    </div>
-  </div>
+        <div class="row"><span>Customer</span><span>Hawa B.</span></div>
+        <div class="row"><span>Pickup</span><span>12, Adeola Street, Ikeja</span></div>
+        <div class="row"><span>Drop-off</span><span>18, Unity Road, Lekki</span></div>
+        <div class="row"><span>Distance</span><span>2.5 km</span></div>
+        <div class="row total"><span>Total Earnings</span><span>₦3,750</span></div>
 
-  <!-- SCREEN 4: PROFILE -->
-  <div id="screen-profile" class="screen">
-    <div class="profile-header">
-      <div class="profile-avatar">👤</div>
+        <button id="actionBtn" class="primary full" onclick="advanceOrder()">Navigate to Restaurant</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="earnings" class="screen">
+    <header class="header"><h1>Earnings</h1></header>
+    <div class="earn-card"><p>Today's Earnings</p><h2>₦18,750</h2></div>
+    <div class="transactions">
+      <div class="tx"><div><h3>Tasty Bites</h3><p>Completed · 10:24 AM</p></div><b>₦3,750</b></div>
+      <div class="tx"><div><h3>Spice Hub</h3><p>Completed · 10:45 AM</p></div><b>₦4,200</b></div>
+      <div class="tx"><div><h3>Mama's Kitchen</h3><p>Completed · 1:20 PM</p></div><b>₦2,800</b></div>
+      <div class="tx"><div><h3>Food Palace</h3><p>Completed · 3:10 PM</p></div><b>₦3,500</b></div>
+    </div>
+  </section>
+
+  <section id="profile" class="screen">
+    <div class="profile-head">
+      <div class="avatar">👤</div>
       <h2 id="profileName">David Johnson</h2>
-      <p>✅ Verified Rider</p>
-      <div class="profile-stats">
-        <div class="profile-stat"><b>5.0</b><span>Rating</span></div>
-        <div class="profile-stat"><b>120</b><span>Deliveries</span></div>
-        <div class="profile-stat"><b>98%</b><span>On-time</span></div>
+      <p>✓ Verified Rider</p>
+      <div class="stats">
+        <div class="stat"><b>5.0</b><span>Rating</span></div>
+        <div class="stat"><b>120</b><span>Deliveries</span></div>
+        <div class="stat"><b>98%</b><span>On-time</span></div>
       </div>
     </div>
-    <div class="menu-list">
-      <div class="menu-item"><span>Edit Profile</span><span class="arrow">›</span></div>
-      <div class="menu-item"><span>Vehicle & Documents</span><span class="arrow">›</span></div>
-      <div class="menu-item"><span>Bank Account</span><span class="arrow">›</span></div>
-      <div class="menu-item"><span>Notifications</span><span class="arrow">›</span></div>
-      <div class="menu-item"><span>Help & Support</span><span class="arrow">›</span></div>
-      <div class="menu-item logout" onclick="handleLogout()"><span>Log Out</span><span class="arrow">›</span></div>
+    <div class="menu">
+      <button onclick="toast('Edit Profile opened')"><span>Edit Profile</span><span>›</span></button>
+      <button onclick="toast('Vehicle & Documents opened')"><span>Vehicle & Documents</span><span>›</span></button>
+      <button onclick="toast('Bank Account opened')"><span>Bank Account</span><span>›</span></button>
+      <button onclick="toast('Notifications opened')"><span>Notifications</span><span>›</span></button>
+      <button onclick="toast('Help & Support opened')"><span>Help & Support</span><span>›</span></button>
+      <button class="logout" onclick="logout()"><span>Log Out</span><span>›</span></button>
     </div>
-  </div>
+  </section>
 
-  <!-- BOTTOM NAVIGATION -->
-  <div class="bottom-nav" id="bottomNav" style="display: none;">
-    <button class="nav-item active" onclick="switchTab('home', this)">
-      <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
-    </button>
-    <button class="nav-item" onclick="switchTab('earnings', this)">
-      <span class="nav-icon">💰</span><span class="nav-label">Earnings</span>
-    </button>
-    <button class="nav-item" onclick="switchTab('profile', this)">
-      <span class="nav-icon">👤</span><span class="nav-label">Profile</span>
-    </button>
+  <nav id="nav" class="nav" style="display:none">
+    <button class="active" data-tab="home" onclick="switchTab('home',this)"><span class="icon">🏠</span><small>Home</small></button>
+    <button data-tab="earnings" onclick="switchTab('earnings',this)"><span class="icon">💰</span><small>Earnings</small></button>
+    <button data-tab="profile" onclick="switchTab('profile',this)"><span class="icon">👤</span><small>Profile</small></button>
+  </nav>
+</div>
+
+<div id="success" class="overlay">
+  <div class="success">
+    <div class="check">✓</div>
+    <h2>Delivery Completed!</h2>
+    <p>You've successfully delivered the order.</p>
+    <div class="breakdown">
+      <div><span>Base Pay</span><span>₦2,500</span></div>
+      <div><span>Distance Pay</span><span>₦1,000</span></div>
+      <div><span>Bonus</span><span>₦250</span></div>
+      <div class="sum"><span>Total Earnings</span><span>₦3,750</span></div>
+    </div>
+    <button class="primary" onclick="closeSuccess()">Back to Home</button>
   </div>
 </div>
 
-<!-- SUCCESS OVERLAY -->
-<div id="successOverlay" class="success-overlay">
-  <div class="check-circle">✅</div>
-  <h2>Delivery Completed!</h2>
-  <p>You've successfully delivered the order.</p>
-  <div class="earnings-breakdown">
-    <div class="earn-row"><span>Base Pay</span><span>₦2,500</span></div>
-    <div class="earn-row"><span>Distance Pay</span><span>₦1,000</span></div>
-    <div class="earn-row"><span>Bonus</span><span>₦250</span></div>
-    <div class="earn-row total"><span>Total Earnings</span><span>₦3,750</span></div>
-  </div>
-  <button class="btn-primary" style="width: 100%;" onclick="closeSuccess()">Back to Home</button>
-</div>
+<div id="toast" class="toast"></div>
 
 <script>
-  const SUPABASE_URL = "https://glkutdkwbrjpiuqcmgwe.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdsa3V0ZGt3YnJqcGl1cWNtZ3dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NzU3MTMsImV4cCI6MjEwNTU1MTcxM30.f2SgZJvP681imm0Qe1fKsATnCk_86z2guwvZWASXoZM";
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+/* ---------------------------
+   QUICK EATS RIDER APP
+   Supabase is deliberately non-blocking.
+---------------------------- */
 
-  let currentOrderState = 'preview'; 
+const SUPABASE_URL = "https://glkutdkwbrjpiuqcmgwe.supabase.co";
 
-  async function handleLogin() {
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    const btn = document.getElementById('loginBtn');
-    
-    btn.innerText = 'Logging in...';
-    btn.disabled = true;
+/*
+  Put your Supabase ANON/PUBLISHABLE key here if you want real login.
+  Never put a Supabase service_role/secret key in browser code.
+*/
+const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
 
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    
-    if (error) {
-      alert("Login failed: " + error.message + "\n\nUse 'Continue as Demo Rider' to see the UI without a database account.");
-      btn.innerText = 'Log In';
-      btn.disabled = false;
-      return;
+let sb = null;
+let demoMode = false;
+let online = true;
+let orderState = "preview";
+let toastTimer = null;
+
+function initSupabase(){
+  try{
+    if(window.supabase && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes("PASTE_")){
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+  }catch(e){
+    console.warn("Supabase initialization skipped:", e);
+    sb = null;
+  }
+}
+
+window.addEventListener("load", initSupabase);
+
+function withTimeout(promise, ms=10000){
+  return Promise.race([
+    promise,
+    new Promise((_,reject)=>setTimeout(()=>reject(new Error("Connection timed out after 10 seconds.")),ms))
+  ]);
+}
+
+function demoLogin(){
+  demoMode = true;
+  showDashboard("Demo Rider");
+  toast("Demo mode started");
+}
+
+async function login(){
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const btn = document.getElementById("loginBtn");
+
+  if(!email || !password){
+    toast("Enter your email and password");
+    return;
+  }
+
+  if(!sb){
+    toast("Supabase is not connected. Use Demo Rider or add your anon key.");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Logging in...";
+
+  try{
+    const result = await withTimeout(
+      sb.auth.signInWithPassword({email,password}),
+      10000
+    );
+
+    if(result.error) throw result.error;
+
+    let name = "Rider";
+
+    try{
+      const profileResult = await withTimeout(
+        sb.from("riders")
+          .select("*, profiles(name)")
+          .eq("owner_id", result.data.user.id)
+          .maybeSingle(),
+        10000
+      );
+
+      if(!profileResult.error && profileResult.data){
+        name = profileResult.data.profiles?.name || "Rider";
+      }
+    }catch(profileError){
+      console.warn("Rider profile lookup failed:", profileError);
+      /* Login still succeeds; the UI can use a fallback name. */
     }
 
-    // Fetch rider profile
-    const { data: riderData, error: riderError } = await sb.from('riders').select('*, profiles(name)').eq('owner_id', data.user.id).maybeSingle();
-    
-    if (riderError || !riderData) {
-      alert('No rider account found for this email. Contact admin or use Demo Mode.');
-      await sb.auth.signOut();
-      btn.innerText = 'Log In';
-      btn.disabled = false;
-      return;
+    demoMode = false;
+    showDashboard(name);
+    toast("Welcome back!");
+  }catch(error){
+    console.error(error);
+    toast("Login failed: " + (error.message || "Please try again."));
+  }finally{
+    btn.disabled = false;
+    btn.textContent = "Log In";
+  }
+}
+
+function showDashboard(name){
+  document.getElementById("login").classList.remove("active");
+  document.getElementById("home").classList.add("active");
+  document.getElementById("nav").style.display = "flex";
+  document.getElementById("greeting").textContent = "Good morning, " + name + "! 👋";
+  document.getElementById("profileName").textContent = name;
+}
+
+function switchTab(tab, button){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(tab).classList.add("active");
+
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+  button.classList.add("active");
+
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function toggleOnline(){
+  online = !online;
+  const btn = document.getElementById("onlineBtn");
+  const label = document.getElementById("onlineLabel");
+  const text = document.getElementById("onlineText");
+
+  btn.classList.toggle("offline", !online);
+  label.textContent = online ? "ONLINE" : "OFFLINE";
+  text.textContent = online ? "You're online" : "You're offline";
+  toast(online ? "You are now online" : "You are now offline");
+}
+
+function acceptOrder(){
+  if(!online){
+    toast("Go online to accept new orders");
+    return;
+  }
+  orderState = "accepted";
+  document.getElementById("orderPreview").style.display = "none";
+  document.getElementById("details").style.display = "block";
+  updateOrderUI();
+  toast("Order accepted");
+}
+
+function advanceOrder(){
+  if(orderState === "accepted"){
+    orderState = "picked_up";
+    updateOrderUI();
+    toast("Order marked as picked up");
+    return;
+  }
+
+  if(orderState === "picked_up"){
+    orderState = "delivered";
+    document.getElementById("success").classList.add("active");
+  }
+}
+
+function updateOrderUI(){
+  const badge = document.getElementById("badge");
+  const action = document.getElementById("actionBtn");
+  const pickup = document.getElementById("pickupStep");
+  const deliver = document.getElementById("deliverStep");
+
+  if(orderState === "accepted"){
+    badge.textContent = "Pickup";
+    badge.className = "badge";
+    action.textContent = "Navigate to Restaurant";
+    pickup.classList.add("active");
+    pickup.classList.remove("done");
+    pickup.querySelector(".circle").textContent = "2";
+    deliver.classList.remove("active","done");
+    deliver.querySelector(".circle").textContent = "3";
+  }else if(orderState === "picked_up"){
+    badge.textContent = "Delivering";
+    badge.className = "badge delivering";
+    action.textContent = "Navigate to Customer";
+    pickup.classList.remove("active");
+    pickup.classList.add("done");
+    pickup.querySelector(".circle").textContent = "✓";
+    deliver.classList.add("active");
+    deliver.querySelector(".circle").textContent = "3";
+  }
+}
+
+function closeSuccess(){
+  document.getElementById("success").classList.remove("active");
+  orderState = "preview";
+  document.getElementById("details").style.display = "none";
+  document.getElementById("orderPreview").style.display = "flex";
+  switchTab("home", document.querySelector('.nav button[data-tab="home"]'));
+}
+
+async function logout(){
+  try{
+    if(sb && !demoMode){
+      await withTimeout(sb.auth.signOut(),5000);
     }
-
-    // Success
-    showDashboard(riderData.profiles.name);
+  }catch(e){
+    console.warn("Logout request failed:",e);
+  }finally{
+    demoMode = false;
+    document.getElementById("nav").style.display = "none";
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    document.getElementById("login").classList.add("active");
+    toast("Logged out");
   }
+}
 
-  function demoLogin() {
-    // Instantly show the dashboard without waiting for the database
-    showDashboard('Demo Rider');
-  }
-
-  function showDashboard(name) {
-    document.getElementById('greetingName').innerText = 'Good morning, ' + name + '! 👋';
-    document.getElementById('profileName').innerText = name;
-    document.getElementById('screen-login').classList.remove('active');
-    document.getElementById('screen-home').classList.add('active');
-    document.getElementById('bottomNav').style.display = 'flex';
-  }
-
-  function switchTab(tabId, btn) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-' + tabId).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  }
-
-  function toggleOnline() {
-    const el = document.querySelector('.status-toggle');
-    const dot = el.querySelector('.status-dot');
-    const span = el.querySelector('span');
-    if (span.innerText === 'ONLINE') {
-      span.innerText = 'OFFLINE';
-      dot.style.background = 'var(--danger)';
-      el.style.background = 'rgba(239, 68, 68, 0.1)';
-      el.style.color = 'var(--danger)';
-    } else {
-      span.innerText = 'ONLINE';
-      dot.style.background = 'var(--primary)';
-      el.style.background = 'var(--primary-light)';
-      el.style.color = 'var(--primary)';
-    }
-  }
-
-  function showOrderDetails() {
-    document.querySelector('.order-preview').style.display = 'none';
-    document.getElementById('activeOrderSection').style.display = 'block';
-    currentOrderState = 'accepted';
-    updateUI();
-  }
-
-  function advanceOrder() {
-    if (currentOrderState === 'accepted') {
-      currentOrderState = 'picked_up';
-      updateUI();
-    } else if (currentOrderState === 'picked_up') {
-      currentOrderState = 'delivered';
-      document.getElementById('successOverlay').classList.add('active');
-    }
-  }
-
-  function updateUI() {
-    const badge = document.getElementById('statusBadge');
-    const actionBtn = document.getElementById('actionBtn');
-    const stepPickup = document.getElementById('stepPickup');
-    const stepDeliver = document.getElementById('stepDeliver');
-
-    if (currentOrderState === 'accepted') {
-      badge.innerText = 'Pickup';
-      badge.className = 'order-status-badge badge-pickup';
-      actionBtn.innerText = 'Navigate to Restaurant';
-      stepPickup.classList.add('active');
-      stepPickup.querySelector('.step-circle').innerText = '2';
-      stepDeliver.classList.remove('active');
-      stepDeliver.querySelector('.step-circle').innerText = '3';
-    } else if (currentOrderState === 'picked_up') {
-      badge.innerText = 'Delivering';
-      badge.className = 'order-status-badge badge-deliver';
-      actionBtn.innerText = 'Navigate to Customer';
-      stepPickup.classList.remove('active'); stepPickup.classList.add('done');
-      stepPickup.querySelector('.step-circle').innerText = '✓';
-      stepDeliver.classList.add('active');
-      stepDeliver.querySelector('.step-circle').innerText = '3';
-    }
-  }
-
-  function closeSuccess() {
-    document.getElementById('successOverlay').classList.remove('active');
-    currentOrderState = 'preview';
-    document.querySelector('.order-preview').style.display = 'flex';
-    document.getElementById('activeOrderSection').style.display = 'none';
-    switchTab('home', document.querySelector('.nav-item'));
-  }
-
-  function handleLogout() {
-     sb.auth.signOut();
-     location.reload();
-  }
+function toast(message){
+  const el = document.getElementById("toast");
+  clearTimeout(toastTimer);
+  el.textContent = message;
+  el.classList.add("show");
+  toastTimer = setTimeout(()=>el.classList.remove("show"),2800);
+}
 </script>
-
 </body>
 </html>
+'''
+
+path = Path("/mnt/data/QuickEats_Rider_Fixed.html")
+path.write_text(html, encoding="utf-8")
+
+print(f"Created: {path}")
+print("The app now has a non-blocking Demo Rider mode, Supabase timeouts, safer initialization, working navigation, order progression, earnings, profile, online/offline state, and logout.")
