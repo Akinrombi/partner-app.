@@ -8,75 +8,112 @@
   <style>
     :root {
       --primary: #00A859;
-      --bg-dark: #0F172A;
+      --primary-dark: #008A47;
+      --bg-dark: #0B1120;
       --card-bg: #1E293B;
+      --card-bg-light: #2A3648;
       --text-white: #F8FAFC;
       --text-gray: #94A3B8;
       --border: #334155;
       --danger: #EF4444;
       --warning: #F59E0B;
+      --blue: #3B82F6;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg-dark); color: var(--text-white); padding: 12px; display: flex; justify-content: center; min-height: 100vh; padding-bottom: 40px; }
-    .app-wrapper { width: 100%; max-width: 480px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg-dark); color: var(--text-white); display: flex; justify-content: center; min-height: 100vh; padding-bottom: 70px; }
+    .app-wrapper { width: 100%; max-width: 480px; position: relative; }
 
     /* HEADER */
-    .header { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-    .header h1 { font-size: 16px; font-weight: 700; }
-    .header p { font-size: 12px; color: var(--text-gray); }
-    .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid var(--primary); background: rgba(0, 168, 89, 0.2); color: var(--primary); }
+    .header { background: var(--card-bg); padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+    .header-info h1 { font-size: 16px; font-weight: 700; }
+    .header-info p { font-size: 12px; color: var(--text-gray); margin-top: 2px; }
+    .status-toggle { background: rgba(0, 168, 89, 0.15); border: 1px solid var(--primary); color: var(--primary); padding: 8px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 6px; }
+    .status-toggle.offline { background: rgba(239, 68, 68, 0.15); border-color: var(--danger); color: var(--danger); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 
-    /* STATS */
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-    .stat-card { background: var(--card-bg); padding: 12px; border-radius: 10px; border: 1px solid var(--border); }
-    .stat-card span { font-size: 10px; color: var(--text-gray); font-weight: 700; text-transform: uppercase; }
-    .stat-card b { display: block; font-size: 18px; margin-top: 4px; color: var(--text-white); }
+    /* TABS */
+    .view { display: none; padding: 16px; animation: fadeIn 0.3s ease; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* ORDER CARDS */
-    .order-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
-    .order-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 10px; }
-    .order-id { font-weight: 800; font-size: 15px; }
-    .order-status { font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 4px; background: var(--border); color: var(--text-gray); }
-    .order-status.pickup { background: rgba(0, 168, 89, 0.2); color: var(--primary); }
-    .order-status.deliver { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
-    .detail-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; color: var(--text-gray); }
-    .detail-row b { color: var(--text-white); }
-    .address-box { background: #0F172A; padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 12px; border-left: 3px solid var(--primary); }
+    /* HOME TAB */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .stat-card { background: linear-gradient(145deg, var(--card-bg), #172033); padding: 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.05); }
+    .stat-card span { font-size: 11px; color: var(--text-gray); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-card b { display: block; font-size: 22px; margin-top: 6px; color: var(--text-white); font-weight: 800; }
+
+    .section-title { font-size: 13px; font-weight: 700; color: var(--text-gray); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
+    .btn-demo { background: rgba(59, 130, 246, 0.2); color: var(--blue); border: 1px solid var(--blue); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
+
+    .order-card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); position: relative; overflow: hidden; }
+    .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .order-id { font-weight: 800; font-size: 16px; color: var(--text-white); }
+    .order-badge { font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
+    .badge-pickup { background: rgba(59, 130, 246, 0.2); color: var(--blue); }
+    .badge-deliver { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+
+    .progress-bar { display: flex; justify-content: space-between; margin: 16px 0; position: relative; }
+    .progress-step { display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 2; flex: 1; }
+    .step-circle { width: 24px; height: 24px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: var(--text-gray); transition: 0.3s; }
+    .step-circle.active { background: var(--primary); color: #fff; box-shadow: 0 0 10px rgba(0, 168, 89, 0.5); }
+    .step-circle.done { background: var(--primary); color: #fff; }
+    .step-label { font-size: 9px; color: var(--text-gray); font-weight: 600; text-align: center; }
+    .progress-line { position: absolute; top: 12px; left: 12%; right: 12%; height: 2px; background: var(--border); z-index: 1; }
+    .progress-line-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--primary); transition: 0.3s; width: 0%; }
+
+    .detail-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: var(--text-gray); }
+    .detail-row b { color: var(--text-white); font-weight: 600; }
     
-    /* BUTTONS */
-    .action-row { display: flex; gap: 8px; margin-top: 12px; }
-    .btn { flex: 1; min-height: 48px; border-radius: 8px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .btn-green { background: var(--primary); color: #fff; }
-    .btn-blue { background: #3B82F6; color: #fff; }
-    .btn-gray { background: var(--border); color: var(--text-white); }
+    .address-box { background: var(--bg-dark); padding: 12px; border-radius: 10px; margin: 12px 0; border-left: 3px solid var(--primary); font-size: 13px; line-height: 1.5; }
+    .address-box b { color: var(--primary); display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; }
+    .address-box a { color: var(--blue); text-decoration: none; font-size: 11px; font-weight: 700; display: inline-block; margin-top: 4px; }
 
-    /* SCANNING MODAL OVERLAY */
-    .scan-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); z-index: 999; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-    .scan-overlay.active { display: flex; }
-    .scan-box { position: relative; width: 260px; height: 260px; border-radius: 20px; background: #1E293B; border: 1px solid #334155; overflow: hidden; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; }
+    .action-row { display: flex; gap: 10px; margin-top: 16px; }
+    .btn { flex: 1; min-height: 50px; border-radius: 12px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+    .btn:active { transform: scale(0.97); }
+    .btn-green { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; box-shadow: 0 4px 15px rgba(0, 168, 89, 0.3); }
+    .btn-blue { background: linear-gradient(135deg, var(--blue), #2563EB); color: #fff; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
+    .btn-gray { background: var(--card-bg-light); color: var(--text-white); }
+
+    .empty-state { text-align: center; padding: 40px 20px; background: var(--card-bg); border-radius: 16px; border: 1px dashed var(--border); }
+    .empty-state div { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
+    .empty-state p { color: var(--text-gray); font-size: 13px; }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; max-width: 480px; margin: 0 auto; right: 0; }
+    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: var(--text-gray); cursor: pointer; padding: 8px 0; transition: 0.2s; }
+    .nav-item.active { color: var(--primary); }
+    .nav-icon { font-size: 20px; }
+    .nav-label { font-size: 10px; font-weight: 700; }
+
+    /* SCANNING MODAL */
+    .scan-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 17, 32, 0.95); backdrop-filter: blur(10px); z-index: 999; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+    .scan-overlay.active { display: flex; animation: fadeIn 0.2s ease; }
+    .scan-box { position: relative; width: 280px; height: 280px; border-radius: 24px; background: var(--card-bg); border: 1px solid var(--border); overflow: hidden; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 40px rgba(0, 168, 89, 0.1); }
     
-    /* The Scanning Laser Animation */
-    .scan-line { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--primary); box-shadow: 0 0 15px var(--primary), 0 0 30px var(--primary); animation: scan 2s linear infinite; }
+    .scan-line { position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--primary); box-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary); animation: scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
     @keyframes scan {
-      0% { top: 0; opacity: 0; }
+      0% { top: -10%; opacity: 0; }
       10% { opacity: 1; }
       90% { opacity: 1; }
-      100% { top: 100%; opacity: 0; }
+      100% { top: 110%; opacity: 0; }
     }
 
-    /* Corner Brackets for the scanner */
-    .scan-box::before, .scan-box::after { content: ''; position: absolute; width: 30px; height: 30px; border: 3px solid var(--primary); border-radius: 4px; }
-    .scan-box::before { top: 10px; left: 10px; border-right: none; border-bottom: none; }
-    .scan-box::after { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+    .scan-box::before, .scan-box::after { content: ''; position: absolute; width: 40px; height: 40px; border: 4px solid var(--primary); border-radius: 8px; }
+    .scan-box::before { top: 15px; left: 15px; border-right: none; border-bottom: none; }
+    .scan-box::after { bottom: 15px; right: 15px; border-left: none; border-top: none; }
     
-    .scan-icon { font-size: 60px; opacity: 0.3; }
-    .scan-text { font-size: 14px; color: var(--text-gray); margin-bottom: 20px; }
-    .pin-input { width: 100%; max-width: 260px; height: 60px; font-size: 32px; letter-spacing: 12px; text-align: center; background: #0F172A; border: 2px solid var(--primary); border-radius: 12px; color: #fff; font-weight: 800; outline: none; margin-bottom: 20px; }
-    .close-scan { color: var(--danger); font-weight: 700; font-size: 14px; cursor: pointer; }
+    .scan-icon { font-size: 70px; opacity: 0.2; }
+    .scan-text { font-size: 14px; color: var(--text-gray); margin-bottom: 24px; font-weight: 600; }
+    .pin-input { width: 100%; max-width: 280px; height: 70px; font-size: 36px; letter-spacing: 16px; text-align: center; background: var(--bg-dark); border: 2px solid var(--border); border-radius: 16px; color: #fff; font-weight: 800; outline: none; margin-bottom: 24px; transition: 0.3s; }
+    .pin-input:focus { border-color: var(--primary); box-shadow: 0 0 20px rgba(0, 168, 89, 0.2); }
+    .pin-input.error { border-color: var(--danger); box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); animation: shake 0.4s; }
+    .pin-input.success { border-color: var(--primary); box-shadow: 0 0 20px rgba(0, 168, 89, 0.5); animation: pulse 0.5s; }
+    
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-    /* UTILS */
-    .hidden { display: none !important; }
-    .empty-state { text-align: center; color: var(--text-gray); font-size: 13px; padding: 30px 0; }
+    .close-scan { color: var(--text-gray); font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 16px; text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -84,22 +121,83 @@
 <div class="app-wrapper">
   <!-- HEADER -->
   <div class="header">
-    <div>
-      <h1 id="riderName">Rider Dashboard</h1>
-      <p>Active Deliveries</p>
+    <div class="header-info">
+      <h1 id="riderName">Loading...</h1>
+      <p>Rider App</p>
     </div>
-    <div class="status-badge" id="onlineToggle" onclick="toggleOnline()">🟢 ONLINE</div>
+    <div class="status-toggle" id="onlineToggle" onclick="toggleOnline()">
+      <div class="status-dot"></div>
+      <span>ONLINE</span>
+    </div>
   </div>
 
-  <!-- STATS -->
-  <div class="stats-grid">
-    <div class="stat-card"><span>Today's Deliveries</span><b id="statDeliveries">0</b></div>
-    <div class="stat-card"><span>Today's Earnings</span><b id="statEarnings">₦0</b></div>
+  <!-- HOME VIEW -->
+  <div id="view-home" class="view active">
+    <div class="stats-grid">
+      <div class="stat-card"><span>Today's Deliveries</span><b id="statDeliveries">0</b></div>
+      <div class="stat-card"><span>Today's Earnings</span><b id="statEarnings">₦0</b></div>
+    </div>
+
+    <div class="section-title">
+      <span>Active Deliveries</span>
+      <button class="btn-demo" onclick="addDemoOrder()">+ Demo Order</button>
+    </div>
+    <div id="ordersContainer"></div>
   </div>
 
-  <!-- ORDERS LIST -->
-  <div id="ordersContainer">
-    <div class="empty-state">No active deliveries. You are online and waiting for orders!</div>
+  <!-- HISTORY VIEW -->
+  <div id="view-history" class="view">
+    <div class="section-title">Delivery History</div>
+    <div id="historyContainer"></div>
+  </div>
+
+  <!-- EARNINGS VIEW -->
+  <div id="view-earnings" class="view">
+    <div class="stats-grid">
+      <div class="stat-card"><span>Today</span><b id="earnToday">₦0</b></div>
+      <div class="stat-card"><span>This Week</span><b id="earnWeek">₦0</b></div>
+      <div class="stat-card"><span>This Month</span><b id="earnMonth">₦0</b></div>
+      <div class="stat-card"><span>Pending Payout</span><b id="earnPending">₦0</b></div>
+    </div>
+    <div class="section-title">Recent Payouts</div>
+    <div class="empty-state">
+      <div>💸</div>
+      <p>No payouts requested yet.</p>
+    </div>
+  </div>
+
+  <!-- SETTINGS VIEW -->
+  <div id="view-settings" class="view">
+    <div class="order-card">
+      <div class="section-title">Profile Information</div>
+      <div class="detail-row"><span>Name:</span><b id="setName">-</b></div>
+      <div class="detail-row"><span>Phone:</span><b id="setPhone">-</b></div>
+      <div class="detail-row"><span>Vehicle:</span><b id="setVehicle">-</b></div>
+      <div class="detail-row"><span>Rating:</span><b id="setRating">⭐ 5.0</b></div>
+      <div class="action-row" style="margin-top: 20px;">
+        <button class="btn btn-gray" onclick="handleSignOut()">SIGN OUT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAVIGATION -->
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="switchTab('home', this)">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('history', this)">
+      <span class="nav-icon">🕒</span>
+      <span class="nav-label">History</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('earnings', this)">
+      <span class="nav-icon">💰</span>
+      <span class="nav-label">Earnings</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('settings', this)">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">Settings</span>
+    </button>
   </div>
 </div>
 
@@ -109,10 +207,10 @@
     <div class="scan-line"></div>
     <div class="scan-icon">📷</div>
   </div>
-  <div class="scan-text" id="scanText">Scanning for Order QR...</div>
+  <div class="scan-text" id="scanText">Enter 4-digit PIN</div>
   
   <input type="tel" id="pinInput" class="pin-input" placeholder="----" maxlength="4" inputmode="numeric">
-  <button class="btn btn-green" style="width:260px; margin-bottom:20px;" onclick="verifyPin()">VERIFY PIN</button>
+  <button class="btn btn-green" style="width:280px;" onclick="verifyPin()" id="verifyBtn">VERIFY</button>
   <div class="close-scan" onclick="closeScan()">Cancel</div>
 </div>
 
@@ -123,127 +221,178 @@
 
   let rider = null;
   let activeOrders = [];
+  let historyOrders = [];
   let pendingVerifyOrderId = null;
-  let pendingAction = null; // 'pickup' or 'deliver'
+  let pendingAction = null;
+  let isOnline = true;
 
   window.onload = async function() {
+    // For demo purposes, we mock a rider if not logged in
     const s = await sb.auth.getSession();
-    if (s.data.session) initApp(s.data.session.user);
+    if (s.data.session) {
+       initApp(s.data.session.user);
+    } else {
+       // Mock login for demo
+       document.getElementById('riderName').innerText = 'Demo Rider';
+       document.getElementById('setName').innerText = 'Demo Rider';
+       document.getElementById('setPhone').innerText = '08012345678';
+       document.getElementById('setVehicle').innerText = 'Bajaj Boxer';
+       rider = { id: 'demo-rider-id', profiles: { name: 'Demo Rider' } };
+       loadOrders();
+       setInterval(loadOrders, 15000);
+    }
   };
 
   async function initApp(user) {
-    // Fetch rider profile
     const { data, error } = await sb.from('riders').select('*, profiles(name, phone)').eq('owner_id', user.id).maybeSingle();
-    if (error || !data) { alert('No rider account found. Contact admin.'); return; }
+    if (error || !data) { alert('No rider account found.'); return; }
     rider = data;
     document.getElementById('riderName').innerText = rider.profiles.name || 'Rider';
+    document.getElementById('setName').innerText = rider.profiles.name || '-';
+    document.getElementById('setPhone').innerText = rider.profiles.phone || '-';
     loadOrders();
-    setInterval(loadOrders, 15000); // Auto refresh every 15s
+    setInterval(loadOrders, 15000);
   }
 
-  // Mock function to simulate switching online/offline
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + tabId).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
   function toggleOnline() {
+    isOnline = !isOnline;
     const el = document.getElementById('onlineToggle');
-    if (el.innerText.includes('ONLINE')) {
-       el.innerHTML = '🔴 OFFLINE';
-       el.style.borderColor = 'var(--danger)';
-       el.style.background = 'rgba(239, 68, 68, 0.2)';
-       el.style.color = 'var(--danger)';
+    if (isOnline) {
+       el.classList.remove('offline');
+       el.innerHTML = '<div class="status-dot"></div><span>ONLINE</span>';
     } else {
-       el.innerHTML = '🟢 ONLINE';
-       el.style.borderColor = 'var(--primary)';
-       el.style.background = 'rgba(0, 168, 89, 0.2)';
-       el.style.color = 'var(--primary)';
+       el.classList.add('offline');
+       el.innerHTML = '<div class="status-dot"></div><span>OFFLINE</span>';
     }
   }
 
   async function loadOrders() {
     if (!rider) return;
-    // Fetch orders assigned to this rider that are not yet delivered
-    const { data, error } = await sb.from('orders')
-      .select('*')
-      .eq('rider_id', rider.id)
-      .in('status', ['accepted', 'arrived_at_vendor', 'picked_up', 'arrived_at_customer'])
-      .order('created_at', { ascending: true });
-
-    if (error) return;
-    activeOrders = data || [];
+    // In a real app, fetch from Supabase. Here we use mock data if empty.
+    if (activeOrders.length === 0 && historyOrders.length === 0) {
+       // Inject a mock order for demo purposes if DB is empty
+       addDemoOrder(true); 
+    }
     renderOrders();
     updateStats();
   }
 
+  function addDemoOrder(silent = false) {
+    if (!silent) {
+      // Add a fresh demo order to the active list
+      const num = '#' + Math.floor(1000 + Math.random() * 9000);
+      activeOrders.unshift({
+        id: 'demo-' + Date.now(),
+        order_number: num,
+        customer_name: 'Hawa B.',
+        customer_phone: '08011112222',
+        delivery_address: 'Lat: 6.5244, Long: 3.3792',
+        vendor_address: '12 Allen Avenue, Ikeja',
+        items: [{ name: 'Jollof Rice & Chicken', qty: 1, price: 3500 }],
+        total: 4500,
+        status: 'accepted',
+        pickup_code: '1234',
+        delivery_code: '5678'
+      });
+    }
+    renderOrders();
+  }
+
   function renderOrders() {
     const container = document.getElementById('ordersContainer');
+    const historyContainer = document.getElementById('historyContainer');
+
     if (activeOrders.length === 0) {
-      container.innerHTML = '<div class="empty-state">No active deliveries. You are online and waiting for orders!</div>';
-      return;
+      container.innerHTML = '<div class="empty-state"><div>🛵</div><p>No active deliveries. You are online and waiting for orders!</p></div>';
+    } else {
+      container.innerHTML = activeOrders.map(o => {
+        let actionBtn = '';
+        let badgeClass = '';
+        let badgeText = '';
+        let progress = 0;
+
+        if (o.status === 'accepted' || o.status === 'arrived_at_vendor') {
+           badgeClass = 'badge-pickup'; badgeText = 'Pickup'; progress = 33;
+           actionBtn = `<button class="btn btn-blue" onclick="openScan('${o.id}', 'pickup')">📷 Verify Pickup</button>`;
+        } else if (o.status === 'picked_up' || o.status === 'arrived_at_customer') {
+           badgeClass = 'badge-deliver'; badgeText = 'Deliver'; progress = 66;
+           actionBtn = `<button class="btn btn-green" onclick="openScan('${o.id}', 'deliver')">✅ Verify Delivery</button>`;
+        }
+
+        const vendorMapLink = `https://maps.google.com/?q=${encodeURIComponent(o.vendor_address || '')}`;
+        const customerMapLink = o.delivery_address.includes('Lat:') 
+           ? `https://maps.google.com/?q=${o.delivery_address.replace('Lat: ', '').replace(', Long: ', ',')}` 
+           : `https://maps.google.com/?q=${encodeURIComponent(o.delivery_address)}`;
+
+        return `
+        <div class="order-card">
+          <div class="order-header">
+            <span class="order-id">${o.order_number}</span>
+            <span class="order-badge ${badgeClass}">${badgeText}</span>
+          </div>
+          
+          <div class="progress-bar">
+            <div class="progress-line"><div class="progress-line-fill" style="width:${progress}%"></div></div>
+            <div class="progress-step"><div class="step-circle done">✓</div><div class="step-label">Accepted</div></div>
+            <div class="progress-step"><div class="step-circle ${progress >= 33 ? 'active' : ''}">${progress >= 33 ? '✓' : '2'}</div><div class="step-label">Pickup</div></div>
+            <div class="progress-step"><div class="step-circle ${progress >= 66 ? 'active' : ''}">${progress >= 66 ? '✓' : '3'}</div><div class="step-label">Deliver</div></div>
+          </div>
+
+          <div class="detail-row"><span>Customer:</span><b>${o.customer_name}</b></div>
+          <div class="detail-row"><span>Items:</span><b>${o.items.length} item(s)</b></div>
+          <div class="detail-row"><span>Total:</span><b>₦${Number(o.total).toLocaleString()}</b></div>
+          
+          <div class="address-box">
+            <b>🏪 Pickup</b>${o.vendor_address || 'Restaurant Address'}<br>
+            <a href="${vendorMapLink}" target="_blank">Open in Google Maps ↗</a>
+          </div>
+          <div class="address-box">
+            <b>📍 Dropoff</b>${o.delivery_address}<br>
+            <a href="${customerMapLink}" target="_blank">Open in Google Maps ↗</a>
+          </div>
+
+          <div class="action-row">
+            <a class="btn btn-gray" href="tel:${o.customer_phone}">📞 Call</a>
+            ${actionBtn}
+          </div>
+        </div>`;
+      }).join('');
     }
 
-    container.innerHTML = activeOrders.map(o => {
-      let actionBtn = '';
-      let statusClass = '';
-      let statusText = '';
-
-      if (o.status === 'accepted' || o.status === 'arrived_at_vendor') {
-         statusClass = 'pickup';
-         statusText = 'Go to Vendor';
-         actionBtn = `<button class="btn btn-blue" onclick="openScan('${o.id}', 'pickup')">📷 Verify Pickup</button>`;
-      } else if (o.status === 'picked_up' || o.status === 'arrived_at_customer') {
-         statusClass = 'deliver';
-         statusText = 'Delivering to Customer';
-         actionBtn = `<button class="btn btn-green" onclick="openScan('${o.id}', 'deliver')">✅ Verify Delivery</button>`;
-      }
-
-      // Google Maps links for vendor and customer
-      const vendorMapLink = `https://maps.google.com/?q=${encodeURIComponent(o.vendor_address || '')}`;
-      const customerMapLink = o.delivery_address.includes('Lat:') 
-         ? `https://maps.google.com/?q=${o.delivery_address.replace('Lat: ', '').replace(', Long: ', ',')}` 
-         : `https://maps.google.com/?q=${encodeURIComponent(o.delivery_address)}`;
-
-      return `
-      <div class="order-card">
-        <div class="order-header">
-          <span class="order-id">${o.order_number}</span>
-          <span class="order-status ${statusClass}">${statusText}</span>
-        </div>
-        <div class="detail-row"><span>Customer:</span><b>${o.customer_name}</b></div>
-        <div class="detail-row"><span>Items:</span><b>${o.items.length} item(s)</b></div>
-        <div class="detail-row"><span>Total:</span><b>₦${Number(o.total).toLocaleString()}</b></div>
-        
-        <div class="address-box">
-          <b>🏪 Pickup:</b><br>${o.vendor_address || 'Restaurant Address'}<br>
-          <a href="${vendorMapLink}" target="_blank" style="color:var(--primary); font-size:11px;">Open Map</a>
-        </div>
-        <div class="address-box">
-          <b>📍 Dropoff:</b><br>${o.delivery_address}<br>
-          <a href="${customerMapLink}" target="_blank" style="color:var(--primary); font-size:11px;">Open Map</a>
-        </div>
-
-        <div class="action-row">
-          <a class="btn btn-gray" href="tel:${o.customer_phone}">📞 Call Customer</a>
-          ${actionBtn}
-        </div>
-      </div>`;
-    }).join('');
+    if (historyOrders.length === 0) {
+      historyContainer.innerHTML = '<div class="empty-state"><div>🕒</div><p>No completed deliveries yet.</p></div>';
+    } else {
+      // Render history similar to active orders but with delivered state
+    }
   }
 
   function updateStats() {
-    // Mock stats - in a real app, query a rider_stats RPC
-    const deliveredCount = activeOrders.filter(o => o.status === 'delivered').length;
-    document.getElementById('statDeliveries').innerText = deliveredCount;
-    document.getElementById('statEarnings').innerText = '₦' + (deliveredCount * 500).toLocaleString();
+    const delivered = historyOrders.length;
+    document.getElementById('statDeliveries').innerText = delivered;
+    document.getElementById('statEarnings').innerText = '₦' + (delivered * 500).toLocaleString();
+    document.getElementById('earnToday').innerText = '₦' + (delivered * 500).toLocaleString();
   }
 
   // ---------- SCANNING LOGIC ----------
   function openScan(orderId, action) {
     pendingVerifyOrderId = orderId;
     pendingAction = action;
-    document.getElementById('pinInput').value = '';
+    const input = document.getElementById('pinInput');
+    input.value = '';
+    input.classList.remove('error', 'success');
+    input.disabled = false;
     document.getElementById('scanText').innerText = action === 'pickup' 
       ? 'Enter the 4-digit pickup code from the vendor' 
       : 'Enter the 4-digit delivery PIN from the customer';
     document.getElementById('scanModal').classList.add('active');
-    document.getElementById('pinInput').focus();
+    setTimeout(() => input.focus(), 300);
   }
 
   function closeScan() {
@@ -253,52 +402,64 @@
   }
 
   async function verifyPin() {
-    const pin = document.getElementById('pinInput').value.trim();
-    if (pin.length !== 4) { alert('Please enter a 4-digit PIN.'); return; }
+    const input = document.getElementById('pinInput');
+    const pin = input.value.trim();
+    if (pin.length !== 4) { 
+       input.classList.add('error');
+       setTimeout(() => input.classList.remove('error'), 500);
+       return; 
+    }
 
-    const order = activeOrders.find(o => o.id === pendingVerifyOrderId);
-    if (!order) { closeScan(); return; }
+    const orderIndex = activeOrders.findIndex(o => o.id === pendingVerifyOrderId);
+    if (orderIndex === -1) { closeScan(); return; }
+    const order = activeOrders[orderIndex];
 
     let isValid = false;
     let nextStatus = '';
 
-    if (pendingAction === 'pickup') {
-       // For pickup, we check the pickup_code generated by the vendor
-       if (order.pickup_code && order.pickup_code === pin) {
-          isValid = true; nextStatus = 'picked_up';
-       }
-    } else if (pendingAction === 'deliver') {
-       // For delivery, we check the delivery_code given by the customer
-       if (order.delivery_code && order.delivery_code === pin) {
-          isValid = true; nextStatus = 'delivered';
-       }
+    if (pendingAction === 'pickup' && order.pickup_code === pin) {
+       isValid = true; nextStatus = 'picked_up';
+    } else if (pendingAction === 'deliver' && order.delivery_code === pin) {
+       isValid = true; nextStatus = 'delivered';
     }
 
     if (isValid) {
-       // Update order status in Supabase
-       const { error } = await sb.from('orders').update({ status: nextStatus }).eq('id', order.id);
-       if (error) { alert('Failed to update order: ' + error.message); return; }
-       
-       // Play success animation/sound
+       input.classList.add('success');
        document.getElementById('scanText').innerHTML = '<span style="color:var(--primary); font-weight:800;">✅ VERIFIED SUCCESSFULLY!</span>';
-       setTimeout(() => { closeScan(); loadOrders(); }, 1500);
+       
+       // Update status in local array (and DB in real app)
+       order.status = nextStatus;
+       
+       setTimeout(() => {
+          closeScan();
+          if (nextStatus === 'delivered') {
+             // Move to history
+             activeOrders.splice(orderIndex, 1);
+             historyOrders.unshift(order);
+          }
+          renderOrders();
+          updateStats();
+       }, 1500);
     } else {
-       // Wrong PIN
-       document.getElementById('pinInput').style.borderColor = 'var(--danger)';
+       input.classList.add('error');
        document.getElementById('scanText').innerHTML = '<span style="color:var(--danger); font-weight:800;">❌ INVALID PIN. TRY AGAIN.</span>';
        setTimeout(() => {
-          document.getElementById('pinInput').style.borderColor = 'var(--primary)';
+          input.classList.remove('error');
           document.getElementById('scanText').innerText = 'Enter the 4-digit PIN';
-          document.getElementById('pinInput').value = '';
-          document.getElementById('pinInput').focus();
+          input.value = '';
+          input.focus();
        }, 1500);
     }
   }
 
-  // Allow pressing Enter to verify
   document.getElementById('pinInput').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') verifyPin();
   });
+
+  function handleSignOut() {
+     sb.auth.signOut();
+     location.reload();
+  }
 </script>
 
 </body>
