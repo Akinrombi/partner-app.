@@ -1,1686 +1,2976 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0,
-      maximum-scale=1.0,user-scalable=no">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+
+<meta name="theme-color" content="#00A859">
 
 <title>QuickEats Rider</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 
 :root{
-    --green:#00A859;
-    --green-dark:#008f4d;
-    --green-light:#E9F8F0;
-    --bg:#F5F7F6;
-    --white:#ffffff;
-    --text:#151515;
-    --muted:#747474;
-    --border:#E5E7EB;
-    --red:#E53935;
-    --orange:#F59E0B;
-    --blue:#2F80ED;
+  --green:#00A859;
+  --green-light:#E8F8F0;
+  --bg:#F5F7F6;
+  --white:#FFFFFF;
+  --text:#171A19;
+  --muted:#68716D;
+  --line:#E1E6E3;
+  --red:#EF4444;
+  --blue:#1677FF;
 }
 
 *{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-    font-family:Arial,Helvetica,sans-serif;
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:-apple-system,BlinkMacSystemFont,
+  "Segoe UI",Roboto,Arial,sans-serif;
+}
+
+html,body{
+  min-height:100%;
+  background:#e9eeec;
+  color:var(--text);
 }
 
 body{
-    background:#e9eeec;
-    color:var(--text);
+  display:flex;
+  justify-content:center;
+}
+
+button,input{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
 }
 
 .app{
-    width:100%;
-    max-width:480px;
-    min-height:100vh;
-    margin:auto;
-    background:var(--bg);
-    position:relative;
-    padding-bottom:80px;
+  width:100%;
+  max-width:480px;
+  min-height:100vh;
+  background:var(--bg);
+  position:relative;
+  padding-bottom:76px;
 }
+
+.screen{
+  display:none;
+  min-height:100vh;
+}
+
+.screen.active{
+  display:block;
+}
+
+
+/* LOGIN */
+
+#login{
+  background:#fff;
+  min-height:100vh;
+  padding:28px 24px;
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+
+#login.active{
+  display:flex;
+}
+
+.logo{
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  background:var(--green);
+  display:grid;
+  place-items:center;
+  margin-bottom:18px;
+  box-shadow:0 10px 25px rgba(0,168,89,.25);
+}
+
+.logo span{
+  font-size:50px;
+}
+
+.login-title{
+  font-size:30px;
+  font-weight:850;
+  margin-bottom:6px;
+}
+
+.login-sub{
+  color:var(--muted);
+  font-size:14px;
+  margin-bottom:30px;
+}
+
+.form{
+  width:100%;
+  max-width:350px;
+}
+
+.field{
+  text-align:left;
+  margin-bottom:15px;
+}
+
+.field label{
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:7px;
+}
+
+.field input{
+  width:100%;
+  height:54px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:0 15px;
+  background:#F9FAFB;
+  outline:none;
+}
+
+.field input:focus{
+  border-color:var(--green);
+}
+
+.primary,
+.secondary{
+  width:100%;
+  height:55px;
+  border-radius:12px;
+  font-weight:800;
+  border:0;
+}
+
+.primary{
+  background:var(--green);
+  color:#fff;
+}
+
+.secondary{
+  background:#fff;
+  color:var(--text);
+  border:2px solid var(--line);
+  margin-top:11px;
+}
+
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.login-help{
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.5;
+  margin-top:14px;
+}
+
 
 /* HEADER */
 
 .header{
-    background:white;
-    padding:18px 18px 15px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    border-bottom:1px solid var(--border);
+  height:70px;
+  background:#fff;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 16px;
+  position:sticky;
+  top:0;
+  z-index:20;
 }
 
 .header h1{
-    font-size:21px;
-    margin-bottom:4px;
+  font-size:18px;
 }
 
 .header p{
-    font-size:13px;
-    color:var(--muted);
+  font-size:12px;
+  color:var(--muted);
+  margin-top:2px;
 }
 
-/* ONLINE BUTTON */
-
 .online{
-    border:0;
-    background:var(--green-light);
-    color:var(--green);
-    border-radius:30px;
-    padding:10px 14px;
-    font-weight:bold;
-    display:flex;
-    align-items:center;
-    gap:7px;
-    cursor:pointer;
+  border:0;
+  border-radius:22px;
+  padding:9px 13px;
+  background:var(--green-light);
+  color:var(--green);
+  font-size:12px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:7px;
 }
 
 .online.offline{
-    background:#fdecec;
-    color:var(--red);
+  background:#FEECEC;
+  color:var(--red);
 }
 
 .dot{
-    width:9px;
-    height:9px;
-    background:var(--green);
-    border-radius:50%;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:currentColor;
 }
 
-.offline .dot{
-    background:var(--red);
-}
 
 /* MAP */
 
 .map{
-    height:280px;
-    position:relative;
-    overflow:hidden;
-    background:
-    linear-gradient(30deg,transparent 45%,#fff 46%,#fff 48%,transparent 49%),
-    linear-gradient(150deg,transparent 45%,#fff 46%,#fff 48%,transparent 49%),
-    #e1e7e5;
-    background-size:120px 100px;
+  height:38vh;
+  min-height:270px;
+  position:relative;
+  overflow:hidden;
+  background:#E9EEEC;
 }
 
-.map::after{
-    content:"";
-    position:absolute;
-    width:100%;
-    height:100%;
-    background:
-    linear-gradient(90deg,transparent 48%,rgba(255,255,255,.7) 49%,transparent 51%);
-    background-size:100px 100px;
-    opacity:.7;
+.map:before,
+.map:after{
+  content:"";
+  position:absolute;
+  inset:-30%;
+  background:
+    linear-gradient(
+      28deg,
+      transparent 48%,
+      rgba(255,255,255,.85) 49%,
+      rgba(255,255,255,.85) 51%,
+      transparent 52%
+    ),
+    linear-gradient(
+      116deg,
+      transparent 48%,
+      rgba(255,255,255,.8) 49%,
+      rgba(255,255,255,.8) 51%,
+      transparent 52%
+    );
+  background-size:115px 90px;
+  transform:rotate(3deg);
+  opacity:.8;
 }
 
-.route{
-    position:absolute;
-    width:270px;
-    height:7px;
-    background:#2584ed;
-    transform:rotate(27deg);
-    left:100px;
-    top:125px;
-    border-radius:10px;
-    z-index:3;
+.map:after{
+  background-size:170px 130px;
+  transform:rotate(-18deg);
+  opacity:.5;
 }
 
-.route:after{
-    content:"";
-    position:absolute;
-    width:130px;
-    height:7px;
-    background:#2584ed;
-    transform:rotate(-35deg);
-    right:-70px;
-    top:35px;
-    border-radius:10px;
+.pin{
+  position:absolute;
+  width:36px;
+  height:36px;
+  border-radius:50% 50% 50% 0;
+  transform:rotate(-45deg);
+  display:grid;
+  place-items:center;
+  color:#fff;
+  font-size:17px;
+  box-shadow:0 4px 12px #0003;
+  z-index:3;
 }
 
-.restaurant-pin,
-.customer-pin,
-.rider-pin{
-    position:absolute;
-    z-index:5;
-    width:48px;
-    height:48px;
-    border-radius:50%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    font-size:22px;
-    box-shadow:0 4px 15px rgba(0,0,0,.2);
-}
-
-.restaurant-pin{
-    background:var(--green);
-    left:70px;
-    top:65px;
-}
-
-.customer-pin{
-    background:#ef4444;
-    right:55px;
-    bottom:55px;
-}
-
-.rider-pin{
-    background:#2584ed;
-    border:5px solid white;
-    left:190px;
-    top:120px;
-    width:30px;
-    height:30px;
-    font-size:0;
-}
-
-/* MAP BUTTON */
-
-.map-button{
-    position:absolute;
-    right:15px;
-    bottom:15px;
-    width:48px;
-    height:48px;
-    border:0;
-    border-radius:50%;
-    background:white;
-    box-shadow:0 3px 15px rgba(0,0,0,.15);
-    font-size:20px;
-    z-index:10;
-}
-
-/* CONTENT */
-
-.content{
-    padding:18px;
-}
-
-.title{
-    font-size:21px;
-    font-weight:800;
-    margin-bottom:5px;
-}
-
-.subtitle{
-    color:var(--muted);
-    font-size:14px;
-    margin-bottom:18px;
-}
-
-/* ORDER CARD */
-
-.order-card{
-    background:white;
-    border-radius:20px;
-    padding:18px;
-    box-shadow:0 4px 18px rgba(0,0,0,.06);
-    margin-bottom:15px;
-}
-
-.order-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:18px;
-}
-
-.order-number{
-    font-size:19px;
-    font-weight:800;
-}
-
-.badge{
-    background:#eaf3ff;
-    color:#2777c8;
-    padding:7px 12px;
-    border-radius:20px;
-    font-size:11px;
-    font-weight:bold;
+.pin span{
+  transform:rotate(45deg);
 }
 
 .restaurant{
-    display:flex;
-    gap:12px;
-    align-items:center;
-    margin-bottom:18px;
+  background:var(--green);
+  left:25%;
+  top:25%;
 }
 
-.restaurant-icon{
-    width:52px;
-    height:52px;
-    border-radius:14px;
-    background:#fff0dc;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:25px;
+.customer{
+  background:var(--red);
+  right:18%;
+  bottom:20%;
 }
 
-.restaurant h3{
-    font-size:16px;
-    margin-bottom:4px;
+.rider{
+  position:absolute;
+  left:47%;
+  top:48%;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:var(--blue);
+  border:4px solid #fff;
+  box-shadow:0 2px 8px #0004;
+  z-index:4;
 }
 
-.restaurant p{
-    color:var(--muted);
-    font-size:13px;
+.locate{
+  position:absolute;
+  right:16px;
+  bottom:16px;
+  width:46px;
+  height:46px;
+  border:0;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 4px 12px #0002;
+  font-size:20px;
+  z-index:5;
 }
 
-/* ADDRESS */
 
-.address{
-    border-top:1px solid var(--border);
-    padding-top:15px;
+/* BOTTOM SHEET */
+
+.sheet{
+  background:#fff;
+  margin-top:-22px;
+  border-radius:24px 24px 0 0;
+  position:relative;
+  z-index:10;
+  padding:18px 16px 28px;
+  min-height:48vh;
+  box-shadow:0 -8px 20px #0000000d;
 }
 
-.location{
-    display:flex;
-    gap:12px;
-    margin-bottom:15px;
+.handle{
+  width:42px;
+  height:4px;
+  border-radius:5px;
+  background:#D8DDE0;
+  margin:0 auto 17px;
 }
 
-.location-icon{
-    width:32px;
-    height:32px;
-    background:var(--green-light);
-    color:var(--green);
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-shrink:0;
+.sheet h2{
+  font-size:19px;
+  margin-bottom:5px;
 }
 
-.location-icon.red{
-    background:#ffeded;
-    color:var(--red);
+.sheet .sub{
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:16px;
 }
 
-.location h4{
-    font-size:13px;
-    color:var(--muted);
-    margin-bottom:3px;
+
+/* EMPTY */
+
+.empty{
+  text-align:center;
+  padding:45px 20px;
+  color:var(--muted);
 }
 
-.location p{
-    font-size:14px;
-    font-weight:bold;
+.empty-icon{
+  font-size:50px;
+  margin-bottom:15px;
 }
 
-/* INFO */
-
-.info-row{
-    display:flex;
-    justify-content:space-between;
-    border-top:1px dashed var(--border);
-    padding-top:15px;
-    margin-top:5px;
+.empty h3{
+  color:var(--text);
+  margin-bottom:8px;
 }
 
-.info{
-    text-align:left;
+
+/* ORDER */
+
+.order-card{
+  border:1px solid var(--line);
+  background:#FAFBFB;
+  border-radius:16px;
+  padding:14px;
 }
 
-.info span{
-    display:block;
-    font-size:12px;
-    color:var(--muted);
-    margin-bottom:4px;
+.order-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
 }
 
-.info strong{
-    font-size:16px;
+.order-number{
+  font-size:16px;
+  font-weight:850;
 }
 
-.green{
-    color:var(--green);
+.badge{
+  font-size:10px;
+  font-weight:850;
+  text-transform:uppercase;
+  padding:6px 9px;
+  border-radius:15px;
+  background:#FFF4DE;
+  color:#C77700;
 }
 
-/* BUTTONS */
-
-.button{
-    width:100%;
-    height:54px;
-    border:0;
-    border-radius:14px;
-    font-size:15px;
-    font-weight:800;
-    cursor:pointer;
-    margin-top:15px;
+.restaurant-name{
+  font-size:16px;
+  font-weight:800;
+  margin-bottom:6px;
 }
 
-.primary{
-    background:var(--green);
-    color:white;
+.order-address{
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:12px;
+  line-height:1.5;
 }
 
-.primary:active{
-    background:var(--green-dark);
+.food-list{
+  border-top:1px solid var(--line);
+  padding-top:12px;
 }
 
-.secondary{
-    background:white;
-    color:var(--text);
-    border:1px solid var(--border);
+.food-item{
+  display:flex;
+  justify-content:space-between;
+  padding:5px 0;
+  font-size:13px;
 }
 
-.danger{
-    background:#fff0f0;
-    color:var(--red);
+.order-total{
+  display:flex;
+  justify-content:space-between;
+  border-top:1px dashed var(--line);
+  padding-top:12px;
+  margin-top:10px;
+  font-weight:850;
 }
 
-/* PROGRESS */
+.order-total span:last-child{
+  color:var(--green);
+}
+
+.accept-delivery{
+  margin-top:14px;
+}
+
+
+/* DELIVERY DETAILS */
+
+.details{
+  margin-top:14px;
+  background:#F8FAF9;
+  border-radius:16px;
+  padding:15px;
+}
+
+.detail-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
 
 .progress{
-    display:flex;
-    align-items:flex-start;
-    margin:10px 0 25px;
+  display:flex;
+  justify-content:space-between;
+  position:relative;
+  margin:15px 0 20px;
+}
+
+.progress:before{
+  content:"";
+  position:absolute;
+  top:12px;
+  left:12%;
+  right:12%;
+  height:2px;
+  background:#DDE2DF;
 }
 
 .step{
-    flex:1;
-    text-align:center;
-    position:relative;
-}
-
-.step:not(:last-child)::after{
-    content:"";
-    position:absolute;
-    height:3px;
-    background:#ddd;
-    width:100%;
-    top:15px;
-    left:50%;
-    z-index:0;
-}
-
-.step.done:not(:last-child)::after{
-    background:var(--green);
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+  font-size:10px;
+  color:var(--muted);
+  font-weight:700;
 }
 
 .circle{
-    width:30px;
-    height:30px;
-    border-radius:50%;
-    background:#ddd;
-    color:white;
-    margin:auto;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    position:relative;
-    z-index:2;
-    font-size:12px;
-    font-weight:bold;
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:#DDE2DF;
+  color:#fff;
+  font-size:10px;
 }
 
 .step.active .circle,
 .step.done .circle{
-    background:var(--green);
+  background:var(--green);
 }
 
-.step span{
-    display:block;
-    font-size:10px;
-    color:var(--muted);
-    margin-top:7px;
-    font-weight:bold;
+.row{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  font-size:13px;
+  margin:9px 0;
 }
 
-/* SCREEN */
-
-.screen{
-    display:none;
+.row span:first-child{
+  color:var(--muted);
 }
 
-.screen.active{
-    display:block;
+.row span:last-child{
+  font-weight:700;
+  text-align:right;
 }
 
-/* EARNINGS */
-
-.earnings-card{
-    margin:18px;
-    padding:25px;
-    background:linear-gradient(135deg,#00a859,#008d4b);
-    color:white;
-    border-radius:20px;
+.total-row{
+  border-top:1px dashed var(--line);
+  padding-top:11px;
+  margin-top:12px;
+  font-weight:850;
 }
 
-.earnings-card p{
-    opacity:.8;
-    font-size:13px;
+.total-row span:last-child{
+  color:var(--green);
 }
 
-.earnings-card h2{
-    font-size:34px;
-    margin:7px 0;
+.full{
+  margin-top:15px;
 }
 
-.earnings-card span{
-    font-size:13px;
-    opacity:.85;
-}
 
-.stats{
-    display:flex;
-    gap:12px;
-    padding:0 18px;
-}
-
-.stat{
-    flex:1;
-    background:white;
-    padding:17px;
-    border-radius:15px;
-    text-align:center;
-}
-
-.stat strong{
-    display:block;
-    font-size:20px;
-}
-
-.stat span{
-    font-size:11px;
-    color:var(--muted);
-}
-
-.transactions{
-    margin:18px;
-    background:white;
-    border-radius:18px;
-    padding:18px;
-}
-
-.transactions h3{
-    margin-bottom:15px;
-}
-
-.transaction{
-    display:flex;
-    justify-content:space-between;
-    padding:14px 0;
-    border-bottom:1px solid var(--border);
-}
-
-.transaction:last-child{
-    border:0;
-}
-
-.transaction p{
-    color:var(--muted);
-    font-size:12px;
-    margin-top:4px;
-}
-
-.amount{
-    color:var(--green);
-    font-weight:bold;
-}
-
-/* PROFILE */
-
-.profile{
-    padding:20px;
-}
-
-.profile-top{
-    background:white;
-    padding:25px;
-    text-align:center;
-    border-radius:20px;
-}
-
-.avatar{
-    width:80px;
-    height:80px;
-    border-radius:50%;
-    margin:auto;
-    background:var(--green-light);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    font-size:38px;
-}
-
-.profile-top h2{
-    margin-top:12px;
-}
-
-.profile-top p{
-    color:var(--muted);
-    font-size:13px;
-    margin-top:5px;
-}
-
-.menu{
-    background:white;
-    margin-top:15px;
-    border-radius:18px;
-    overflow:hidden;
-}
-
-.menu-item{
-    padding:18px;
-    display:flex;
-    justify-content:space-between;
-    border-bottom:1px solid var(--border);
-    font-weight:bold;
-}
-
-.menu-item:last-child{
-    border:0;
-}
-
-.menu-item span:last-child{
-    color:#aaa;
-}
-
-/* BOTTOM NAV */
+/* NAV */
 
 .nav{
-    position:fixed;
-    bottom:0;
-    left:50%;
-    transform:translateX(-50%);
-    width:100%;
-    max-width:480px;
-    height:70px;
-    background:white;
-    border-top:1px solid var(--border);
-    display:flex;
-    z-index:100;
+  position:fixed;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:100%;
+  max-width:480px;
+  height:76px;
+  background:#fff;
+  border-top:1px solid var(--line);
+  display:flex;
+  z-index:100;
+  padding-bottom:5px;
 }
 
 .nav button{
-    flex:1;
-    border:0;
-    background:white;
-    color:#888;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:5px;
-    font-size:11px;
-    font-weight:bold;
+  flex:1;
+  border:0;
+  background:transparent;
+  color:#7A8280;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
 }
 
 .nav button.active{
-    color:var(--green);
+  color:var(--green);
 }
 
-.nav-icon{
-    font-size:22px;
+.nav .icon{
+  font-size:22px;
 }
 
-/* MODAL */
-
-.modal{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.5);
-    z-index:200;
-    display:none;
-    align-items:flex-end;
+.nav small{
+  font-size:10px;
+  font-weight:800;
 }
 
-.modal.show{
-    display:flex;
+
+/* EARNINGS */
+
+.earn-card{
+  margin:16px;
+  background:#fff;
+  border-radius:17px;
+  padding:22px;
+  text-align:center;
+  box-shadow:0 4px 12px #0000000a;
 }
 
-.modal-content{
-    background:white;
-    width:100%;
-    max-width:480px;
-    margin:auto;
-    border-radius:25px 25px 0 0;
-    padding:22px;
-    animation:slide .25s ease;
+.earn-card p{
+  color:var(--muted);
+  font-size:13px;
 }
 
-@keyframes slide{
-    from{
-        transform:translateY(100%);
-    }
-    to{
-        transform:translateY(0);
-    }
+.earn-card h2{
+  font-size:32px;
+  color:var(--green);
+  margin-top:7px;
 }
 
-.modal-handle{
-    width:40px;
-    height:4px;
-    background:#ddd;
-    margin:0 auto 20px;
-    border-radius:5px;
+
+/* PROFILE */
+
+.profile-head{
+  background:#fff;
+  text-align:center;
+  padding:28px 20px;
+  border-bottom:1px solid var(--line);
 }
 
-.modal h2{
-    margin-bottom:8px;
+.avatar{
+  width:82px;
+  height:82px;
+  border-radius:50%;
+  background:var(--green-light);
+  display:grid;
+  place-items:center;
+  font-size:42px;
+  margin:0 auto 10px;
 }
 
-.modal p{
-    color:var(--muted);
-    font-size:14px;
-    line-height:1.5;
+.profile-head h2{
+  font-size:20px;
 }
 
-/* PIN */
-
-.pin-input{
-    width:100%;
-    height:55px;
-    margin-top:15px;
-    border:1px solid var(--border);
-    border-radius:12px;
-    text-align:center;
-    font-size:25px;
-    letter-spacing:10px;
-    outline:none;
+.profile-head p{
+  font-size:12px;
+  color:var(--green);
+  font-weight:800;
+  margin-top:4px;
 }
 
-.pin-input:focus{
-    border-color:var(--green);
+.menu{
+  margin-top:12px;
+  background:#fff;
 }
+
+.menu button{
+  width:100%;
+  height:56px;
+  border:0;
+  border-bottom:1px solid var(--line);
+  background:#fff;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 20px;
+  font-weight:650;
+}
+
+.menu .logout{
+  color:var(--red);
+}
+
+
+/* SUCCESS */
+
+.overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:#fff;
+  z-index:500;
+  padding:25px;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+.overlay.active{
+  display:flex;
+}
+
+.success{
+  width:100%;
+  max-width:380px;
+}
+
+.check{
+  width:95px;
+  height:95px;
+  border-radius:50%;
+  background:var(--green-light);
+  display:grid;
+  place-items:center;
+  font-size:50px;
+  margin:0 auto 18px;
+}
+
+.success h2{
+  font-size:24px;
+}
+
+.success p{
+  color:var(--muted);
+  font-size:13px;
+  margin:7px 0 18px;
+}
+
+.breakdown{
+  background:#F7F9F8;
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:18px;
+}
+
+.breakdown div{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  margin:8px 0;
+}
+
+.breakdown .sum{
+  border-top:1px dashed var(--line);
+  padding-top:10px;
+  font-size:18px;
+  font-weight:850;
+  color:var(--green);
+}
+
 
 /* TOAST */
 
 .toast{
-    position:fixed;
-    top:20px;
-    left:50%;
-    transform:translateX(-50%) translateY(-100px);
-    background:#111;
-    color:white;
-    padding:13px 18px;
-    border-radius:30px;
-    z-index:500;
-    font-size:13px;
-    transition:.3s;
+  position:fixed;
+  left:50%;
+  bottom:90px;
+  transform:translate(-50%,20px);
+  background:#18201D;
+  color:#fff;
+  padding:11px 16px;
+  border-radius:12px;
+  font-size:12px;
+  opacity:0;
+  pointer-events:none;
+  z-index:700;
+  transition:.25s;
+  max-width:90%;
+  text-align:center;
 }
 
 .toast.show{
-    transform:translateX(-50%) translateY(0);
-}
-
-/* MOBILE */
-
-@media(max-width:480px){
-    .map{
-        height:260px;
-    }
+  opacity:1;
+  transform:translate(-50%,0);
 }
 
 </style>
 </head>
 
+
 <body>
 
 <div class="app">
 
+
+<!-- LOGIN -->
+
+<section id="login" class="screen active">
+
+  <div class="logo">
+    <span>🛵</span>
+  </div>
+
+  <div class="login-title">
+    QuickEats
+  </div>
+
+  <div class="login-sub">
+    Rider App
+  </div>
+
+  <div class="form">
+
+    <div class="field">
+
+      <label>
+        Email
+      </label>
+
+      <input
+        id="email"
+        type="email"
+        placeholder="Rider email"
+      >
+
+    </div>
+
+
+    <div class="field">
+
+      <label>
+        Password
+      </label>
+
+      <input
+        id="password"
+        type="password"
+        placeholder="Password"
+      >
+
+    </div>
+
+
+    <button
+      id="loginBtn"
+      class="primary"
+      onclick="login()"
+    >
+      LOG IN
+    </button>
+
+
+    <button
+      class="secondary"
+      onclick="demoLogin()"
+    >
+      CONTINUE AS DEMO RIDER
+    </button>
+
+
+    <div class="login-help">
+
+      Real Rider mode connects to QuickEats
+      through Supabase.
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
 <!-- HOME -->
 
-<section id="home" class="screen active">
+<section id="home" class="screen">
+
 
 <header class="header">
 
-<div>
-<h1>Good morning, Rider! 👋</h1>
-<p id="onlineText">You're online</p>
-</div>
+  <div>
 
-<button class="online" id="onlineButton"
-onclick="toggleOnline()">
+    <h1 id="greeting">
+      QuickEats Rider
+    </h1>
 
-<span class="dot"></span>
-<span id="onlineLabel">ONLINE</span>
+    <p id="onlineText">
+      You're online
+    </p>
 
-</button>
+  </div>
+
+
+  <button
+    id="onlineBtn"
+    class="online"
+    onclick="toggleOnline()"
+  >
+
+    <span class="dot"></span>
+
+    <span id="onlineLabel">
+      ONLINE
+    </span>
+
+  </button>
 
 </header>
 
 
+
+<!-- MAP -->
+
 <div class="map">
 
-<div class="route"></div>
+  <div class="pin restaurant">
+    <span>🍴</span>
+  </div>
 
-<div class="restaurant-pin">🍴</div>
+  <div class="pin customer">
+    <span>📍</span>
+  </div>
 
-<div class="rider-pin"></div>
+  <div class="rider"></div>
 
-<div class="customer-pin">📍</div>
-
-<button class="map-button"
-onclick="showToast('Location centered')">
-📍
-</button>
-
-</div>
-
-
-<div class="content">
-
-<h2 class="title">New order available</h2>
-
-<p class="subtitle">
-A customer nearby needs a delivery.
-</p>
-
-
-<div class="order-card">
-
-<div class="order-top">
-
-<div class="order-number">
-Order #4821
-</div>
-
-<div class="badge">
-NEW ORDER
-</div>
+  <button
+    class="locate"
+    onclick="toast('Your location updated')"
+  >
+    📍
+  </button>
 
 </div>
 
 
-<div class="restaurant">
 
-<div class="restaurant-icon">
-🍗
-</div>
+<!-- BOTTOM SHEET -->
 
-<div>
-<h3>Tasty Bites Restaurant</h3>
-<p>Jollof Rice + Grilled Chicken</p>
-</div>
+<div class="sheet">
 
-</div>
+  <div class="handle"></div>
 
 
-<div class="address">
-
-<div class="location">
-
-<div class="location-icon">
-🏪
-</div>
-
-<div>
-<h4>PICKUP</h4>
-<p>12, Adeola Street, Ikeja</p>
-</div>
-
-</div>
+  <h2>
+    Delivery Orders
+  </h2>
 
 
-<div class="location">
-
-<div class="location-icon red">
-📍
-</div>
-
-<div>
-<h4>DROP-OFF</h4>
-<p>18, Unity Road, Lekki</p>
-</div>
-
-</div>
-
-</div>
+  <p class="sub">
+    Orders marked ready by vendors appear here.
+  </p>
 
 
-<div class="info-row">
+  <!-- WAITING -->
 
-<div class="info">
-<span>Distance</span>
-<strong>2.5 km</strong>
-</div>
+  <div
+    id="emptyOrders"
+    class="empty"
+  >
 
-<div class="info">
-<span>Estimated time</span>
-<strong>18 min</strong>
-</div>
+    <div class="empty-icon">
+      🛵
+    </div>
 
-<div class="info">
-<span>You'll earn</span>
-<strong class="green">₦3,750</strong>
-</div>
+    <h3>
+      Waiting for delivery
+    </h3>
 
-</div>
+    <p>
+      When a vendor marks food ready,
+      the delivery will appear here.
+    </p>
+
+  </div>
 
 
-<button class="button primary"
-onclick="openOrder()">
+  <!-- ORDER -->
 
-View Order
+  <div
+    id="orderArea"
+    style="display:none"
+  >
 
-</button>
+    <div class="order-card">
 
-</div>
+      <div class="order-top">
+
+        <div
+          id="orderNumber"
+          class="order-number"
+        >
+          Order
+        </div>
+
+        <div class="badge">
+          READY FOR PICKUP
+        </div>
+
+      </div>
+
+
+      <div
+        id="restaurantName"
+        class="restaurant-name"
+      >
+        Restaurant
+      </div>
+
+
+      <div
+        id="pickupAddress"
+        class="order-address"
+      >
+        Pickup address
+      </div>
+
+
+      <div
+        id="foodList"
+        class="food-list"
+      >
+      </div>
+
+
+      <div class="order-total">
+
+        <span>
+          Order Total
+        </span>
+
+        <span id="orderTotal">
+          ₦0
+        </span>
+
+      </div>
+
+
+      <button
+        id="acceptDeliveryButton"
+        class="primary accept-delivery"
+        onclick="acceptDelivery()"
+      >
+        ACCEPT DELIVERY
+      </button>
+
+    </div>
+
+
+    <!-- DETAILS -->
+
+    <div
+      id="deliveryDetails"
+      class="details"
+      style="display:none"
+    >
+
+      <div class="detail-top">
+
+        <strong id="detailOrderNumber">
+          Order
+        </strong>
+
+        <span
+          id="deliveryBadge"
+          class="badge"
+        >
+          PICKUP
+        </span>
+
+      </div>
+
+
+      <div class="progress">
+
+        <div
+          id="stepAccepted"
+          class="step done"
+        >
+
+          <span class="circle">
+            ✓
+          </span>
+
+          <span>
+            Accepted
+          </span>
+
+        </div>
+
+
+        <div
+          id="stepPickup"
+          class="step active"
+        >
+
+          <span
+            id="pickupCircle"
+            class="circle"
+          >
+            2
+          </span>
+
+          <span>
+            Pickup
+          </span>
+
+        </div>
+
+
+        <div
+          id="stepDelivery"
+          class="step"
+        >
+
+          <span
+            id="deliveryCircle"
+            class="circle"
+          >
+            3
+          </span>
+
+          <span>
+            Deliver
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div class="row">
+
+        <span>
+          Customer
+        </span>
+
+        <span id="customerName">
+          -
+        </span>
+
+      </div>
+
+
+      <div class="row">
+
+        <span>
+          Pickup
+        </span>
+
+        <span id="detailPickup">
+          -
+        </span>
+
+      </div>
+
+
+      <div class="row">
+
+        <span>
+          Drop-off
+        </span>
+
+        <span id="deliveryAddress">
+          -
+        </span>
+
+      </div>
+
+
+      <div class="row total-row">
+
+        <span>
+          Delivery
+        </span>
+
+        <span id="deliveryFee">
+          ₦0
+        </span>
+
+      </div>
+
+
+      <button
+        id="mainAction"
+        class="primary full"
+        onclick="advanceDelivery()"
+      >
+        ARRIVED AT RESTAURANT
+      </button>
+
+    </div>
+
+  </div>
 
 </div>
 
 </section>
+
 
 
 <!-- EARNINGS -->
 
-<section id="earnings" class="screen">
+<section
+  id="earnings"
+  class="screen"
+>
 
 <header class="header">
-<div>
-<h1>Earnings</h1>
-<p>Your delivery income</p>
-</div>
+
+  <h1>
+    Earnings
+  </h1>
+
 </header>
 
 
-<div class="earnings-card">
+<div class="earn-card">
 
-<p>Today's Earnings</p>
+  <p>
+    Today's Earnings
+  </p>
 
-<h2 id="earningTotal">
-₦18,750
-</h2>
-
-<span>
-Keep delivering to earn more 🚴
-</span>
-
-</div>
-
-
-<div class="stats">
-
-<div class="stat">
-<strong>8</strong>
-<span>Deliveries</span>
-</div>
-
-<div class="stat">
-<strong>4.9</strong>
-<span>Rating</span>
-</div>
-
-<div class="stat">
-<strong>98%</strong>
-<span>On-time</span>
-</div>
-
-</div>
-
-
-<div class="transactions">
-
-<h3>Recent deliveries</h3>
-
-
-<div class="transaction">
-
-<div>
-<strong>Tasty Bites</strong>
-<p>Today · 10:24 AM</p>
-</div>
-
-<div class="amount">
-₦3,750
-</div>
-
-</div>
-
-
-<div class="transaction">
-
-<div>
-<strong>Spice Hub</strong>
-<p>Today · 11:45 AM</p>
-</div>
-
-<div class="amount">
-₦4,200
-</div>
-
-</div>
-
-
-<div class="transaction">
-
-<div>
-<strong>Mama's Kitchen</strong>
-<p>Today · 1:20 PM</p>
-</div>
-
-<div class="amount">
-₦2,800
-</div>
-
-</div>
-
-
-<div class="transaction">
-
-<div>
-<strong>Food Palace</strong>
-<p>Today · 2:10 PM</p>
-</div>
-
-<div class="amount">
-₦3,100
-</div>
-
-</div>
+  <h2 id="todayEarnings">
+    ₦0
+  </h2>
 
 </div>
 
 </section>
 
 
+
 <!-- PROFILE -->
 
-<section id="profile" class="screen">
+<section
+  id="profile"
+  class="screen"
+>
 
-<header class="header">
-<div>
-<h1>Profile</h1>
-<p>Your rider account</p>
-</div>
-</header>
+<div class="profile-head">
 
+  <div class="avatar">
+    👤
+  </div>
 
-<div class="profile">
+  <h2 id="profileName">
+    Rider
+  </h2>
 
-<div class="profile-top">
-
-<div class="avatar">
-👤
-</div>
-
-<h2>Demo Rider</h2>
-
-<p>✓ Verified Rider</p>
+  <p>
+    ✓ QuickEats Rider
+  </p>
 
 </div>
 
 
 <div class="menu">
 
-<div class="menu-item">
-<span>Edit Profile</span>
-<span>›</span>
-</div>
+  <button onclick="toast('Profile settings coming soon')">
 
-<div class="menu-item">
-<span>Vehicle & Documents</span>
-<span>›</span>
-</div>
+    <span>
+      Edit Profile
+    </span>
 
-<div class="menu-item">
-<span>Bank Account</span>
-<span>›</span>
-</div>
+    <span>
+      ›
+    </span>
 
-<div class="menu-item">
-<span>Notifications</span>
-<span>›</span>
-</div>
+  </button>
 
-<div class="menu-item">
-<span>Help & Support</span>
-<span>›</span>
-</div>
 
-<div class="menu-item"
-onclick="showToast('Logout is disabled in demo mode')">
+  <button onclick="toast('Vehicle documents coming soon')">
 
-<span style="color:#e53935">
-Log Out
-</span>
+    <span>
+      Vehicle & Documents
+    </span>
 
-<span>›</span>
+    <span>
+      ›
+    </span>
 
-</div>
+  </button>
 
-</div>
+
+  <button onclick="toast('Bank account coming soon')">
+
+    <span>
+      Bank Account
+    </span>
+
+    <span>
+      ›
+    </span>
+
+  </button>
+
+
+  <button
+    class="logout"
+    onclick="logout()"
+  >
+
+    <span>
+      Log Out
+    </span>
+
+    <span>
+      ›
+    </span>
+
+  </button>
 
 </div>
 
 </section>
 
 
-<!-- NAVIGATION -->
 
-<nav class="nav">
+<!-- NAV -->
 
-<button class="active"
-onclick="switchScreen('home',this)">
+<nav
+  id="nav"
+  class="nav"
+  style="display:none"
+>
 
-<span class="nav-icon">🏠</span>
-Home
+  <button
+    class="active"
+    onclick="switchTab('home',this)"
+  >
 
-</button>
+    <span class="icon">
+      🏠
+    </span>
+
+    <small>
+      Home
+    </small>
+
+  </button>
 
 
-<button
-onclick="switchScreen('earnings',this)">
+  <button
+    onclick="switchTab('earnings',this)"
+  >
 
-<span class="nav-icon">💰</span>
-Earnings
+    <span class="icon">
+      💰
+    </span>
 
-</button>
+    <small>
+      Earnings
+    </small>
+
+  </button>
 
 
-<button
-onclick="switchScreen('profile',this)">
+  <button
+    onclick="switchTab('profile',this)"
+  >
 
-<span class="nav-icon">👤</span>
-Profile
+    <span class="icon">
+      👤
+    </span>
 
-</button>
+    <small>
+      Profile
+    </small>
+
+  </button>
 
 </nav>
 
 </div>
 
 
-<!-- ORDER MODAL -->
 
-<div class="modal" id="orderModal">
+<!-- SUCCESS -->
 
-<div class="modal-content">
+<div
+  id="success"
+  class="overlay"
+>
 
-<div class="modal-handle"></div>
+  <div class="success">
 
-<h2>Order #4821</h2>
+    <div class="check">
+      ✓
+    </div>
 
-<p>
-Tasty Bites Restaurant → Hawa B.
-</p>
+    <h2>
+      Delivery Completed!
+    </h2>
 
-
-<div class="progress">
-
-<div class="step active" id="step1">
-
-<div class="circle">
-1
-</div>
-
-<span>Accepted</span>
-
-</div>
+    <p>
+      You've successfully delivered the order.
+    </p>
 
 
-<div class="step" id="step2">
+    <div class="breakdown">
 
-<div class="circle">
-2
-</div>
+      <div>
+        <span>
+          Delivery Fee
+        </span>
 
-<span>Pickup</span>
-
-</div>
-
-
-<div class="step" id="step3">
-
-<div class="circle">
-3
-</div>
-
-<span>Deliver</span>
-
-</div>
-
-</div>
+        <span id="successFee">
+          ₦0
+        </span>
+      </div>
 
 
-<div id="orderInfo">
+      <div class="sum">
 
-<div class="location">
+        <span>
+          Total Earnings
+        </span>
 
-<div class="location-icon">
-🏪
-</div>
+        <span id="successTotal">
+          ₦0
+        </span>
 
-<div>
-<h4>PICKUP</h4>
-<p>12, Adeola Street, Ikeja</p>
-</div>
+      </div>
+
+    </div>
+
+
+    <button
+      class="primary"
+      onclick="finishDelivery()"
+    >
+      BACK TO HOME
+    </button>
+
+  </div>
 
 </div>
 
 
-<div class="location">
 
-<div class="location-icon red">
-📍
-</div>
+<div
+  id="toast"
+  class="toast"
+></div>
 
-<div>
-<h4>DROP-OFF</h4>
-<p>18, Unity Road, Lekki</p>
-</div>
-
-</div>
-
-</div>
-
-
-<button
-class="button primary"
-id="orderAction"
-onclick="nextDeliveryStep()">
-
-Accept Order
-
-</button>
-
-
-<button
-class="button secondary"
-onclick="closeOrder()">
-
-Close
-
-</button>
-
-</div>
-
-</div>
-
-
-<!-- DELIVERY PIN MODAL -->
-
-<div class="modal" id="pinModal">
-
-<div class="modal-content">
-
-<div class="modal-handle"></div>
-
-<h2>Complete Delivery</h2>
-
-<p>
-Ask the customer for their 4-digit delivery PIN.
-</p>
-
-<input
-class="pin-input"
-id="pinInput"
-maxlength="4"
-inputmode="numeric"
-placeholder="••••">
-
-
-<button
-class="button primary"
-onclick="completeDelivery()">
-
-Confirm Delivery
-
-</button>
-
-
-<button
-class="button secondary"
-onclick="closePin()">
-
-Cancel
-
-</button>
-
-</div>
-
-</div>
-
-
-<!-- SUCCESS MODAL -->
-
-<div class="modal" id="successModal">
-
-<div class="modal-content"
-style="text-align:center">
-
-<div style="
-font-size:65px;
-margin:10px">
-✅
-</div>
-
-<h2>Delivery Completed!</h2>
-
-<p>
-Great job! The order has been successfully delivered.
-</p>
-
-
-<div style="
-background:#E9F8F0;
-padding:20px;
-border-radius:15px;
-margin-top:20px">
-
-<div style="
-font-size:13px;
-color:#777">
-
-You earned
-
-</div>
-
-<div style="
-font-size:30px;
-font-weight:800;
-color:#00A859;
-margin-top:5px">
-
-₦3,750
-
-</div>
-
-</div>
-
-
-<button
-class="button primary"
-onclick="finishDelivery()">
-
-Back to Home
-
-</button>
-
-</div>
-
-</div>
-
-
-<div class="toast" id="toast">
-Done
-</div>
 
 
 <script>
 
-/* -------------------------
-   STATE
-------------------------- */
 
-let deliveryStep = 0;
+/* =====================================================
+   SUPABASE
+===================================================== */
+
+const SUPABASE_URL =
+  "https://glkutdkwbrjpiuqcmgwe.supabase.co";
+
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_lQkN8HQP2Tm3tPiDYJbrNw_ydO7bqXU";
+
+
+const supabase =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+
+/* =====================================================
+   VARIABLES
+===================================================== */
+
+let currentUser = null;
+
+let currentRider = null;
+
+let currentOrder = null;
 
 let online = true;
 
-let earnings = 18750;
+let realtimeChannel = null;
+
+let toastTimer = null;
 
 
-/* -------------------------
-   SCREEN SWITCHING
-------------------------- */
+/* =====================================================
+   START
+===================================================== */
 
-function switchScreen(screen,button){
-
-document.querySelectorAll('.screen')
-.forEach(s => s.classList.remove('active'));
-
-document.getElementById(screen)
-.classList.add('active');
-
-document.querySelectorAll('.nav button')
-.forEach(b => b.classList.remove('active'));
-
-button.classList.add('active');
-
-window.scrollTo(0,0);
-
-}
+window.addEventListener(
+  "load",
+  startRiderApp
+);
 
 
-/* -------------------------
-   ONLINE / OFFLINE
-------------------------- */
+async function startRiderApp(){
 
-function toggleOnline(){
+  try{
 
-online = !online;
-
-const button =
-document.getElementById('onlineButton');
-
-const label =
-document.getElementById('onlineLabel');
-
-const text =
-document.getElementById('onlineText');
+    const {
+      data
+    } =
+      await supabase.auth.getSession();
 
 
-if(online){
+    if(data.session){
 
-button.classList.remove('offline');
+      currentUser =
+        data.session.user;
 
-label.innerText = 'ONLINE';
+      await loadRider();
 
-text.innerText = "You're online";
+    }
 
-showToast("You're now online");
 
-}else{
+    listenForReadyOrders();
 
-button.classList.add('offline');
 
-label.innerText = 'OFFLINE';
+  }catch(error){
 
-text.innerText = "You're offline";
+    console.error(error);
 
-showToast("You're now offline");
-
-}
+  }
 
 }
 
 
-/* -------------------------
-   OPEN ORDER
-------------------------- */
+/* =====================================================
+   LOGIN
+===================================================== */
 
-function openOrder(){
+async function login(){
 
-deliveryStep = 0;
-
-updateDeliveryUI();
-
-document
-.getElementById('orderModal')
-.classList.add('show');
-
-}
+  const email =
+    document
+      .getElementById("email")
+      .value
+      .trim();
 
 
-/* -------------------------
-   CLOSE ORDER
-------------------------- */
-
-function closeOrder(){
-
-document
-.getElementById('orderModal')
-.classList.remove('show');
-
-}
+  const password =
+    document
+      .getElementById("password")
+      .value;
 
 
-/* -------------------------
-   DELIVERY FLOW
-------------------------- */
+  if(!email || !password){
 
-function nextDeliveryStep(){
+    toast(
+      "Enter your email and password."
+    );
 
-const button =
-document.getElementById('orderAction');
+    return;
 
-
-/* STEP 0 */
-
-if(deliveryStep === 0){
-
-deliveryStep = 1;
-
-button.innerText =
-"I've Arrived at Restaurant";
-
-showToast("Order accepted!");
-
-}
+  }
 
 
-/* STEP 1 */
-
-else if(deliveryStep === 1){
-
-deliveryStep = 2;
-
-button.innerText =
-"Confirm Pickup";
-
-showToast("You're at the restaurant");
-
-}
+  const button =
+    document.getElementById(
+      "loginBtn"
+    );
 
 
-/* STEP 2 */
-
-else if(deliveryStep === 2){
-
-deliveryStep = 3;
-
-button.innerText =
-"Navigate to Customer";
-
-showToast("Order picked up!");
-
-}
+  button.disabled =
+    true;
 
 
-/* STEP 3 */
-
-else if(deliveryStep === 3){
-
-deliveryStep = 4;
-
-button.innerText =
-"Customer Received Order";
-
-showToast("You're at the customer");
-
-}
+  button.textContent =
+    "LOGGING IN...";
 
 
-/* STEP 4 */
+  try{
 
-else if(deliveryStep === 4){
+    const {
+      data,
+      error
+    } =
+      await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
 
-document
-.getElementById('orderModal')
-.classList.remove('show');
 
-document
-.getElementById('pinModal')
-.classList.add('show');
+    if(error){
 
-}
+      throw error;
 
-updateDeliveryUI();
+    }
+
+
+    currentUser =
+      data.user;
+
+
+    await loadRider();
+
+
+    showHome();
+
+
+    toast(
+      "Rider login successful."
+    );
+
+
+  }catch(error){
+
+    console.error(error);
+
+
+    toast(
+      error.message ||
+      "Login failed."
+    );
+
+  }finally{
+
+    button.disabled =
+      false;
+
+
+    button.textContent =
+      "LOG IN";
+
+  }
 
 }
 
 
-/* -------------------------
-   UPDATE PROGRESS
-------------------------- */
+/* =====================================================
+   LOAD RIDER
+===================================================== */
+
+async function loadRider(){
+
+  if(!currentUser){
+
+    return;
+
+  }
+
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabase
+        .from("riders")
+        .select("*")
+        .eq(
+          "owner_id",
+          currentUser.id
+        )
+        .maybeSingle();
+
+
+    if(error){
+
+      throw error;
+
+    }
+
+
+    if(data){
+
+      currentRider =
+        data;
+
+
+      const riderName =
+        data.name ||
+        data.full_name ||
+        data.rider_name ||
+        "Rider";
+
+
+      document
+        .getElementById(
+          "profileName"
+        )
+        .textContent =
+        riderName;
+
+
+      document
+        .getElementById(
+          "greeting"
+        )
+        .textContent =
+        "Hello, " +
+        riderName +
+        "! 👋";
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "Rider profile error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   SHOW HOME
+===================================================== */
+
+function showHome(){
+
+  document
+    .querySelectorAll(".screen")
+    .forEach(
+      screen =>
+        screen.classList.remove(
+          "active"
+        )
+    );
+
+
+  document
+    .getElementById("home")
+    .classList.add(
+      "active"
+    );
+
+
+  document
+    .getElementById("login")
+    .classList.remove(
+      "active"
+    );
+
+
+  document
+    .getElementById("nav")
+    .style.display =
+    "flex";
+
+
+  switchTab(
+    "home",
+    document.querySelector(
+      ".nav button"
+    )
+  );
+
+}
+
+
+/* =====================================================
+   DEMO LOGIN
+===================================================== */
+
+function demoLogin(){
+
+  toast(
+    "Demo mode is only for testing. Log in to receive real deliveries."
+  );
+
+}
+
+
+/* =====================================================
+   LISTEN FOR READY ORDERS
+===================================================== */
+
+async function listenForReadyOrders(){
+
+  /*
+   * First check orders that are already ready.
+   */
+
+  await loadReadyOrders();
+
+
+  /*
+   * Then listen for changes in real time.
+   */
+
+  if(realtimeChannel){
+
+    await supabase.removeChannel(
+      realtimeChannel
+    );
+
+  }
+
+
+  realtimeChannel =
+    supabase
+      .channel(
+        "quickeats-rider-orders"
+      )
+
+
+      /*
+       * Vendor changes an existing
+       * order to ready_for_pickup.
+       */
+
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "orders"
+        },
+        function(payload){
+
+          handleOrderChange(
+            payload.new
+          );
+
+        }
+      )
+
+
+      /*
+       * Also catch newly created
+       * ready orders.
+       */
+
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "orders"
+        },
+        function(payload){
+
+          handleOrderChange(
+            payload.new
+          );
+
+        }
+      )
+
+
+      .subscribe(
+        function(status){
+
+          console.log(
+            "Rider realtime:",
+            status
+          );
+
+        }
+      );
+
+}
+
+
+/* =====================================================
+   LOAD READY ORDERS
+===================================================== */
+
+async function loadReadyOrders(){
+
+  if(!currentUser){
+
+    return;
+
+  }
+
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabase
+        .from("orders")
+        .select("*")
+        .eq(
+          "status",
+          "ready_for_pickup"
+        )
+        .is(
+          "rider_id",
+          null
+        )
+        .order(
+          "created_at",
+          {
+            ascending:false
+          }
+        );
+
+
+    if(error){
+
+      throw error;
+
+    }
+
+
+    if(data && data.length > 0){
+
+      showOrder(
+        data[0]
+      );
+
+    }else{
+
+      showEmpty();
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "Could not load orders:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   HANDLE REALTIME ORDER
+===================================================== */
+
+function handleOrderChange(order){
+
+  if(!order){
+
+    return;
+
+  }
+
+
+  /*
+   * Only show orders that are
+   * ready for pickup.
+   */
+
+  if(
+    order.status ===
+    "ready_for_pickup" &&
+    !order.rider_id
+  ){
+
+    showOrder(
+      order
+    );
+
+    toast(
+      "🚨 New delivery available!"
+    );
+
+  }
+
+
+  /*
+   * If the order was taken by
+   * another rider, remove it.
+   */
+
+  if(
+    order.rider_id &&
+    currentOrder &&
+    order.id === currentOrder.id
+  ){
+
+    showEmpty();
+
+    currentOrder =
+      null;
+
+    toast(
+      "This delivery was already accepted."
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   SHOW ORDER
+===================================================== */
+
+function showOrder(order){
+
+  currentOrder =
+    order;
+
+
+  document
+    .getElementById(
+      "emptyOrders"
+    )
+    .style.display =
+    "none";
+
+
+  document
+    .getElementById(
+      "orderArea"
+    )
+    .style.display =
+    "block";
+
+
+  document
+    .getElementById(
+      "deliveryDetails"
+    )
+    .style.display =
+    "none";
+
+
+  document
+    .getElementById(
+      "acceptDeliveryButton"
+    )
+    .disabled =
+    false;
+
+
+  document
+    .getElementById(
+      "orderNumber"
+    )
+    .textContent =
+    "#" +
+    (
+      order.order_number ||
+      "ORDER"
+    );
+
+
+  document
+    .getElementById(
+      "restaurantName"
+    )
+    .textContent =
+    "QuickEats Vendor";
+
+
+  document
+    .getElementById(
+      "pickupAddress"
+    )
+    .textContent =
+    order.pickup_address ||
+    "Pickup address";
+
+
+  document
+    .getElementById(
+      "orderTotal"
+    )
+    .textContent =
+    money(
+      order.total_amount
+    );
+
+
+  renderItems(
+    order.items
+  );
+
+}
+
+
+/* =====================================================
+   RENDER ITEMS
+===================================================== */
+
+function renderItems(items){
+
+  const container =
+    document.getElementById(
+      "foodList"
+    );
+
+
+  container.innerHTML =
+    "";
+
+
+  let list =
+    items;
+
+
+  if(typeof items === "string"){
+
+    try{
+
+      list =
+        JSON.parse(items);
+
+    }catch(e){
+
+      list = [];
+
+    }
+
+  }
+
+
+  if(!Array.isArray(list)){
+
+    list = [];
+
+  }
+
+
+  list.forEach(
+    function(item){
+
+      const row =
+        document.createElement(
+          "div"
+        );
+
+
+      row.className =
+        "food-item";
+
+
+      const name =
+        item.name ||
+        item.item_name ||
+        "Food";
+
+
+      const quantity =
+        item.quantity ||
+        item.qty ||
+        1;
+
+
+      const price =
+        item.price ||
+        0;
+
+
+      row.innerHTML =
+        `
+        <span>
+          ${quantity}× ${escapeHtml(name)}
+        </span>
+
+        <strong>
+          ${money(price)}
+        </strong>
+        `;
+
+
+      container.appendChild(
+        row
+      );
+
+    }
+  );
+
+}
+
+
+/* =====================================================
+   ACCEPT DELIVERY
+===================================================== */
+
+async function acceptDelivery(){
+
+  if(!currentUser){
+
+    toast(
+      "Please log in as a rider first."
+    );
+
+    return;
+
+  }
+
+
+  if(!currentRider){
+
+    await loadRider();
+
+  }
+
+
+  if(!currentRider){
+
+    toast(
+      "Rider profile was not found."
+    );
+
+    return;
+
+  }
+
+
+  if(!currentOrder){
+
+    toast(
+      "No delivery is available."
+    );
+
+    return;
+
+  }
+
+
+  const button =
+    document.getElementById(
+      "acceptDeliveryButton"
+    );
+
+
+  button.disabled =
+    true;
+
+
+  button.textContent =
+    "ACCEPTING...";
+
+
+  try{
+
+    /*
+     * This is the safe database
+     * function that prevents two
+     * riders taking the same order.
+     */
+
+    const {
+      data,
+      error
+    } =
+      await supabase.rpc(
+        "accept_delivery",
+        {
+          p_order_id:
+            currentOrder.id,
+
+          p_rider_id:
+            currentRider.id
+        }
+      );
+
+
+    if(error){
+
+      throw error;
+
+    }
+
+
+    currentOrder =
+      data;
+
+
+    showAcceptedDelivery();
+
+
+    toast(
+      "Delivery accepted!"
+    );
+
+
+  }catch(error){
+
+    console.error(
+      "Accept delivery error:",
+      error
+    );
+
+
+    button.disabled =
+      false;
+
+
+    button.textContent =
+      "ACCEPT DELIVERY";
+
+
+    toast(
+      error.message ||
+      "This delivery is no longer available."
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   SHOW ACCEPTED DELIVERY
+===================================================== */
+
+function showAcceptedDelivery(){
+
+  document
+    .getElementById(
+      "deliveryDetails"
+    )
+    .style.display =
+    "block";
+
+
+  document
+    .getElementById(
+      "acceptDeliveryButton"
+    )
+    .style.display =
+    "none";
+
+
+  document
+    .getElementById(
+      "detailOrderNumber"
+    )
+    .textContent =
+    "#" +
+    (
+      currentOrder.order_number ||
+      "ORDER"
+    );
+
+
+  document
+    .getElementById(
+      "customerName"
+    )
+    .textContent =
+    currentOrder.customer_name ||
+    "Customer";
+
+
+  document
+    .getElementById(
+      "detailPickup"
+    )
+    .textContent =
+    currentOrder.pickup_address ||
+    "-";
+
+
+  document
+    .getElementById(
+      "deliveryAddress"
+    )
+    .textContent =
+    currentOrder.delivery_address ||
+    "-";
+
+
+  document
+    .getElementById(
+      "deliveryFee"
+    )
+    .textContent =
+    money(
+      currentOrder.delivery_fee
+    );
+
+}
+
+
+/* =====================================================
+   DELIVERY STATUS
+===================================================== */
+
+async function advanceDelivery(){
+
+  if(!currentOrder){
+
+    return;
+
+  }
+
+
+  let nextStatus =
+    null;
+
+
+  if(
+    currentOrder.status ===
+    "rider_accepted"
+  ){
+
+    nextStatus =
+      "arrived_pickup";
+
+  }
+
+  else if(
+    currentOrder.status ===
+    "arrived_pickup"
+  ){
+
+    nextStatus =
+      "picked_up";
+
+  }
+
+  else if(
+    currentOrder.status ===
+    "picked_up"
+  ){
+
+    nextStatus =
+      "on_the_way";
+
+  }
+
+  else if(
+    currentOrder.status ===
+    "on_the_way"
+  ){
+
+    nextStatus =
+      "delivered";
+
+  }
+
+
+  if(!nextStatus){
+
+    return;
+
+  }
+
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabase.rpc(
+        "update_delivery_status",
+        {
+          p_order_id:
+            currentOrder.id,
+
+          p_status:
+            nextStatus
+        }
+      );
+
+
+    if(error){
+
+      throw error;
+
+    }
+
+
+    currentOrder =
+      data;
+
+
+    updateDeliveryUI();
+
+
+  }catch(error){
+
+    console.error(error);
+
+
+    toast(
+      error.message ||
+      "Could not update delivery."
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   UPDATE DELIVERY UI
+===================================================== */
 
 function updateDeliveryUI(){
 
-const steps = [
-document.getElementById('step1'),
-document.getElementById('step2'),
-document.getElementById('step3')
-];
+  const status =
+    currentOrder.status;
 
-steps.forEach((step,index)=>{
 
-step.classList.remove('active');
-step.classList.remove('done');
+  const badge =
+    document.getElementById(
+      "deliveryBadge"
+    );
 
-if(index < deliveryStep){
 
-step.classList.add('done');
+  const button =
+    document.getElementById(
+      "mainAction"
+    );
+
+
+  const pickupStep =
+    document.getElementById(
+      "stepPickup"
+    );
+
+
+  const deliveryStep =
+    document.getElementById(
+      "stepDelivery"
+    );
+
+
+  const pickupCircle =
+    document.getElementById(
+      "pickupCircle"
+    );
+
+
+  const deliveryCircle =
+    document.getElementById(
+      "deliveryCircle"
+    );
+
+
+  if(status === "rider_accepted"){
+
+    badge.textContent =
+      "PICKUP";
+
+
+    button.textContent =
+      "ARRIVED AT RESTAURANT";
+
+
+    pickupStep.classList.add(
+      "active"
+    );
+
+  }
+
+
+  if(status === "arrived_pickup"){
+
+    badge.textContent =
+      "AT RESTAURANT";
+
+
+    button.textContent =
+      "MARK FOOD PICKED UP";
+
+
+    pickupStep.classList.add(
+      "done"
+    );
+
+
+    pickupStep.classList.remove(
+      "active"
+    );
+
+
+    pickupCircle.textContent =
+      "✓";
+
+
+    deliveryStep.classList.add(
+      "active"
+    );
+
+  }
+
+
+  if(status === "picked_up"){
+
+    badge.textContent =
+      "PICKED UP";
+
+
+    button.textContent =
+      "START DELIVERY";
+
+
+    deliveryStep.classList.add(
+      "active"
+    );
+
+  }
+
+
+  if(status === "on_the_way"){
+
+    badge.textContent =
+      "ON THE WAY";
+
+
+    button.textContent =
+      "MARK DELIVERED";
+
+  }
+
+
+  if(status === "delivered"){
+
+    button.style.display =
+      "none";
+
+
+    document
+      .getElementById(
+        "success"
+      )
+      .classList.add(
+        "active"
+      );
+
+
+    document
+      .getElementById(
+        "successFee"
+      )
+      .textContent =
+      money(
+        currentOrder.delivery_fee
+      );
+
+
+    document
+      .getElementById(
+        "successTotal"
+      )
+      .textContent =
+      money(
+        currentOrder.delivery_fee
+      );
+
+  }
 
 }
 
-if(index === deliveryStep){
 
-step.classList.add('active');
+/* =====================================================
+   EMPTY ORDERS
+===================================================== */
 
-}
+function showEmpty(){
 
-});
+  document
+    .getElementById(
+      "emptyOrders"
+    )
+    .style.display =
+    "block";
 
-const button =
-document.getElementById('orderAction');
+
+  document
+    .getElementById(
+      "orderArea"
+    )
+    .style.display =
+    "none";
 
 
-if(deliveryStep === 0){
-
-button.innerText =
-"Accept Order";
-
-}
-
-else if(deliveryStep === 1){
-
-button.innerText =
-"I've Arrived at Restaurant";
-
-}
-
-else if(deliveryStep === 2){
-
-button.innerText =
-"Confirm Pickup";
-
-}
-
-else if(deliveryStep === 3){
-
-button.innerText =
-"Navigate to Customer";
-
-}
-
-else if(deliveryStep === 4){
-
-button.innerText =
-"Customer Received Order";
-
-}
+  currentOrder =
+    null;
 
 }
 
 
-/* -------------------------
-   PIN
-------------------------- */
+/* =====================================================
+   ONLINE
+===================================================== */
 
-function closePin(){
+function toggleOnline(){
 
-document
-.getElementById('pinModal')
-.classList.remove('show');
+  online =
+    !online;
+
+
+  const button =
+    document.getElementById(
+      "onlineBtn"
+    );
+
+
+  button.classList.toggle(
+    "offline",
+    !online
+  );
+
+
+  document
+    .getElementById(
+      "onlineLabel"
+    )
+    .textContent =
+    online
+      ? "ONLINE"
+      : "OFFLINE";
+
+
+  document
+    .getElementById(
+      "onlineText"
+    )
+    .textContent =
+    online
+      ? "You're online"
+      : "You're offline";
+
+
+  toast(
+    online
+      ? "You are now online"
+      : "You are now offline"
+  );
 
 }
 
 
-function completeDelivery(){
+/* =====================================================
+   TABS
+===================================================== */
 
-const pin =
-document.getElementById('pinInput').value;
+function switchTab(
+  tab,
+  button
+){
 
-if(pin.length !== 4){
+  document
+    .querySelectorAll(
+      ".screen"
+    )
+    .forEach(
+      screen =>
+        screen.classList.remove(
+          "active"
+        )
+    );
 
-showToast("Enter the customer's 4-digit PIN");
 
-return;
+  document
+    .getElementById(
+      tab
+    )
+    .classList.add(
+      "active"
+    );
+
+
+  document
+    .querySelectorAll(
+      ".nav button"
+    )
+    .forEach(
+      b =>
+        b.classList.remove(
+          "active"
+        )
+    );
+
+
+  button.classList.add(
+    "active"
+  );
+
+
+  window.scrollTo(
+    0,
+    0
+  );
 
 }
 
-document
-.getElementById('pinModal')
-.classList.remove('show');
 
-document
-.getElementById('successModal')
-.classList.add('show');
-
-earnings += 3750;
-
-document
-.getElementById('earningTotal')
-.innerText =
-"₦" + earnings.toLocaleString();
-
-}
-
-
-/* -------------------------
+/* =====================================================
    FINISH DELIVERY
-------------------------- */
+===================================================== */
 
 function finishDelivery(){
 
-document
-.getElementById('successModal')
-.classList.remove('show');
+  document
+    .getElementById(
+      "success"
+    )
+    .classList.remove(
+      "active"
+    );
 
-document
-.getElementById('pinInput').value = "";
 
-deliveryStep = 0;
+  document
+    .getElementById(
+      "deliveryDetails"
+    )
+    .style.display =
+    "none";
 
-showToast("Delivery completed successfully!");
+
+  document
+    .getElementById(
+      "acceptDeliveryButton"
+    )
+    .style.display =
+    "block";
+
+
+  document
+    .getElementById(
+      "acceptDeliveryButton"
+    )
+    .textContent =
+    "ACCEPT DELIVERY";
+
+
+  document
+    .getElementById(
+      "mainAction"
+    )
+    .style.display =
+    "block";
+
+
+  showEmpty();
+
+
+  toast(
+    "Delivery completed."
+  );
 
 }
 
 
-/* -------------------------
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+async function logout(){
+
+  try{
+
+    await supabase.auth.signOut();
+
+  }catch(error){
+
+    console.error(error);
+
+  }
+
+
+  currentUser =
+    null;
+
+
+  currentRider =
+    null;
+
+
+  currentOrder =
+    null;
+
+
+  document
+    .getElementById(
+      "nav"
+    )
+    .style.display =
+    "none";
+
+
+  document
+    .querySelectorAll(
+      ".screen"
+    )
+    .forEach(
+      screen =>
+        screen.classList.remove(
+          "active"
+        )
+    );
+
+
+  document
+    .getElementById(
+      "login"
+    )
+    .classList.add(
+      "active"
+    );
+
+
+  toast(
+    "Logged out."
+  );
+
+}
+
+
+/* =====================================================
+   MONEY
+===================================================== */
+
+function money(value){
+
+  const number =
+    Number(value || 0);
+
+
+  return "₦" +
+    number.toLocaleString(
+      "en-NG"
+    );
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHtml(value){
+
+  return String(value)
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+/* =====================================================
    TOAST
-------------------------- */
+===================================================== */
 
-function showToast(message){
+function toast(message){
 
-const toast =
-document.getElementById('toast');
+  const element =
+    document.getElementById(
+      "toast"
+    );
 
-toast.innerText = message;
 
-toast.classList.add('show');
+  clearTimeout(
+    toastTimer
+  );
 
-setTimeout(()=>{
 
-toast.classList.remove('show');
+  element.textContent =
+    message;
 
-},2500);
+
+  element.classList.add(
+    "show"
+  );
+
+
+  toastTimer =
+    setTimeout(
+      function(){
+
+        element.classList.remove(
+          "show"
+        );
+
+      },
+      3000
+    );
 
 }
-
-
-/* -------------------------
-   PREVENT MODAL SCROLL
-------------------------- */
-
-document.addEventListener(
-'touchmove',
-function(e){
-
-if(
-document.querySelector('.modal.show')
-&& e.target.closest('.modal-content')
-){
-
-return;
-
-}
-
-},
-{passive:true}
-);
 
 </script>
 
