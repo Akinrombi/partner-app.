@@ -2,4878 +2,3300 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-
-<meta name="theme-color" content="#00A859">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#07110d">
 <title>QuickEats Rider</title>
 
-<style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<style>
 *{
-  box-sizing:border-box;
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+    width:100%;
+    min-height:100%;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f4f7f5;
+    color:#17201b;
 }
 
 body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f5f7f6;
-  color:#171a19;
+    overflow-x:hidden;
 }
 
-button,
-input{
-  font:inherit;
+button,input{
+    font-family:inherit;
 }
 
 button{
-  cursor:pointer;
+    border:0;
+    cursor:pointer;
 }
 
-/* =====================================================
+.hidden{
+    display:none!important;
+}
+
+/* =========================
    LOGIN
-===================================================== */
+========================= */
 
-#login{
-  min-height:100vh;
-  background:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:25px;
+.login-page{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:25px;
+    background:
+        radial-gradient(circle at 20% 20%,rgba(0,255,140,.12),transparent 35%),
+        radial-gradient(circle at 80% 80%,rgba(0,255,140,.08),transparent 35%),
+        #06100b;
 }
 
-.login-box{
-  width:100%;
-  max-width:390px;
-  text-align:center;
+.login-card{
+    width:100%;
+    max-width:410px;
+    background:#fff;
+    border-radius:24px;
+    padding:32px 24px;
+    box-shadow:0 25px 80px rgba(0,0,0,.4);
 }
 
 .logo{
-  width:120px;
-  height:120px;
-  border-radius:50%;
-  background:#00a859;
-  margin:0 auto 25px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:65px;
-  box-shadow:0 10px 30px #00a85940;
+    text-align:center;
+    font-size:30px;
+    font-weight:900;
+    color:#10a957;
+    margin-bottom:8px;
 }
 
-h1{
-  font-size:38px;
-  margin:0 0 5px;
+.login-subtitle{
+    text-align:center;
+    color:#68736d;
+    margin-bottom:28px;
 }
 
-.subtitle{
-  color:#68716d;
-  font-size:18px;
-  margin-bottom:45px;
+.login-card input{
+    width:100%;
+    height:52px;
+    border:1px solid #dce4df;
+    border-radius:13px;
+    padding:0 15px;
+    margin-bottom:13px;
+    font-size:15px;
+    outline:none;
 }
 
-label{
-  display:block;
-  text-align:left;
-  font-weight:bold;
-  margin-bottom:8px;
+.login-card input:focus{
+    border-color:#12b95e;
+    box-shadow:0 0 0 3px rgba(18,185,94,.1);
 }
 
-.input-group{
-  margin-bottom:18px;
+.primary-btn{
+    width:100%;
+    height:52px;
+    background:#10a957;
+    color:white;
+    border-radius:13px;
+    font-size:16px;
+    font-weight:800;
 }
 
-input{
-  width:100%;
-  height:58px;
-  border:1px solid #dce2df;
-  border-radius:14px;
-  padding:0 17px;
-  font-size:17px;
-  outline:none;
-  background:#fafbfb;
+.primary-btn:active{
+    transform:scale(.98);
 }
 
-input:focus{
-  border-color:#00a859;
+.demo-btn{
+    width:100%;
+    margin-top:12px;
+    height:48px;
+    border-radius:13px;
+    background:#edf5f0;
+    color:#08753a;
+    font-weight:800;
 }
 
-.main-button{
-  width:100%;
-  height:58px;
-  border:0;
-  border-radius:14px;
-  background:#00a859;
-  color:white;
-  font-weight:bold;
-  font-size:17px;
-  margin-top:5px;
+.login-error{
+    margin-top:15px;
+    color:#c62828;
+    text-align:center;
+    font-size:14px;
 }
 
-.demo-button{
-  width:100%;
-  height:58px;
-  border:2px solid #dce2df;
-  border-radius:14px;
-  background:white;
-  color:#171a19;
-  font-weight:bold;
-  font-size:16px;
-  margin-top:14px;
-}
-
-.message{
-  margin-top:18px;
-  padding:13px;
-  border-radius:10px;
-  background:#f1f5f3;
-  color:#555;
-  font-size:14px;
-  display:none;
-}
-
-
-/* =====================================================
+/* =========================
    APP
-===================================================== */
+========================= */
 
-#app{
-  display:none;
-  min-height:100vh;
-  padding-bottom:80px;
+.app{
+    min-height:100vh;
+    padding-bottom:82px;
 }
 
 .header{
-  height:72px;
-  background:white;
-  border-bottom:1px solid #e0e5e2;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:0 18px;
+    height:68px;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 18px;
+    border-bottom:1px solid #e9eeeb;
+    position:sticky;
+    top:0;
+    z-index:50;
 }
 
 .header-title{
-  font-weight:bold;
-  font-size:19px;
+    font-size:20px;
+    font-weight:900;
 }
 
 .header-sub{
-  font-size:12px;
-  color:#68716d;
-  margin-top:4px;
+    font-size:11px;
+    color:#8a948e;
+    margin-top:2px;
 }
 
-.online{
-  border:0;
-  background:#e8f8f0;
-  color:#00a859;
-  padding:10px 14px;
-  border-radius:20px;
-  font-weight:bold;
+.online-btn{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    border-radius:30px;
+    padding:9px 13px;
+    background:#e9f9ef;
+    color:#0b8c48;
+    font-size:12px;
+    font-weight:900;
 }
 
-.dashboard{
-  padding:18px;
+.online-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#15c765;
+    box-shadow:0 0 8px rgba(21,199,101,.7);
 }
 
-.welcome{
-  background:#00a859;
-  color:white;
-  border-radius:18px;
-  padding:20px;
-  margin-bottom:16px;
-  box-shadow:0 8px 20px #00a85925;
+.online-btn.offline{
+    background:#f1f2f2;
+    color:#7a817d;
 }
 
-.welcome-title{
-  font-size:21px;
-  font-weight:bold;
+.online-btn.offline .online-dot{
+    background:#999;
+    box-shadow:none;
 }
-
-.welcome-text{
-  margin-top:6px;
-  font-size:13px;
-  opacity:.9;
-}
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
-  margin-bottom:18px;
-}
-
-.stat{
-  background:white;
-  border:1px solid #e0e5e2;
-  border-radius:16px;
-  padding:16px;
-}
-
-.stat-icon{
-  font-size:25px;
-  margin-bottom:10px;
-}
-
-.stat-label{
-  color:#68716d;
-  font-size:12px;
-}
-
-.stat-value{
-  font-size:22px;
-  font-weight:bold;
-  margin-top:5px;
-}
-
-
-/* =====================================================
-   SCANNER
-===================================================== */
-
-.scanner{
-  position:relative;
-  height:62px;
-  margin:0 0 18px;
-  border-radius:16px;
-  overflow:hidden;
-  background:
-    linear-gradient(
-      90deg,
-      #071b13,
-      #0b3021,
-      #071b13
-    );
-  border:1px solid #00a859;
-  box-shadow:
-    0 0 0 1px #00a85920,
-    0 5px 18px #00a85920;
-}
-
-.scanner-grid{
-  position:absolute;
-  inset:0;
-
-  background-image:
-    linear-gradient(
-      rgba(0,168,89,.12) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(0,168,89,.12) 1px,
-      transparent 1px
-    );
-
-  background-size:
-    20px 20px;
-}
-
-.scanner-content{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:9px;
-  color:#dffff0;
-  font-size:12px;
-  font-weight:bold;
-  letter-spacing:1px;
-  z-index:3;
-}
-
-.scanner-dot{
-  width:9px;
-  height:9px;
-  border-radius:50%;
-  background:#00ff8c;
-  box-shadow:
-    0 0 8px #00ff8c,
-    0 0 18px #00ff8c;
-  animation:
-    scannerDot 1s infinite;
-}
-
-.scanner-line{
-  position:absolute;
-  top:0;
-  bottom:0;
-  width:4px;
-
-  background:
-    linear-gradient(
-      to bottom,
-      transparent,
-      white 20%,
-      #00ff8c 50%,
-      white 80%,
-      transparent
-    );
-
-  box-shadow:
-    0 0 10px #ffffff,
-    0 0 25px #00ff8c,
-    0 0 45px #00ff8c;
-
-  animation:
-    scannerSweep 1.7s linear infinite;
-
-  z-index:2;
-}
-
-@keyframes scannerSweep{
-
-  0%{
-    left:-5%;
-  }
-
-  100%{
-    left:105%;
-  }
-
-}
-
-@keyframes scannerDot{
-
-  0%,
-  100%{
-    opacity:.45;
-    transform:scale(.8);
-  }
-
-  50%{
-    opacity:1;
-    transform:scale(1.25);
-  }
-
-}
-
-
-/* =====================================================
-   MAP
-===================================================== */
-
-.map{
-  height:250px;
-  background:#dfe8e4;
-  position:relative;
-  overflow:hidden;
-}
-
-.map-road{
-  position:absolute;
-  width:150%;
-  height:45px;
-  background:#fff;
-  transform:rotate(-18deg);
-  top:120px;
-  left:-20%;
-}
-
-.map-road2{
-  position:absolute;
-  width:150%;
-  height:35px;
-  background:#fff;
-  transform:rotate(35deg);
-  top:100px;
-  left:-20%;
-}
-
-.map-pin{
-  position:absolute;
-  font-size:35px;
-  z-index:3;
-}
-
-.restaurant-pin{
-  left:25%;
-  top:80px;
-}
-
-.customer-pin{
-  right:20%;
-  bottom:55px;
-}
-
-.rider-pin{
-  left:48%;
-  top:125px;
-  font-size:27px;
-}
-
-
-/* =====================================================
-   CONTENT
-===================================================== */
-
-.content{
-  background:white;
-  margin-top:-20px;
-  position:relative;
-  border-radius:22px 22px 0 0;
-  padding:22px 17px;
-}
-
-.handle{
-  width:45px;
-  height:4px;
-  background:#d9dfdc;
-  border-radius:5px;
-  margin:0 auto 20px;
-}
-
-.content h2{
-  margin:0;
-  font-size:21px;
-}
-
-.description{
-  color:#68716d;
-  font-size:13px;
-  margin:7px 0 18px;
-}
-
-.empty{
-  text-align:center;
-  padding:40px 20px;
-  color:#68716d;
-}
-
-.empty-icon{
-  font-size:55px;
-  margin-bottom:12px;
-}
-
-.empty h3{
-  color:#171a19;
-  margin:0 0 8px;
-}
-
-
-/* =====================================================
-   ORDER CARD
-===================================================== */
-
-.order-card{
-  border:1px solid #e0e5e2;
-  border-radius:16px;
-  padding:16px;
-  background:#fafbfb;
-}
-
-.order-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  margin-bottom:15px;
-}
-
-.order-number{
-  font-weight:bold;
-  font-size:17px;
-}
-
-.badge{
-  background:#fff2d5;
-  color:#b56c00;
-  padding:7px 10px;
-  border-radius:20px;
-  font-size:10px;
-  font-weight:bold;
-}
-
-.restaurant-name{
-  font-size:17px;
-  font-weight:bold;
-}
-
-.address{
-  color:#68716d;
-  font-size:13px;
-  line-height:1.5;
-  margin-top:6px;
-}
-
-.items{
-  border-top:1px solid #e0e5e2;
-  margin-top:14px;
-  padding-top:12px;
-}
-
-.item{
-  display:flex;
-  justify-content:space-between;
-  gap:15px;
-  padding:6px 0;
-  font-size:14px;
-}
-
-.total{
-  border-top:1px dashed #d8dedb;
-  margin-top:10px;
-  padding-top:12px;
-  display:flex;
-  justify-content:space-between;
-  font-weight:bold;
-}
-
-.total span:last-child{
-  color:#00a859;
-}
-
-.action{
-  width:100%;
-  height:55px;
-  border:0;
-  border-radius:12px;
-  margin-top:15px;
-  background:#00a859;
-  color:white;
-  font-weight:bold;
-}
-
-.action:disabled{
-  opacity:.6;
-  cursor:not-allowed;
-}
-
-
-/* =====================================================
-   NEW ORDER ANIMATION
-===================================================== */
-
-.order-card.new-order-detected{
-
-  animation:
-    orderDetected .8s ease,
-    orderGlow 1.4s ease-in-out 3;
-
-}
-
-@keyframes orderDetected{
-
-  0%{
-    opacity:0;
-    transform:
-      translateY(35px)
-      scale(.94);
-  }
-
-  60%{
-    opacity:1;
-    transform:
-      translateY(-5px)
-      scale(1.02);
-  }
-
-  100%{
-    opacity:1;
-    transform:
-      translateY(0)
-      scale(1);
-  }
-
-}
-
-@keyframes orderGlow{
-
-  0%,
-  100%{
-    box-shadow:
-      0 0 0 0 #00a85900;
-  }
-
-  50%{
-    box-shadow:
-      0 0 0 7px #00a85920,
-      0 0 28px #00a85970;
-  }
-
-}
-
-
-/* =====================================================
-   DELIVERY DETAILS
-===================================================== */
-
-.delivery-details{
-  display:none;
-  margin-top:15px;
-  background:#f7f9f8;
-  border-radius:15px;
-  padding:15px;
-}
-
-.detail-row{
-  display:flex;
-  justify-content:space-between;
-  gap:15px;
-  padding:9px 0;
-  font-size:13px;
-  border-bottom:1px solid #e4e9e6;
-}
-
-.detail-row:last-child{
-  border-bottom:0;
-}
-
-.detail-row span:first-child{
-  color:#68716d;
-}
-
-.detail-row span:last-child{
-  text-align:right;
-  font-weight:bold;
-  max-width:65%;
-  word-break:break-word;
-}
-
-.phone-button{
-  display:block;
-  width:100%;
-  text-align:center;
-  text-decoration:none;
-  background:white;
-  border:1px solid #dce2df;
-  color:#00a859;
-  border-radius:12px;
-  padding:13px;
-  margin-top:10px;
-  font-weight:bold;
-}
-
-.status-box{
-  margin-top:15px;
-  background:#e8f8f0;
-  color:#007a42;
-  padding:13px;
-  border-radius:12px;
-  text-align:center;
-  font-size:13px;
-  font-weight:bold;
-}
-
-
-/* =====================================================
-   NAV
-===================================================== */
-
-.nav{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  height:75px;
-  background:white;
-  border-top:1px solid #e0e5e2;
-  display:flex;
-  z-index:20;
-}
-
-.nav button{
-  flex:1;
-  border:0;
-  background:white;
-  color:#68716d;
-  font-size:11px;
-}
-
-.nav button.active{
-  color:#00a859;
-  font-weight:bold;
-}
-
-.nav-icon{
-  display:block;
-  font-size:22px;
-  margin-bottom:3px;
-}
-
-
-/* =====================================================
-   PAGES
-===================================================== */
 
 .page{
-  display:none;
+    display:none;
+    padding:16px;
 }
 
 .page.active{
-  display:block;
+    display:block;
 }
 
+/* =========================
+   WELCOME
+========================= */
 
-/* =====================================================
+.welcome{
+    background:linear-gradient(135deg,#0b9d4f,#08773b);
+    color:white;
+    padding:20px;
+    border-radius:19px;
+    margin-bottom:14px;
+    position:relative;
+    overflow:hidden;
+}
+
+.welcome:after{
+    content:"";
+    position:absolute;
+    width:150px;
+    height:150px;
+    right:-50px;
+    top:-60px;
+    border:25px solid rgba(255,255,255,.08);
+    border-radius:50%;
+}
+
+.welcome h2{
+    font-size:21px;
+    margin-bottom:6px;
+}
+
+.welcome p{
+    font-size:13px;
+    opacity:.9;
+}
+
+/* =========================
+   CINEMATIC SCANNER
+========================= */
+
+.scanner-panel{
+    position:relative;
+    width:100%;
+    height:128px;
+    border-radius:18px;
+    overflow:hidden;
+    margin-bottom:15px;
+    background:
+        radial-gradient(circle at 50% 50%,rgba(0,255,132,.09),transparent 35%),
+        linear-gradient(180deg,#030907,#07140e);
+    border:1px solid rgba(0,255,140,.22);
+    box-shadow:
+        inset 0 0 35px rgba(0,255,140,.06),
+        0 8px 25px rgba(0,0,0,.08);
+}
+
+.scanner-panel:before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+        linear-gradient(rgba(0,255,140,.05) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(0,255,140,.05) 1px,transparent 1px);
+    background-size:18px 18px;
+    pointer-events:none;
+}
+
+.scanner-noise{
+    position:absolute;
+    inset:0;
+    opacity:.13;
+    background:
+        radial-gradient(circle,rgba(255,255,255,.35) 0 1px,transparent 1.5px);
+    background-size:23px 19px;
+    animation:noiseMove 2s linear infinite;
+}
+
+@keyframes noiseMove{
+    from{transform:translate(0,0)}
+    to{transform:translate(23px,19px)}
+}
+
+.scanner-top{
+    position:absolute;
+    top:9px;
+    left:12px;
+    right:12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    z-index:8;
+}
+
+.auto-badge{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    color:#caffdf;
+    font-size:9px;
+    letter-spacing:1.2px;
+    font-weight:900;
+    background:rgba(0,255,140,.08);
+    border:1px solid rgba(0,255,140,.2);
+    border-radius:20px;
+    padding:5px 8px;
+}
+
+.live-dot{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#21ff94;
+    box-shadow:0 0 8px #21ff94;
+    animation:livePulse 1.2s infinite;
+}
+
+@keyframes livePulse{
+    0%,100%{opacity:1;transform:scale(1)}
+    50%{opacity:.35;transform:scale(.65)}
+}
+
+.scanner-status{
+    color:#5cffaa;
+    font-size:8px;
+    letter-spacing:1px;
+    font-weight:800;
+}
+
+.scanner-center{
+    position:absolute;
+    left:50%;
+    top:53%;
+    transform:translate(-50%,-50%);
+    width:74px;
+    height:74px;
+    z-index:4;
+}
+
+.scanner-radar{
+    position:absolute;
+    inset:0;
+    border:1px solid rgba(0,255,140,.3);
+    border-radius:50%;
+    box-shadow:
+        0 0 18px rgba(0,255,140,.07),
+        inset 0 0 20px rgba(0,255,140,.04);
+    animation:radarSpin 3s linear infinite;
+}
+
+.scanner-radar:before,
+.scanner-radar:after{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform-origin:left center;
+    height:1px;
+    background:linear-gradient(90deg,#32ff9a,transparent);
+}
+
+.scanner-radar:before{
+    width:50%;
+    transform:rotate(0deg);
+}
+
+.scanner-radar:after{
+    width:35%;
+    transform:rotate(90deg);
+    opacity:.5;
+}
+
+@keyframes radarSpin{
+    from{transform:rotate(0)}
+    to{transform:rotate(360deg)}
+}
+
+.radar-ring-2{
+    position:absolute;
+    inset:12px;
+    border:1px dashed rgba(0,255,140,.22);
+    border-radius:50%;
+    animation:radarSpinReverse 4s linear infinite;
+}
+
+@keyframes radarSpinReverse{
+    from{transform:rotate(360deg)}
+    to{transform:rotate(0)}
+}
+
+.crosshair{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:16px;
+    height:16px;
+    transform:translate(-50%,-50%);
+    border:1px solid #caffdf;
+    box-shadow:0 0 10px rgba(0,255,140,.8);
+}
+
+.crosshair:before,
+.crosshair:after{
+    content:"";
+    position:absolute;
+    background:#43ffa2;
+}
+
+.crosshair:before{
+    width:28px;
+    height:1px;
+    left:-7px;
+    top:7px;
+}
+
+.crosshair:after{
+    width:1px;
+    height:28px;
+    left:7px;
+    top:-7px;
+}
+
+.scan-beam-horizontal{
+    position:absolute;
+    left:-15%;
+    width:130%;
+    height:2px;
+    top:30%;
+    background:linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,.2),
+        #fff,
+        #23ff93,
+        rgba(255,255,255,.2),
+        transparent
+    );
+    box-shadow:
+        0 0 7px #fff,
+        0 0 18px #00ff91,
+        0 0 35px rgba(0,255,140,.55);
+    animation:horizontalSweep 2.8s ease-in-out infinite;
+    z-index:5;
+}
+
+@keyframes horizontalSweep{
+    0%{top:22%;opacity:0}
+    10%{opacity:1}
+    50%{top:80%;opacity:1}
+    90%{opacity:1}
+    100%{top:22%;opacity:0}
+}
+
+.scan-beam-vertical{
+    position:absolute;
+    top:-20%;
+    left:25%;
+    height:140%;
+    width:1px;
+    background:linear-gradient(
+        180deg,
+        transparent,
+        #fff,
+        #24ff96,
+        transparent
+    );
+    box-shadow:0 0 14px #00ff91;
+    animation:verticalSweep 3.6s ease-in-out infinite;
+    opacity:.7;
+}
+
+@keyframes verticalSweep{
+    0%{left:12%;opacity:0}
+    15%{opacity:.8}
+    50%{left:88%;opacity:.8}
+    85%{opacity:.8}
+    100%{left:12%;opacity:0}
+}
+
+.scan-diagonal{
+    position:absolute;
+    width:160%;
+    height:1px;
+    left:-30%;
+    top:50%;
+    background:linear-gradient(90deg,transparent,#8affc5,transparent);
+    transform:rotate(-25deg);
+    animation:diagonalSweep 4.5s linear infinite;
+    opacity:.4;
+}
+
+@keyframes diagonalSweep{
+    0%{transform:translateY(100px) rotate(-25deg)}
+    100%{transform:translateY(-100px) rotate(-25deg)}
+}
+
+.particle{
+    position:absolute;
+    width:2px;
+    height:2px;
+    border-radius:50%;
+    background:#7effbd;
+    box-shadow:0 0 6px #00ff91;
+    animation:particleFloat linear infinite;
+}
+
+.p1{left:10%;top:70%;animation-duration:3s}
+.p2{left:20%;top:30%;animation-duration:4s}
+.p3{left:35%;top:78%;animation-duration:3.4s}
+.p4{left:60%;top:24%;animation-duration:4.3s}
+.p5{left:73%;top:73%;animation-duration:3.7s}
+.p6{left:86%;top:40%;animation-duration:4.8s}
+.p7{left:52%;top:88%;animation-duration:3.2s}
+.p8{left:92%;top:82%;animation-duration:4.2s}
+
+@keyframes particleFloat{
+    0%{opacity:.15;transform:translateY(8px)}
+    50%{opacity:1}
+    100%{opacity:.15;transform:translateY(-12px)}
+}
+
+.scanner-main-text{
+    position:absolute;
+    bottom:10px;
+    left:0;
+    width:100%;
+    text-align:center;
+    color:#d7ffe8;
+    font-size:9px;
+    letter-spacing:2px;
+    font-weight:900;
+    z-index:8;
+}
+
+.scanner-main-text span{
+    color:#54ffa9;
+}
+
+.scanner-paused .scan-beam-horizontal,
+.scanner-paused .scan-beam-vertical,
+.scanner-paused .scan-diagonal,
+.scanner-paused .scanner-radar,
+.scanner-paused .radar-ring-2,
+.scanner-paused .particle{
+    animation-play-state:paused;
+}
+
+.scanner-paused{
+    opacity:.72;
+}
+
+.scanner-paused .scanner-main-text span{
+    color:#aab3ae;
+}
+
+/* Detection flash */
+
+.scanner-flash{
+    position:fixed;
+    inset:0;
+    background:rgba(0,255,140,.13);
+    pointer-events:none;
+    opacity:0;
+    z-index:450;
+}
+
+.scanner-flash.show{
+    animation:scannerFlash .65s ease-out;
+}
+
+@keyframes scannerFlash{
+    0%{opacity:0}
+    15%{opacity:1}
+    30%{opacity:.25}
+    48%{opacity:.8}
+    100%{opacity:0}
+}
+
+/* =========================
+   STATS
+========================= */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:11px;
+    margin-bottom:15px;
+}
+
+.stat{
+    background:white;
+    border-radius:16px;
+    padding:15px;
+    border:1px solid #e8eeea;
+}
+
+.stat-label{
+    color:#7d8782;
+    font-size:11px;
+    margin-bottom:7px;
+}
+
+.stat-value{
+    font-size:22px;
+    font-weight:900;
+}
+
+.stat.green .stat-value{
+    color:#0ca653;
+}
+
+/* =========================
+   MAP
+========================= */
+
+.map{
+    height:190px;
+    border-radius:18px;
+    overflow:hidden;
+    margin-bottom:15px;
+    position:relative;
+    background:
+        linear-gradient(28deg,transparent 47%,#d7ded9 48%,#d7ded9 50%,transparent 51%),
+        linear-gradient(-20deg,transparent 46%,#d7ded9 47%,#d7ded9 49%,transparent 50%),
+        linear-gradient(90deg,transparent 48%,#dce2de 49%,#dce2de 51%,transparent 52%),
+        #eef2ef;
+    background-size:80px 80px,100px 100px,110px 110px;
+}
+
+.map:after{
+    content:"";
+    position:absolute;
+    width:100%;
+    height:100%;
+    background:linear-gradient(135deg,transparent 45%,rgba(15,150,80,.08) 46%,transparent 48%);
+}
+
+.map-label{
+    position:absolute;
+    left:12px;
+    top:12px;
+    background:white;
+    padding:8px 10px;
+    border-radius:10px;
+    font-size:11px;
+    font-weight:800;
+    z-index:2;
+    box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.map-rider{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:17px;
+    height:17px;
+    border-radius:50%;
+    background:#0ab457;
+    border:3px solid white;
+    box-shadow:0 0 0 8px rgba(10,180,87,.16);
+    z-index:3;
+}
+
+/* =========================
+   ORDER CARD
+========================= */
+
+.section-title{
+    font-size:17px;
+    font-weight:900;
+    margin-bottom:11px;
+}
+
+.order-card{
+    background:white;
+    border-radius:19px;
+    border:1px solid #e5ebe7;
+    padding:17px;
+    box-shadow:0 4px 16px rgba(20,40,30,.04);
+}
+
+.order-card.detected{
+    animation:orderDetected 1.1s ease;
+}
+
+@keyframes orderDetected{
+    0%{
+        transform:scale(1);
+        box-shadow:0 0 0 rgba(0,255,140,0);
+    }
+    18%{
+        transform:scale(1.025);
+        box-shadow:0 0 0 5px rgba(0,255,140,.22),0 0 35px rgba(0,255,140,.25);
+    }
+    42%{
+        transform:scale(.995);
+    }
+    65%{
+        transform:scale(1.015);
+        box-shadow:0 0 0 3px rgba(0,255,140,.12),0 0 20px rgba(0,255,140,.15);
+    }
+    100%{
+        transform:scale(1);
+        box-shadow:0 4px 16px rgba(20,40,30,.04);
+    }
+}
+
+.empty-order{
+    background:white;
+    border-radius:19px;
+    border:1px dashed #dce5df;
+    padding:30px 18px;
+    text-align:center;
+    color:#7c8781;
+}
+
+.empty-icon{
+    font-size:35px;
+    margin-bottom:10px;
+}
+
+.order-head{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:15px;
+}
+
+.order-number{
+    font-size:17px;
+    font-weight:900;
+}
+
+.order-status{
+    background:#eaf9ef;
+    color:#078b46;
+    padding:6px 9px;
+    border-radius:20px;
+    font-size:10px;
+    font-weight:900;
+    white-space:nowrap;
+}
+
+.info-row{
+    display:flex;
+    gap:12px;
+    padding:10px 0;
+    border-bottom:1px solid #eef2ef;
+}
+
+.info-row:last-child{
+    border-bottom:0;
+}
+
+.info-icon{
+    width:28px;
+    font-size:17px;
+}
+
+.info-label{
+    color:#8a938e;
+    font-size:10px;
+    margin-bottom:3px;
+}
+
+.info-value{
+    font-size:13px;
+    font-weight:800;
+}
+
+.earn-box{
+    background:#effaf3;
+    border-radius:13px;
+    padding:13px;
+    margin-top:13px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.earn-label{
+    color:#668071;
+    font-size:11px;
+}
+
+.earn-value{
+    font-size:19px;
+    font-weight:900;
+    color:#079449;
+}
+
+.action-btn{
+    width:100%;
+    height:51px;
+    border-radius:13px;
+    background:#0ba957;
+    color:white;
+    font-weight:900;
+    font-size:15px;
+    margin-top:13px;
+}
+
+.action-btn:disabled{
+    opacity:.5;
+}
+
+.secondary-btn{
+    width:100%;
+    height:46px;
+    border-radius:13px;
+    background:#edf2ef;
+    color:#26322c;
+    font-weight:800;
+    margin-top:9px;
+}
+
+.status-btn{
+    width:100%;
+    height:51px;
+    border-radius:13px;
+    background:#101914;
+    color:#fff;
+    font-weight:900;
+    font-size:15px;
+    margin-top:13px;
+}
+
+/* =========================
+   DELIVERY DETAILS
+========================= */
+
+.delivery-details{
+    margin-top:15px;
+    border-top:1px solid #e9eeeb;
+    padding-top:15px;
+}
+
+.delivery-banner{
+    background:#07110c;
+    color:white;
+    padding:13px;
+    border-radius:13px;
+    margin-bottom:10px;
+}
+
+.delivery-banner small{
+    color:#83a191;
+    display:block;
+    font-size:9px;
+    letter-spacing:1px;
+    margin-bottom:4px;
+}
+
+.delivery-banner strong{
+    color:#58ffab;
+    font-size:15px;
+}
+
+/* =========================
+   EARNINGS
+========================= */
+
+.balance-card{
+    background:linear-gradient(135deg,#087b3f,#0db45a);
+    color:white;
+    border-radius:20px;
+    padding:22px;
+    margin-bottom:15px;
+}
+
+.balance-label{
+    opacity:.8;
+    font-size:12px;
+}
+
+.balance{
+    font-size:34px;
+    font-weight:900;
+    margin-top:7px;
+}
+
+.earning-item{
+    background:white;
+    border-radius:16px;
+    padding:15px;
+    margin-bottom:10px;
+    display:flex;
+    justify-content:space-between;
+    border:1px solid #e8eeea;
+}
+
+.earning-item small{
+    color:#8a938e;
+}
+
+.earning-item strong{
+    color:#0a9b4e;
+}
+
+/* =========================
    PROFILE
-===================================================== */
+========================= */
 
-.profile{
-  text-align:center;
-  padding:35px 20px;
+.profile-card{
+    background:white;
+    border-radius:20px;
+    padding:22px;
+    border:1px solid #e5ebe7;
+    text-align:center;
 }
 
 .avatar{
-  width:90px;
-  height:90px;
-  border-radius:50%;
-  background:#e8f8f0;
-  margin:0 auto 15px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:45px;
+    width:75px;
+    height:75px;
+    margin:0 auto 12px;
+    border-radius:50%;
+    background:#daf6e5;
+    color:#078a45;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:30px;
+    font-weight:900;
 }
 
-.profile h2{
-  margin:0;
+.profile-name{
+    font-size:20px;
+    font-weight:900;
 }
 
-.profile p{
-  color:#00a859;
-  font-weight:bold;
+.profile-email{
+    color:#7b8580;
+    font-size:13px;
+    margin-top:4px;
 }
 
-.profile-info{
-  background:white;
-  border:1px solid #e0e5e2;
-  border-radius:16px;
-  padding:15px;
-  margin-top:20px;
-  text-align:left;
+.logout-btn{
+    width:100%;
+    height:48px;
+    border-radius:13px;
+    background:#fff0f0;
+    color:#c52d2d;
+    font-weight:900;
+    margin-top:20px;
 }
 
-.profile-row{
-  display:flex;
-  justify-content:space-between;
-  gap:15px;
-  padding:12px 0;
-  border-bottom:1px solid #edf0ee;
-  font-size:13px;
+/* =========================
+   BOTTOM NAV
+========================= */
+
+.bottom-nav{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    height:70px;
+    background:rgba(255,255,255,.97);
+    backdrop-filter:blur(14px);
+    border-top:1px solid #e3e9e5;
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+    z-index:100;
 }
 
-.profile-row:last-child{
-  border-bottom:0;
+.nav-btn{
+    width:25%;
+    height:100%;
+    background:none;
+    color:#8b948f;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:4px;
+    font-size:10px;
+    font-weight:800;
 }
 
-.profile-row span:first-child{
-  color:#68716d;
+.nav-btn span:first-child{
+    font-size:20px;
 }
 
-.profile-row span:last-child{
-  font-weight:bold;
-  text-align:right;
+.nav-btn.active{
+    color:#079b4d;
 }
 
+/* =========================
+   NEW ORDER POPUP
+========================= */
 
-/* =====================================================
-   EARNINGS
-===================================================== */
-
-.earnings{
-  margin:20px;
-  background:white;
-  border-radius:18px;
-  padding:25px;
-  text-align:center;
-  border:1px solid #e0e5e2;
+.order-popup{
+    position:fixed;
+    left:15px;
+    right:15px;
+    bottom:88px;
+    z-index:550;
+    display:none;
 }
 
-.earnings p{
-  color:#68716d;
-  margin-bottom:8px;
-}
-
-.earnings h2{
-  color:#00a859;
-  font-size:35px;
-  margin:8px 0;
-}
-
-.earnings-note{
-  color:#68716d;
-  font-size:12px;
-}
-
-.earnings-list{
-  margin:20px;
-  background:white;
-  border:1px solid #e0e5e2;
-  border-radius:18px;
-  overflow:hidden;
-}
-
-.earnings-list-title{
-  padding:16px;
-  font-weight:bold;
-  border-bottom:1px solid #e0e5e2;
-}
-
-.earning-row{
-  padding:14px 16px;
-  display:flex;
-  justify-content:space-between;
-  gap:15px;
-  border-bottom:1px solid #edf0ee;
-}
-
-.earning-row:last-child{
-  border-bottom:0;
-}
-
-.earning-order{
-  font-weight:bold;
-  font-size:13px;
-}
-
-.earning-date{
-  color:#68716d;
-  font-size:11px;
-  margin-top:4px;
-}
-
-.earning-amount{
-  color:#00a859;
-  font-weight:bold;
-}
-
-
-/* =====================================================
-   NEW DELIVERY POPUP
-===================================================== */
-
-.new-order-overlay{
-
-  position:fixed;
-  inset:0;
-
-  background:
-    rgba(0,20,13,.78);
-
-  backdrop-filter:
-    blur(5px);
-
-  display:none;
-
-  align-items:center;
-  justify-content:center;
-
-  padding:20px;
-
-  z-index:500;
-
-}
-
-.new-order-overlay.show{
-
-  display:flex;
-
-}
-
-.new-order-popup{
-
-  width:100%;
-  max-width:390px;
-
-  background:white;
-
-  border-radius:25px;
-
-  padding:25px;
-
-  text-align:center;
-
-  box-shadow:
-    0 20px 60px #00000045;
-
-  animation:
-    popupIn .45s cubic-bezier(
-      .17,
-      .67,
-      .32,
-      1.35
-    );
-
+.order-popup.show{
+    display:block;
+    animation:popupIn .45s cubic-bezier(.2,.9,.25,1.15);
 }
 
 @keyframes popupIn{
-
-  0%{
-    opacity:0;
-    transform:
-      scale(.55)
-      translateY(30px);
-  }
-
-  70%{
-    transform:
-      scale(1.04)
-      translateY(-4px);
-  }
-
-  100%{
-    opacity:1;
-    transform:
-      scale(1)
-      translateY(0);
-  }
-
+    from{
+        opacity:0;
+        transform:translateY(35px) scale(.92);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0) scale(1);
+    }
 }
 
-.detect-icon{
-
-  width:90px;
-  height:90px;
-
-  margin:0 auto 15px;
-
-  border-radius:50%;
-
-  background:#e8f8f0;
-
-  display:flex;
-
-  align-items:center;
-  justify-content:center;
-
-  font-size:48px;
-
-  position:relative;
-
-  box-shadow:
-    0 0 0 0 #00a85950;
-
-  animation:
-    detectedPulse 1s infinite;
-
-}
-
-@keyframes detectedPulse{
-
-  0%{
+.popup-card{
+    background:#07110c;
+    color:white;
+    border-radius:21px;
+    padding:17px;
+    border:1px solid rgba(0,255,140,.35);
     box-shadow:
-      0 0 0 0 #00a85950;
-  }
-
-  70%{
-    box-shadow:
-      0 0 0 20px #00a85900;
-  }
-
-  100%{
-    box-shadow:
-      0 0 0 0 #00a85900;
-  }
-
+        0 15px 55px rgba(0,0,0,.45),
+        0 0 35px rgba(0,255,140,.15);
+    position:relative;
+    overflow:hidden;
 }
 
-.new-order-popup h2{
-
-  margin:8px 0;
-
-  font-size:25px;
-
+.popup-card:before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-100%;
+    width:60%;
+    height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);
+    animation:popupShine 1.8s linear infinite;
 }
 
-.new-order-popup p{
-
-  color:#68716d;
-
-  margin:7px 0;
-
+@keyframes popupShine{
+    from{left:-100%}
+    to{left:150%}
 }
 
-.detect-order-number{
-
-  font-size:20px;
-
-  font-weight:bold;
-
-  color:#00a859;
-
-  margin:15px 0;
-
+.popup-top{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    position:relative;
+    z-index:2;
 }
 
-.detect-details{
-
-  background:#f5f8f6;
-
-  border-radius:14px;
-
-  padding:12px;
-
-  margin:12px 0 18px;
-
-  text-align:left;
-
+.popup-icon{
+    width:43px;
+    height:43px;
+    border-radius:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,255,140,.1);
+    border:1px solid rgba(0,255,140,.25);
+    font-size:21px;
+    animation:alertPulse 1s infinite;
 }
 
-.detect-details div{
-
-  padding:6px 0;
-
-  font-size:13px;
-
+@keyframes alertPulse{
+    0%,100%{box-shadow:0 0 0 rgba(0,255,140,0)}
+    50%{box-shadow:0 0 22px rgba(0,255,140,.3)}
 }
 
-.detect-button{
-
-  width:100%;
-
-  height:55px;
-
-  border:0;
-
-  border-radius:13px;
-
-  background:#00a859;
-
-  color:white;
-
-  font-weight:bold;
-
-  font-size:16px;
-
+.popup-title{
+    color:#61ffad;
+    font-size:15px;
+    font-weight:900;
+    letter-spacing:.7px;
 }
 
-.detect-dismiss{
-
-  width:100%;
-
-  border:0;
-
-  background:transparent;
-
-  color:#68716d;
-
-  padding:12px;
-
-  margin-top:5px;
-
+.popup-subtitle{
+    color:#8da99a;
+    font-size:9px;
+    margin-top:3px;
+    letter-spacing:.8px;
 }
 
-
-/* =====================================================
-   SUCCESS
-===================================================== */
-
-.success{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:white;
-  z-index:100;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  padding:25px;
+.popup-info{
+    position:relative;
+    z-index:2;
+    margin-top:14px;
 }
 
-.success-box{
-  max-width:380px;
-  width:100%;
+.popup-order-number{
+    font-size:17px;
+    font-weight:900;
+}
+
+.popup-restaurant{
+    color:#c4d6cb;
+    font-size:12px;
+    margin-top:3px;
+}
+
+.popup-pickup{
+    color:#8fa69a;
+    font-size:11px;
+    margin-top:8px;
+}
+
+.popup-bottom{
+    display:flex;
+    gap:8px;
+    margin-top:14px;
+    position:relative;
+    z-index:2;
+}
+
+.popup-view{
+    flex:1;
+    height:44px;
+    border-radius:11px;
+    background:#14b95e;
+    color:white;
+    font-weight:900;
+}
+
+.popup-dismiss{
+    width:85px;
+    height:44px;
+    border-radius:11px;
+    background:#18241e;
+    color:#9eb0a5;
+    font-weight:800;
+}
+
+/* =========================
+   SUCCESS OVERLAY
+========================= */
+
+.success-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(3,12,7,.88);
+    backdrop-filter:blur(10px);
+    z-index:700;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:25px;
+}
+
+.success-overlay.show{
+    display:flex;
+}
+
+.success-card{
+    width:100%;
+    max-width:360px;
+    text-align:center;
+    color:white;
 }
 
 .success-icon{
-  width:95px;
-  height:95px;
-  border-radius:50%;
-  background:#e8f8f0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:55px;
-  margin:0 auto 20px;
+    width:90px;
+    height:90px;
+    border-radius:50%;
+    margin:0 auto 18px;
+    background:#12b85d;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:42px;
+    box-shadow:0 0 50px rgba(18,184,93,.45);
+    animation:successPop .6s cubic-bezier(.2,1.5,.3,1);
 }
 
-.success h2{
-  font-size:26px;
+@keyframes successPop{
+    from{transform:scale(.2);opacity:0}
+    to{transform:scale(1);opacity:1}
 }
 
-.success p{
-  color:#68716d;
+.success-card h2{
+    font-size:26px;
+    margin-bottom:7px;
 }
 
+.success-card p{
+    color:#aabdb1;
+    font-size:13px;
+}
 
-/* =====================================================
+.success-card button{
+    margin-top:20px;
+    width:100%;
+    height:50px;
+    border-radius:13px;
+    background:white;
+    color:#087b3f;
+    font-weight:900;
+}
+
+/* =========================
    TOAST
-===================================================== */
+========================= */
 
 .toast{
-  position:fixed;
-  left:18px;
-  right:18px;
-  bottom:90px;
-  background:#171a19;
-  color:white;
-  padding:14px 16px;
-  border-radius:12px;
-  z-index:600;
-  display:none;
-  font-size:13px;
-  text-align:center;
+    position:fixed;
+    left:50%;
+    bottom:92px;
+    transform:translateX(-50%) translateY(15px);
+    background:#101813;
+    color:white;
+    padding:11px 15px;
+    border-radius:12px;
+    font-size:12px;
+    font-weight:800;
+    opacity:0;
+    pointer-events:none;
+    z-index:800;
+    transition:.25s ease;
+    white-space:nowrap;
+    box-shadow:0 8px 30px rgba(0,0,0,.25);
 }
 
+.toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+}
 
-/* =====================================================
+/* =========================
+   DETECTION CARD FLASH
+========================= */
+
+.detection-label{
+    display:none;
+    position:absolute;
+    top:8px;
+    right:10px;
+    color:#fff;
+    background:#0da954;
+    padding:4px 7px;
+    border-radius:7px;
+    font-size:8px;
+    letter-spacing:.8px;
+    font-weight:900;
+}
+
+.order-card.detected .detection-label{
+    display:block;
+    animation:detectionLabel .8s ease;
+}
+
+@keyframes detectionLabel{
+    0%{opacity:0;transform:scale(.7)}
+    50%{opacity:1;transform:scale(1.1)}
+    100%{transform:scale(1)}
+}
+
+/* =========================
    RESPONSIVE
-===================================================== */
+========================= */
 
-@media(max-width:380px){
+@media(max-width:360px){
+    .scanner-panel{
+        height:118px;
+    }
 
-  .stats{
-    gap:8px;
-  }
+    .scanner-status{
+        display:none;
+    }
 
-  .stat{
-    padding:13px;
-  }
-
-  .stat-value{
-    font-size:19px;
-  }
-
+    .welcome h2{
+        font-size:19px;
+    }
 }
 
+@media(prefers-reduced-motion:reduce){
+    *,
+    *:before,
+    *:after{
+        animation-duration:4s!important;
+        animation-iteration-count:1!important;
+        scroll-behavior:auto!important;
+    }
+
+    .scan-beam-horizontal,
+    .scan-beam-vertical,
+    .scan-diagonal{
+        opacity:.7;
+    }
+}
 </style>
 </head>
 
-
 <body>
 
+<!-- LOGIN -->
+<div id="loginPage" class="login-page">
+    <div class="login-card">
+        <div class="logo">QuickEats</div>
+        <div class="login-subtitle">Rider Delivery Portal</div>
 
-<!-- =====================================================
-     LOGIN
-===================================================== -->
+        <input id="emailInput" type="email" placeholder="Email address">
+        <input id="passwordInput" type="password" placeholder="Password">
 
-<div id="login">
+        <button class="primary-btn" onclick="loginRider()">LOGIN</button>
+        <button class="demo-btn" onclick="demoLogin()">DEMO RIDER</button>
 
-  <div class="login-box">
-
-    <div class="logo">
-      🛵
+        <div id="loginError" class="login-error"></div>
     </div>
-
-    <h1>
-      QuickEats
-    </h1>
-
-    <div class="subtitle">
-      Rider App
-    </div>
-
-    <div class="input-group">
-
-      <label>
-        Email
-      </label>
-
-      <input
-        id="email"
-        type="email"
-        value="rider@test.com"
-        placeholder="Rider email"
-      >
-
-    </div>
-
-
-    <div class="input-group">
-
-      <label>
-        Password
-      </label>
-
-      <input
-        id="password"
-        type="password"
-        placeholder="Password"
-      >
-
-    </div>
-
-
-    <button
-      class="main-button"
-      onclick="loginRider()"
-    >
-      LOG IN
-    </button>
-
-
-    <button
-      class="demo-button"
-      onclick="demoRider()"
-    >
-      CONTINUE AS DEMO RIDER
-    </button>
-
-
-    <div
-      id="message"
-      class="message"
-    ></div>
-
-  </div>
-
 </div>
 
+<!-- APP -->
+<div id="app" class="app hidden">
 
-
-<!-- =====================================================
-     MAIN APP
-===================================================== -->
-
-<div id="app">
-
-
-  <!-- HOME -->
-
-  <div
-    id="homePage"
-    class="page active"
-  >
-
-    <div class="header">
-
-      <div>
-
-        <div
-          id="riderGreeting"
-          class="header-title"
-        >
-          QuickEats Rider
+    <header class="header">
+        <div>
+            <div class="header-title">QuickEats Rider</div>
+            <div id="headerSub" class="header-sub">Delivery control center</div>
         </div>
 
-        <div class="header-sub">
-          Delivery Dashboard
+        <button id="onlineBtn" class="online-btn" onclick="toggleOnline()">
+            <span class="online-dot"></span>
+            <span id="onlineText">ONLINE</span>
+        </button>
+    </header>
+
+    <!-- HOME -->
+    <main id="homePage" class="page active">
+
+        <section class="welcome">
+            <h2>Ready for your next delivery?</h2>
+            <p id="welcomeText">Your scanner is monitoring for new orders.</p>
+        </section>
+
+        <!-- CINEMATIC SCANNER -->
+        <section id="scannerPanel" class="scanner-panel">
+
+            <div class="scanner-noise"></div>
+
+            <div class="scanner-top">
+                <div class="auto-badge">
+                    <span class="live-dot"></span>
+                    AUTO SCAN
+                </div>
+
+                <div id="scannerStatus" class="scanner-status">
+                    SYSTEM ACTIVE • SIGNAL SEARCH
+                </div>
+            </div>
+
+            <div class="scanner-center">
+                <div class="scanner-radar"></div>
+                <div class="radar-ring-2"></div>
+                <div class="crosshair"></div>
+            </div>
+
+            <div class="scan-beam-horizontal"></div>
+            <div class="scan-beam-vertical"></div>
+            <div class="scan-diagonal"></div>
+
+            <div class="particle p1"></div>
+            <div class="particle p2"></div>
+            <div class="particle p3"></div>
+            <div class="particle p4"></div>
+            <div class="particle p5"></div>
+            <div class="particle p6"></div>
+            <div class="particle p7"></div>
+            <div class="particle p8"></div>
+
+            <div class="scanner-main-text">
+                <span id="scannerMainText">SCANNING FOR NEW ORDERS</span>
+            </div>
+
+        </section>
+
+        <section class="stats">
+            <div class="stat green">
+                <div class="stat-label">Available</div>
+                <div id="availableCount" class="stat-value">0</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-label">Active</div>
+                <div id="activeCount" class="stat-value">0</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-label">Completed</div>
+                <div id="completedCount" class="stat-value">0</div>
+            </div>
+
+            <div class="stat green">
+                <div class="stat-label">Today's Earnings</div>
+                <div id="todayEarnings" class="stat-value">₦0</div>
+            </div>
+        </section>
+
+        <section class="map">
+            <div class="map-label">📍 Rider Location</div>
+            <div class="map-rider"></div>
+        </section>
+
+        <div class="section-title">Delivery Orders</div>
+
+        <section id="emptyOrder" class="empty-order">
+            <div class="empty-icon">📦</div>
+            <strong>No delivery waiting</strong>
+            <p style="margin-top:5px;font-size:12px;">
+                New orders will appear automatically.
+            </p>
+        </section>
+
+        <section id="orderCard" class="order-card hidden">
+            <div class="detection-label">NEW ORDER</div>
+
+            <div class="order-head">
+                <div>
+                    <div id="orderNumber" class="order-number">Order #---</div>
+                    <div id="orderRestaurant" style="font-size:12px;color:#7d8782;margin-top:3px;">
+                        Restaurant
+                    </div>
+                </div>
+
+                <div id="orderStatus" class="order-status">READY</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon">🏪</div>
+                <div>
+                    <div class="info-label">PICKUP</div>
+                    <div id="pickupAddress" class="info-value">---</div>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon">🏠</div>
+                <div>
+                    <div class="info-label">DELIVERY</div>
+                    <div id="deliveryAddress" class="info-value">---</div>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon">👤</div>
+                <div>
+                    <div class="info-label">CUSTOMER</div>
+                    <div id="customerName" class="info-value">---</div>
+                </div>
+            </div>
+
+            <div class="earn-box">
+                <div>
+                    <div class="earn-label">YOUR DELIVERY EARNINGS</div>
+                    <div id="orderTotal" style="font-size:11px;color:#718177;margin-top:3px;">
+                        Order total: ₦0
+                    </div>
+                </div>
+                <div id="deliveryFee" class="earn-value">₦0</div>
+            </div>
+
+            <button id="acceptBtn" class="action-btn" onclick="acceptCurrentOrder()">
+                ACCEPT DELIVERY
+            </button>
+
+            <button id="statusBtn" class="status-btn hidden" onclick="advanceStatus()">
+                UPDATE STATUS
+            </button>
+
+            <div id="deliveryDetails" class="delivery-details hidden">
+
+                <div class="delivery-banner">
+                    <small>CURRENT DELIVERY</small>
+                    <strong id="currentStatusText">RIDER ACCEPTED</strong>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-icon">📱</div>
+                    <div>
+                        <div class="info-label">CUSTOMER PHONE</div>
+                        <div id="customerPhone" class="info-value">---</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- EARNINGS -->
+    <main id="earningsPage" class="page">
+
+        <div class="section-title">Earnings</div>
+
+        <section class="balance-card">
+            <div class="balance-label">TOTAL EARNINGS</div>
+            <div id="totalEarnings" class="balance">₦0</div>
+        </section>
+
+        <div class="section-title">Recent Deliveries</div>
+
+        <div id="earningsList">
+            <div class="empty-order">
+                No completed deliveries yet.
+            </div>
         </div>
 
-      </div>
+    </main>
 
+    <!-- PROFILE -->
+    <main id="profilePage" class="page">
 
-      <button
-        class="online"
-        onclick="toggleOnline()"
-        id="onlineButton"
-      >
-        🟢 ONLINE
-      </button>
+        <div class="section-title">Profile</div>
 
-    </div>
+        <section class="profile-card">
 
+            <div id="avatar" class="avatar">R</div>
 
-    <div class="dashboard">
+            <div id="profileName" class="profile-name">
+                Rider
+            </div>
 
-      <div class="welcome">
+            <div id="profileEmail" class="profile-email">
+                ---
+            </div>
 
-        <div class="welcome-title">
-          Rider Dashboard
-        </div>
+            <button class="logout-btn" onclick="logoutRider()">
+                LOG OUT
+            </button>
 
-        <div class="welcome-text">
-          Manage your deliveries and track your earnings.
-        </div>
+        </section>
 
-      </div>
+    </main>
 
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
 
-      <!-- SCANNER -->
-
-      <div class="scanner">
-
-        <div class="scanner-grid"></div>
-
-        <div class="scanner-line"></div>
-
-        <div class="scanner-content">
-
-          <div class="scanner-dot"></div>
-
-          <span id="scannerText">
-            SCANNING FOR NEW ORDERS...
-          </span>
-
-        </div>
-
-      </div>
-
-
-      <div class="stats">
-
-        <div class="stat">
-
-          <div class="stat-icon">
-            📦
-          </div>
-
-          <div class="stat-label">
-            Available
-          </div>
-
-          <div
-            id="availableCount"
-            class="stat-value"
-          >
-            0
-          </div>
-
-        </div>
-
-
-        <div class="stat">
-
-          <div class="stat-icon">
-            🛵
-          </div>
-
-          <div class="stat-label">
-            Active
-          </div>
-
-          <div
-            id="activeCount"
-            class="stat-value"
-          >
-            0
-          </div>
-
-        </div>
-
-
-        <div class="stat">
-
-          <div class="stat-icon">
-            ✅
-          </div>
-
-          <div class="stat-label">
-            Completed
-          </div>
-
-          <div
-            id="completedCount"
-            class="stat-value"
-          >
-            0
-          </div>
-
-        </div>
-
-
-        <div class="stat">
-
-          <div class="stat-icon">
-            💰
-          </div>
-
-          <div class="stat-label">
-            Today's Earnings
-          </div>
-
-          <div
-            id="todayStatsEarnings"
-            class="stat-value"
-          >
-            ₦0
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <!-- MAP -->
-
-    <div class="map">
-
-      <div class="map-road"></div>
-
-      <div class="map-road2"></div>
-
-      <div class="map-pin restaurant-pin">
-        🍴
-      </div>
-
-      <div class="map-pin customer-pin">
-        📍
-      </div>
-
-      <div class="map-pin rider-pin">
-        🛵
-      </div>
-
-    </div>
-
-
-    <!-- ORDER CONTENT -->
-
-    <div class="content">
-
-      <div class="handle"></div>
-
-      <h2>
-        Delivery Orders
-      </h2>
-
-      <div class="description">
-        Orders ready for pickup will appear here automatically.
-      </div>
-
-
-      <div
-        id="empty"
-        class="empty"
-      >
-
-        <div class="empty-icon">
-          🛵
-        </div>
-
-        <h3>
-          Scanning for delivery
-        </h3>
-
-        <p>
-          QuickEats is automatically checking
-          for new orders.
-        </p>
-
-      </div>
-
-
-      <div
-        id="orderCard"
-        class="order-card"
-        style="display:none"
-      >
-
-        <div class="order-header">
-
-          <div
-            id="orderNumber"
-            class="order-number"
-          >
-            #QE1001
-          </div>
-
-          <div
-            id="orderBadge"
-            class="badge"
-          >
-            READY FOR PICKUP
-          </div>
-
-        </div>
-
-
-        <div
-          id="restaurantName"
-          class="restaurant-name"
-        >
-          QuickEats Vendor
-        </div>
-
-
-        <div
-          id="pickupAddress"
-          class="address"
-        >
-          Pickup address
-        </div>
-
-
-        <div
-          id="items"
-          class="items"
-        ></div>
-
-
-        <div class="total">
-
-          <span>
-            Order Total
-          </span>
-
-          <span id="orderTotal">
-            ₦0
-          </span>
-
-        </div>
-
-
-        <button
-          id="acceptButton"
-          class="action"
-          onclick="acceptDelivery()"
-        >
-          ACCEPT DELIVERY
+        <button id="navHome" class="nav-btn active" onclick="showPage('home')">
+            <span>🏠</span>
+            <span>Home</span>
         </button>
 
-
-        <div
-          id="deliveryDetails"
-          class="delivery-details"
-        >
-
-          <div class="detail-row">
-
-            <span>
-              Customer
-            </span>
-
-            <span id="customerName">
-              -
-            </span>
-
-          </div>
-
-
-          <div class="detail-row">
-
-            <span>
-              Phone
-            </span>
-
-            <span id="customerPhone">
-              -
-            </span>
-
-          </div>
-
-
-          <div class="detail-row">
-
-            <span>
-              Pickup
-            </span>
-
-            <span id="detailPickup">
-              -
-            </span>
-
-          </div>
-
-
-          <div class="detail-row">
-
-            <span>
-              Drop-off
-            </span>
-
-            <span id="deliveryAddress">
-              -
-            </span>
-
-          </div>
-
-
-          <div class="detail-row">
-
-            <span>
-              Delivery Fee
-            </span>
-
-            <span id="deliveryFee">
-              ₦0
-            </span>
-
-          </div>
-
-
-          <div
-            id="statusBox"
-            class="status-box"
-          >
-            Delivery accepted
-          </div>
-
-
-          <a
-            id="phoneButton"
-            class="phone-button"
-            href="#"
-            style="display:none"
-          >
-            📞 CALL CUSTOMER
-          </a>
-
-
-          <button
-            id="statusButton"
-            class="action"
-            onclick="nextStatus()"
-          >
-            ARRIVED AT RESTAURANT
-          </button>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- ===================================================
-       EARNINGS
-  ==================================================== -->
-
-  <div
-    id="earningsPage"
-    class="page"
-  >
-
-    <div class="header">
-
-      <div>
-
-        <div class="header-title">
-          Earnings
-        </div>
-
-        <div class="header-sub">
-          Your delivery earnings
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <div class="earnings">
-
-      <p>
-        Today's Earnings
-      </p>
-
-      <h2 id="earningsAmount">
-        ₦0
-      </h2>
-
-      <div class="earnings-note">
-        Based on completed deliveries
-      </div>
-
-    </div>
-
-
-    <div class="earnings-list">
-
-      <div class="earnings-list-title">
-        Recent Completed Deliveries
-      </div>
-
-      <div id="earningsList">
-
-        <div class="empty">
-          No completed deliveries yet.
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- ===================================================
-       PROFILE
-  ==================================================== -->
-
-  <div
-    id="profilePage"
-    class="page"
-  >
-
-    <div class="profile">
-
-      <div class="avatar">
-        👤
-      </div>
-
-      <h2 id="profileName">
-        QuickEats Rider
-      </h2>
-
-      <p>
-        ✓ QuickEats Rider
-      </p>
-
-
-      <div class="profile-info">
-
-        <div class="profile-row">
-
-          <span>
-            Status
-          </span>
-
-          <span id="profileStatus">
-            Online
-          </span>
-
-        </div>
-
-
-        <div class="profile-row">
-
-          <span>
-            Rider ID
-          </span>
-
-          <span id="profileRiderId">
-            -
-          </span>
-
-        </div>
-
-
-        <div class="profile-row">
-
-          <span>
-            Phone
-          </span>
-
-          <span id="profilePhone">
-            -
-          </span>
-
-        </div>
-
-      </div>
-
-
-      <button
-        class="demo-button"
-        onclick="logoutRider()"
-      >
-        LOG OUT
-      </button>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- ===================================================
-       NAVIGATION
-  ==================================================== -->
-
-  <div class="nav">
-
-    <button
-      class="active"
-      onclick="showPage('homePage',this)"
-    >
-
-      <span class="nav-icon">
-        🏠
-      </span>
-
-      Home
-
-    </button>
-
-
-    <button
-      onclick="showPage('earningsPage',this)"
-    >
-
-      <span class="nav-icon">
-        💰
-      </span>
-
-      Earnings
-
-    </button>
-
-
-    <button
-      onclick="showPage('profilePage',this)"
-    >
-
-      <span class="nav-icon">
-        👤
-      </span>
-
-      Profile
-
-    </button>
-
-  </div>
+        <button id="navEarnings" class="nav-btn" onclick="showPage('earnings')">
+            <span>💰</span>
+            <span>Earnings</span>
+        </button>
+
+        <button id="navProfile" class="nav-btn" onclick="showPage('profile')">
+            <span>👤</span>
+            <span>Profile</span>
+        </button>
+
+    </nav>
 
 </div>
 
+<!-- DETECTION FLASH -->
+<div id="scannerFlash" class="scanner-flash"></div>
 
+<!-- NEW ORDER POPUP -->
+<div id="orderPopup" class="order-popup">
 
-<!-- =====================================================
-     NEW ORDER DETECTED POPUP
-===================================================== -->
+    <div class="popup-card">
 
-<div
-  id="newOrderOverlay"
-  class="new-order-overlay"
->
+        <div class="popup-top">
+            <div class="popup-icon">🚨</div>
 
-  <div class="new-order-popup">
+            <div>
+                <div class="popup-title">ORDER DETECTED</div>
+                <div class="popup-subtitle">NEW DELIVERY AVAILABLE</div>
+            </div>
+        </div>
 
-    <div class="detect-icon">
-      🚨
-    </div>
+        <div class="popup-info">
 
-    <h2>
-      NEW DELIVERY!
-    </h2>
+            <div id="popupOrderNumber" class="popup-order-number">
+                Order #---
+            </div>
 
-    <p>
-      QuickEats detected a new order.
-    </p>
+            <div id="popupRestaurant" class="popup-restaurant">
+                Restaurant
+            </div>
 
-    <div
-      id="detectOrderNumber"
-      class="detect-order-number"
-    >
-      #QE1001
-    </div>
+            <div id="popupPickup" class="popup-pickup">
+                📍 Pickup location
+            </div>
 
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:9px;">
+                <div style="font-size:10px;color:#789084;">DELIVERY EARNINGS</div>
+                <div id="popupFee" style="font-size:16px;color:#55ffa8;font-weight:900;">₦0</div>
+            </div>
 
-    <div class="detect-details">
+        </div>
 
-      <div>
-        🍴
-        <strong>
-          Restaurant:
-        </strong>
+        <div class="popup-bottom">
+            <button class="popup-view" onclick="openDetectedOrder()">
+                VIEW DELIVERY
+            </button>
 
-        <span id="detectRestaurant">
-          -
-        </span>
-      </div>
-
-
-      <div>
-        📍
-        <strong>
-          Pickup:
-        </strong>
-
-        <span id="detectPickup">
-          -
-        </span>
-      </div>
-
-
-      <div>
-        💰
-        <strong>
-          Delivery fee:
-        </strong>
-
-        <span id="detectFee">
-          ₦0
-        </span>
-      </div>
+            <button class="popup-dismiss" onclick="dismissDetectedOrder()">
+                DISMISS
+            </button>
+        </div>
 
     </div>
-
-
-    <button
-      class="detect-button"
-      onclick="openDetectedOrder()"
-    >
-      VIEW DELIVERY
-    </button>
-
-
-    <button
-      class="detect-dismiss"
-      onclick="dismissNewOrder()"
-    >
-      DISMISS
-    </button>
-
-  </div>
 
 </div>
 
+<!-- SUCCESS -->
+<div id="successOverlay" class="success-overlay">
 
+    <div class="success-card">
 
-<!-- =====================================================
-     SUCCESS
-===================================================== -->
+        <div class="success-icon">✓</div>
 
-<div
-  id="success"
-  class="success"
->
+        <h2 id="successTitle">Delivery Complete</h2>
 
-  <div class="success-box">
+        <p id="successMessage">
+            Great job! Your delivery has been completed.
+        </p>
 
-    <div class="success-icon">
-      ✓
+        <button onclick="closeSuccess()">
+            CONTINUE
+        </button>
+
     </div>
 
-    <h2>
-      Delivery Completed!
-    </h2>
-
-    <p>
-      The order has been delivered successfully.
-    </p>
-
-    <button
-      class="main-button"
-      onclick="closeSuccess()"
-    >
-      BACK TO HOME
-    </button>
-
-  </div>
-
 </div>
-
-
 
 <!-- TOAST -->
-
-<div
-  id="toast"
-  class="toast"
-></div>
-
-
+<div id="toast" class="toast"></div>
 
 <script>
-
-/*
-========================================================
-QUICKEATS RIDER APP
-AUTOMATIC ORDER SCANNER + ANIMATION
-========================================================
-*/
-
+/* ============================================================
+   QUICK EATS RIDER APP
+============================================================ */
 
 const SUPABASE_URL =
-"https://glkutdkwbrjpiuqcmgwe.supabase.co";
-
+    "https://glkutdkwbrjpiuqcmgwe.supabase.co";
 
 const SUPABASE_KEY =
-"sb_publishable_lQkN8HQP2Tm3tPiDYJbrNw_ydO7bqXU";
-
+    "sb_publishable_lQkN8HQP2Tm3tPiDYJbrNw_ydO7bqXU";
 
 let supabaseClient = null;
 
 let currentUser = null;
-
 let currentRider = null;
-
 let currentOrder = null;
 
-let demoMode = false;
+let isOnline = true;
 
-let online = true;
+let scannerTimer = null;
+let scannerInitialized = false;
+let scannerBusy = false;
 
 let realtimeChannel = null;
 
-let riderOrders = [];
-
-
-/* =====================================================
-   AUTOMATIC SCANNER STATE
-===================================================== */
-
-let scanTimer = null;
-
-let scannerInitialized = false;
-
 let seenOrderIds = new Set();
-
 let lastDetectedOrderId = null;
-
 let pendingDetectedOrder = null;
 
+let audioContext = null;
+let audioUnlocked = false;
 
-/*
-   Scan every 5 seconds.
-   Realtime handles instant updates when available.
-   Polling is the backup.
-*/
+let popupTimer = null;
 
-const SCAN_INTERVAL =
-  5000;
+let completedOrders = [];
 
+/* ============================================================
+   INITIALIZE
+============================================================ */
 
-/* =====================================================
-   MESSAGE
-===================================================== */
+document.addEventListener("DOMContentLoaded", async () => {
 
-function message(text){
-
-  const box =
-    document.getElementById("message");
-
-  box.textContent =
-    text;
-
-  box.style.display =
-    "block";
-
-}
-
-
-/* =====================================================
-   TOAST
-===================================================== */
-
-function toast(text){
-
-  const box =
-    document.getElementById("toast");
-
-  box.textContent =
-    text;
-
-  box.style.display =
-    "block";
-
-  clearTimeout(
-    window.toastTimer
-  );
-
-  window.toastTimer =
-    setTimeout(function(){
-
-      box.style.display =
-        "none";
-
-    },3000);
-
-}
-
-
-/* =====================================================
-   LOAD SUPABASE
-===================================================== */
-
-function loadSupabase(){
-
-  return new Promise(function(resolve){
-
-    if(
-      window.supabase &&
-      window.supabase.createClient
-    ){
-
-      try{
+    try {
 
         supabaseClient =
-          window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_KEY
-          );
+            window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_KEY
+            );
 
-        resolve(true);
+        /*
+         * Unlock audio after the first real user interaction.
+         * This prevents browser autoplay restrictions from
+         * blocking the detection sound.
+         */
+        const unlock = () => {
+            unlockAudio();
+        };
 
-        return;
+        document.addEventListener("pointerdown", unlock, {
+            once:true,
+            passive:true
+        });
 
-      }catch(error){
+        document.addEventListener("touchstart", unlock, {
+            once:true,
+            passive:true
+        });
+
+        document.addEventListener("keydown", unlock, {
+            once:true
+        });
+
+        const {
+            data:{
+                session
+            }
+        } = await supabaseClient.auth.getSession();
+
+        if(session){
+
+            currentUser = session.user;
+
+            await loadRider();
+
+        }
+
+    } catch(error){
 
         console.error(error);
 
-      }
-
     }
 
+});
 
-    const script =
-      document.createElement("script");
+/* ============================================================
+   AUDIO
+============================================================ */
 
-    script.src =
-      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+function unlockAudio(){
 
+    if(audioUnlocked) return;
 
-    script.onload =
-      function(){
+    try{
 
-        try{
+        const AudioContextClass =
+            window.AudioContext ||
+            window.webkitAudioContext;
 
-          supabaseClient =
-            window.supabase.createClient(
-              SUPABASE_URL,
-              SUPABASE_KEY
-            );
+        if(!AudioContextClass) return;
 
-          resolve(true);
+        if(!audioContext){
 
-        }catch(error){
-
-          console.error(error);
-
-          resolve(false);
+            audioContext =
+                new AudioContextClass();
 
         }
 
-      };
+        if(audioContext.state === "suspended"){
 
+            audioContext.resume().catch(()=>{});
 
-    script.onerror =
-      function(){
+        }
 
-        resolve(false);
+        audioUnlocked = true;
 
-      };
+    }catch(error){
 
+        console.log("Audio unavailable");
 
-    document.head.appendChild(script);
-
-  });
-
-}
-
-
-/* =====================================================
-   START
-===================================================== */
-
-window.addEventListener(
-  "load",
-  async function(){
-
-    await loadSupabase();
-
-  }
-);
-
-
-/* =====================================================
-   DEMO RIDER
-===================================================== */
-
-function demoRider(){
-
-  demoMode =
-    true;
-
-  currentUser = {
-    id:"demo-rider"
-  };
-
-  currentRider = {
-    id:"demo-rider",
-    owner_id:"demo-rider",
-    name:"Demo Rider",
-    phone:"08000000000"
-  };
-
-
-  document
-    .getElementById("login")
-    .style.display =
-    "none";
-
-
-  document
-    .getElementById("app")
-    .style.display =
-    "block";
-
-
-  document
-    .getElementById("profileName")
-    .textContent =
-    "Demo Rider";
-
-
-  document
-    .getElementById("riderGreeting")
-    .textContent =
-    "Hello, Demo Rider! 👋";
-
-
-  document
-    .getElementById("profileRiderId")
-    .textContent =
-    "DEMO";
-
-
-  document
-    .getElementById("profilePhone")
-    .textContent =
-    "08000000000";
-
-
-  startScanner();
-
-
-  loadDemoOrder();
-
-
-  updateDashboardStats();
+    }
 
 }
 
+function playTone(frequency,startTime,duration){
 
-/* =====================================================
-   DEMO ORDER
-===================================================== */
+    if(!audioContext) return;
 
-function loadDemoOrder(){
+    try{
 
-  const demoOrder = {
+        const oscillator =
+            audioContext.createOscillator();
 
-    id:"demo-order-1001",
+        const gain =
+            audioContext.createGain();
 
-    order_number:"QE1001",
+        oscillator.type = "sine";
 
-    customer_name:"John Customer",
+        oscillator.frequency.setValueAtTime(
+            frequency,
+            startTime
+        );
 
-    customer_phone:"08012345678",
+        gain.gain.setValueAtTime(
+            0.0001,
+            startTime
+        );
 
-    pickup_address:
-      "Allen Avenue, Ikeja, Lagos",
+        gain.gain.exponentialRampToValueAtTime(
+            0.18,
+            startTime + 0.015
+        );
 
-    delivery_address:
-      "Ikeja GRA, Lagos",
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            startTime + duration
+        );
 
-    total_amount:5000,
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
 
-    delivery_fee:700,
+        oscillator.start(startTime);
+        oscillator.stop(startTime + duration + .03);
 
-    status:"ready_for_pickup",
+    }catch(error){
 
-    items:[
+        console.log(error);
 
-      {
-        name:"Jollof Rice",
-        quantity:1,
-        price:2500
-      },
-
-      {
-        name:"Chicken",
-        quantity:1,
-        price:2000
-      },
-
-      {
-        name:"Coke",
-        quantity:1,
-        price:500
-      }
-
-    ]
-
-  };
-
-
-  showOrder(
-    demoOrder
-  );
+    }
 
 }
 
+function detectionSound(){
 
-/* =====================================================
-   REAL LOGIN
-===================================================== */
+    try{
+
+        unlockAudio();
+
+        if(!audioContext) return;
+
+        if(audioContext.state === "suspended"){
+
+            audioContext.resume().catch(()=>{});
+
+        }
+
+        const now =
+            audioContext.currentTime;
+
+        playTone(720,now,.16);
+        playTone(980,now + .17,.16);
+        playTone(1240,now + .34,.22);
+
+    }catch(error){
+
+        console.log("Detection sound failed");
+
+    }
+
+}
+
+function vibrateDetection(){
+
+    try{
+
+        if(
+            "vibrate" in navigator
+        ){
+
+            navigator.vibrate([
+                120,
+                60,
+                120,
+                60,
+                180
+            ]);
+
+        }
+
+    }catch(error){}
+
+}
+
+/* ============================================================
+   LOGIN
+============================================================ */
 
 async function loginRider(){
 
-  const email =
-    document
-      .getElementById("email")
-      .value
-      .trim();
+    const email =
+        document.getElementById("emailInput").value.trim();
 
+    const password =
+        document.getElementById("passwordInput").value;
 
-  const password =
-    document
-      .getElementById("password")
-      .value;
+    const errorBox =
+        document.getElementById("loginError");
 
+    errorBox.textContent = "";
 
-  if(!email){
+    if(!email || !password){
 
-    message(
-      "Please enter the rider email."
-    );
+        errorBox.textContent =
+            "Enter your email and password.";
 
-    return;
-
-  }
-
-
-  if(!password){
-
-    message(
-      "Please enter the rider password."
-    );
-
-    return;
-
-  }
-
-
-  if(!supabaseClient){
-
-    message(
-      "Supabase is still loading. Please wait a moment."
-    );
-
-    await loadSupabase();
-
-    return;
-
-  }
-
-
-  message(
-    "Logging in..."
-  );
-
-
-  try{
-
-    const result =
-      await supabaseClient.auth.signInWithPassword({
-
-        email:email,
-
-        password:password
-
-      });
-
-
-    if(result.error){
-
-      throw result.error;
+        return;
 
     }
 
+    try{
 
-    currentUser =
-      result.data.user;
+        unlockAudio();
 
+        const {
+            data,
+            error
+        } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+        });
 
-    demoMode =
-      false;
+        if(error) throw error;
 
+        currentUser = data.user;
 
-    await loadRealRider();
+        await loadRider();
 
+    }catch(error){
 
-    document
-      .getElementById("login")
-      .style.display =
-      "none";
+        console.error(error);
 
+        errorBox.textContent =
+            error.message || "Login failed.";
 
-    document
-      .getElementById("app")
-      .style.display =
-      "block";
-
-
-    await loadRiderOrders();
-
-
-    /*
-      Start automatic scanner.
-    */
-
-    startScanner();
-
-
-    /*
-      Start Supabase Realtime.
-    */
-
-    await listenForOrders();
-
-
-    toast(
-      "Welcome back, rider."
-    );
-
-
-  }catch(error){
-
-    console.error(error);
-
-    message(
-      error.message ||
-      "Login failed."
-    );
-
-  }
+    }
 
 }
 
+/*
+ * Demo rider is intentionally UI-only.
+ * Production rider login uses Supabase Auth.
+ */
+function demoLogin(){
 
-/* =====================================================
+    unlockAudio();
+
+    currentUser = {
+        id:"demo-user",
+        email:"demo@quickeats.local"
+    };
+
+    currentRider = {
+        id:"demo-rider",
+        owner_id:"demo-user",
+        name:"Demo Rider",
+        phone:"08000000000"
+    };
+
+    enterApp();
+
+}
+
+/* ============================================================
    LOAD RIDER
-===================================================== */
+============================================================ */
 
-async function loadRealRider(){
+async function loadRider(){
 
-  const result =
-    await supabaseClient
-      .from("riders")
-      .select("*")
-      .eq(
-        "owner_id",
-        currentUser.id
-      )
-      .maybeSingle();
+    try{
 
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("riders")
+                .select("*")
+                .eq("owner_id",currentUser.id)
+                .limit(1)
+                .maybeSingle();
 
-  if(result.error){
+        if(error) throw error;
 
-    throw result.error;
+        if(!data){
 
-  }
-
-
-  if(!result.data){
-
-    throw new Error(
-      "Your Supabase account is not connected to a rider record yet."
-    );
-
-  }
-
-
-  currentRider =
-    result.data;
-
-
-  const name =
-    result.data.name ||
-    result.data.full_name ||
-    result.data.rider_name ||
-    "Rider";
-
-
-  document
-    .getElementById("profileName")
-    .textContent =
-    name;
-
-
-  document
-    .getElementById("riderGreeting")
-    .textContent =
-    "Hello, " +
-    name +
-    "! 👋";
-
-
-  document
-    .getElementById("profileRiderId")
-    .textContent =
-    result.data.id || "-";
-
-
-  document
-    .getElementById("profilePhone")
-    .textContent =
-    result.data.phone ||
-    result.data.phone_number ||
-    "-";
-
-}
-
-
-/* =====================================================
-   LOAD RIDER ORDERS
-===================================================== */
-
-async function loadRiderOrders(){
-
-  if(
-    demoMode ||
-    !supabaseClient ||
-    !currentRider
-  ){
-
-    updateDashboardStats();
-
-    return;
-
-  }
-
-
-  try{
-
-    const result =
-      await supabaseClient
-        .from("orders")
-        .select("*")
-        .eq(
-          "rider_id",
-          currentRider.id
-        )
-        .order(
-          "created_at",
-          {
-            ascending:false
-          }
-        )
-        .limit(100);
-
-
-    if(result.error){
-
-      throw result.error;
-
-    }
-
-
-    riderOrders =
-      result.data || [];
-
-
-    updateDashboardStats();
-
-    renderEarnings();
-
-
-  }catch(error){
-
-    console.error(error);
-
-  }
-
-}
-
-
-/* =====================================================
-   AVAILABLE ORDER COUNT
-===================================================== */
-
-async function getAvailableCount(){
-
-  if(
-    demoMode ||
-    !supabaseClient
-  ){
-
-    return currentOrder &&
-      currentOrder.status ===
-      "ready_for_pickup"
-      ? 1
-      : 0;
-
-  }
-
-
-  const result =
-    await supabaseClient
-      .from("orders")
-      .select(
-        "id",
-        {
-          count:"exact",
-          head:true
-        }
-      )
-      .eq(
-        "status",
-        "ready_for_pickup"
-      )
-      .is(
-        "rider_id",
-        null
-      );
-
-
-  if(result.error){
-
-    console.error(
-      result.error
-    );
-
-    return 0;
-
-  }
-
-
-  return result.count || 0;
-
-}
-
-
-/* =====================================================
-   DASHBOARD STATS
-===================================================== */
-
-async function updateDashboardStats(){
-
-  const available =
-    await getAvailableCount();
-
-
-  let active =
-    0;
-
-  let completed =
-    0;
-
-  let todayEarnings =
-    0;
-
-
-  if(demoMode){
-
-    active =
-      currentOrder &&
-      currentOrder.status !== "delivered"
-      ? 1
-      : 0;
-
-
-    completed =
-      currentOrder &&
-      currentOrder.status === "delivered"
-      ? 1
-      : 0;
-
-
-    todayEarnings =
-      completed
-        ? Number(
-            currentOrder.delivery_fee || 0
-          )
-        : 0;
-
-  }else{
-
-    riderOrders.forEach(function(order){
-
-      if(
-        [
-          "rider_accepted",
-          "arrived_pickup",
-          "picked_up",
-          "on_the_way"
-        ].includes(order.status)
-      ){
-
-        active++;
-
-      }
-
-
-      if(
-        order.status ===
-        "delivered"
-      ){
-
-        completed++;
-
-
-        if(
-          isToday(
-            order.delivered_at ||
-            order.updated_at ||
-            order.created_at
-          )
-        ){
-
-          todayEarnings +=
-            Number(
-              order.delivery_fee || 0
+            throw new Error(
+                "No rider profile was found for this account."
             );
 
         }
 
-      }
+        currentRider = data;
 
-    });
-
-  }
-
-
-  document
-    .getElementById("availableCount")
-    .textContent =
-    available;
-
-
-  document
-    .getElementById("activeCount")
-    .textContent =
-    active;
-
-
-  document
-    .getElementById("completedCount")
-    .textContent =
-    completed;
-
-
-  document
-    .getElementById("todayStatsEarnings")
-    .textContent =
-    money(todayEarnings);
-
-
-  document
-    .getElementById("earningsAmount")
-    .textContent =
-    money(todayEarnings);
-
-}
-
-
-/* =====================================================
-   AUTOMATIC ORDER SCANNER
-===================================================== */
-
-function startScanner(){
-
-  stopScanner();
-
-
-  if(
-    !currentRider
-  ){
-
-    return;
-
-  }
-
-
-  /*
-    Scan immediately.
-  */
-
-  scanForNewOrders();
-
-
-  /*
-    Then keep scanning every 5 seconds.
-  */
-
-  scanTimer =
-    setInterval(
-      scanForNewOrders,
-      SCAN_INTERVAL
-    );
-
-
-  updateScannerText(
-    "SCANNING FOR NEW ORDERS..."
-  );
-
-}
-
-
-/* =====================================================
-   STOP SCANNER
-===================================================== */
-
-function stopScanner(){
-
-  if(scanTimer){
-
-    clearInterval(
-      scanTimer
-    );
-
-    scanTimer =
-      null;
-
-  }
-
-}
-
-
-/* =====================================================
-   SCANNER TEXT
-===================================================== */
-
-function updateScannerText(text){
-
-  const element =
-    document.getElementById(
-      "scannerText"
-    );
-
-
-  if(element){
-
-    element.textContent =
-      text;
-
-  }
-
-}
-
-
-/* =====================================================
-   SCAN FOR NEW ORDERS
-===================================================== */
-
-async function scanForNewOrders(){
-
-  if(
-    demoMode ||
-    !supabaseClient ||
-    !currentRider ||
-    !online
-  ){
-
-    return;
-
-  }
-
-
-  try{
-
-    updateScannerText(
-      "SCANNING FOR NEW ORDERS..."
-    );
-
-
-    const result =
-      await supabaseClient
-        .from("orders")
-        .select("*")
-        .eq(
-          "status",
-          "ready_for_pickup"
-        )
-        .is(
-          "rider_id",
-          null
-        )
-        .order(
-          "created_at",
-          {
-            ascending:false
-          }
-        )
-        .limit(20);
-
-
-    if(result.error){
-
-      throw result.error;
-
-    }
-
-
-    const orders =
-      result.data || [];
-
-
-    /*
-      Update available count.
-    */
-
-    document
-      .getElementById("availableCount")
-      .textContent =
-      orders.length;
-
-
-    /*
-      First scan:
-      remember existing orders without
-      showing a scary popup for old orders.
-    */
-
-    if(!scannerInitialized){
-
-      orders.forEach(function(order){
-
-        seenOrderIds.add(
-          order.id
-        );
-
-      });
-
-
-      scannerInitialized =
-        true;
-
-
-      /*
-        Show the newest available order
-        normally.
-      */
-
-      if(
-        orders.length &&
-        !currentOrder
-      ){
-
-        showOrder(
-          orders[0]
-        );
-
-      }
-
-
-      updateScannerText(
-        "SCANNING FOR NEW ORDERS..."
-      );
-
-      return;
-
-    }
-
-
-    /*
-      Find an order we have never seen.
-    */
-
-    let newOrder =
-      null;
-
-
-    for(
-      let i = 0;
-      i < orders.length;
-      i++
-    ){
-
-      const order =
-        orders[i];
-
-
-      if(
-        !seenOrderIds.has(
-          order.id
-        )
-      ){
-
-        newOrder =
-          order;
-
-        break;
-
-      }
-
-    }
-
-
-    /*
-      Remember all currently available orders.
-    */
-
-    orders.forEach(function(order){
-
-      seenOrderIds.add(
-        order.id
-      );
-
-    });
-
-
-    /*
-      New order detected!
-    */
-
-    if(
-      newOrder &&
-      newOrder.id !== lastDetectedOrderId
-    ){
-
-      lastDetectedOrderId =
-        newOrder.id;
-
-
-      showNewOrderDetected(
-        newOrder
-      );
-
-    }
-
-
-    updateScannerText(
-      "SCANNING FOR NEW ORDERS..."
-    );
-
-
-  }catch(error){
-
-    console.error(
-      "Order scanner error:",
-      error
-    );
-
-
-    updateScannerText(
-      "SCANNER RECONNECTING..."
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   SHOW NEW ORDER DETECTED
-===================================================== */
-
-function showNewOrderDetected(order){
-
-  pendingDetectedOrder =
-    order;
-
-
-  /*
-    Put the order into the dashboard.
-  */
-
-  showOrder(
-    order,
-    true
-  );
-
-
-  /*
-    Fill popup information.
-  */
-
-  document
-    .getElementById(
-      "detectOrderNumber"
-    )
-    .textContent =
-    "#" +
-    (
-      order.order_number ||
-      "ORDER"
-    );
-
-
-  document
-    .getElementById(
-      "detectRestaurant"
-    )
-    .textContent =
-    order.vendor_name ||
-    order.restaurant_name ||
-    order.store_name ||
-    "QuickEats Restaurant";
-
-
-  document
-    .getElementById(
-      "detectPickup"
-    )
-    .textContent =
-    order.pickup_address ||
-    order.restaurant_address ||
-    "Pickup address";
-
-
-  document
-    .getElementById(
-      "detectFee"
-    )
-    .textContent =
-    money(
-      order.delivery_fee || 0
-    );
-
-
-  /*
-    Show popup.
-  */
-
-  document
-    .getElementById(
-      "newOrderOverlay"
-    )
-    .classList.add(
-      "show"
-    );
-
-
-  /*
-    Beep.
-  */
-
-  beep();
-
-
-  /*
-    Vibrate phone if supported.
-  */
-
-  vibrate();
-
-
-  /*
-    Toast as extra visual feedback.
-  */
-
-  toast(
-    "🚨 NEW DELIVERY DETECTED!"
-  );
-
-}
-
-
-/* =====================================================
-   OPEN DETECTED ORDER
-===================================================== */
-
-function openDetectedOrder(){
-
-  const overlay =
-    document.getElementById(
-      "newOrderOverlay"
-    );
-
-
-  overlay.classList.remove(
-    "show"
-  );
-
-
-  if(
-    pendingDetectedOrder
-  ){
-
-    currentOrder =
-      pendingDetectedOrder;
-
-
-    showOrder(
-      pendingDetectedOrder,
-      true
-    );
-
-  }
-
-
-  pendingDetectedOrder =
-    null;
-
-
-  /*
-    Scroll down to order.
-  */
-
-  setTimeout(function(){
-
-    const card =
-      document.getElementById(
-        "orderCard"
-      );
-
-
-    if(card){
-
-      card.scrollIntoView({
-        behavior:"smooth",
-        block:"center"
-      });
-
-    }
-
-  },100);
-
-}
-
-
-/* =====================================================
-   DISMISS NEW ORDER
-===================================================== */
-
-function dismissNewOrder(){
-
-  document
-    .getElementById(
-      "newOrderOverlay"
-    )
-    .classList.remove(
-      "show"
-    );
-
-
-  pendingDetectedOrder =
-    null;
-
-}
-
-
-/* =====================================================
-   BEEP
-===================================================== */
-
-function beep(){
-
-  try{
-
-    const AudioContext =
-      window.AudioContext ||
-      window.webkitAudioContext;
-
-
-    if(!AudioContext){
-
-      return;
-
-    }
-
-
-    const audio =
-      new AudioContext();
-
-
-    const oscillator =
-      audio.createOscillator();
-
-
-    const gain =
-      audio.createGain();
-
-
-    oscillator.type =
-      "sine";
-
-
-    oscillator.frequency.setValueAtTime(
-      880,
-      audio.currentTime
-    );
-
-
-    oscillator.frequency.setValueAtTime(
-      1100,
-      audio.currentTime + .12
-    );
-
-
-    gain.gain.setValueAtTime(
-      .0001,
-      audio.currentTime
-    );
-
-
-    gain.gain.exponentialRampToValueAtTime(
-      .25,
-      audio.currentTime + .02
-    );
-
-
-    gain.gain.exponentialRampToValueAtTime(
-      .0001,
-      audio.currentTime + .35
-    );
-
-
-    oscillator.connect(
-      gain
-    );
-
-
-    gain.connect(
-      audio.destination
-    );
-
-
-    oscillator.start();
-
-
-    oscillator.stop(
-      audio.currentTime + .36
-    );
-
-
-  }catch(error){
-
-    console.log(
-      "Beep unavailable:",
-      error
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   PHONE VIBRATION
-===================================================== */
-
-function vibrate(){
-
-  try{
-
-    if(
-      navigator.vibrate
-    ){
-
-      navigator.vibrate([
-        180,
-        100,
-        180,
-        100,
-        300
-      ]);
-
-    }
-
-  }catch(error){
-
-    console.log(
-      "Vibration unavailable:",
-      error
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   LISTEN FOR REALTIME ORDERS
-===================================================== */
-
-async function listenForOrders(){
-
-  if(!supabaseClient){
-
-    return;
-
-  }
-
-
-  /*
-    Initial realtime check.
-  */
-
-  const result =
-    await supabaseClient
-      .from("orders")
-      .select("*")
-      .eq(
-        "status",
-        "ready_for_pickup"
-      )
-      .is(
-        "rider_id",
-        null
-      )
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      )
-      .limit(20);
-
-
-  if(
-    !result.error &&
-    result.data
-  ){
-
-    result.data.forEach(function(order){
-
-      seenOrderIds.add(
-        order.id
-      );
-
-    });
-
-
-    if(
-      result.data.length &&
-      !currentOrder
-    ){
-
-      showOrder(
-        result.data[0]
-      );
-
-    }
-
-  }
-
-
-  /*
-    Remove old channel.
-  */
-
-  if(realtimeChannel){
-
-    try{
-
-      await supabaseClient.removeChannel(
-        realtimeChannel
-      );
+        enterApp();
 
     }catch(error){
 
-      console.error(error);
+        console.error(error);
+
+        document.getElementById("loginError").textContent =
+            error.message || "Unable to load rider profile.";
 
     }
 
-  }
-
-
-  /*
-    Create realtime listener.
-  */
-
-  realtimeChannel =
-    supabaseClient
-      .channel(
-        "quickeats-rider-orders-" +
-        currentRider.id
-      )
-      .on(
-        "postgres_changes",
-        {
-          event:"*",
-          schema:"public",
-          table:"orders"
-        },
-        async function(payload){
-
-          const order =
-            payload.new;
-
-
-          /*
-            New ready order.
-          */
-
-          if(
-            order &&
-            order.status ===
-            "ready_for_pickup" &&
-            !order.rider_id
-          ){
-
-            /*
-              Only trigger if we
-              haven't already seen it.
-            */
-
-            if(
-              !seenOrderIds.has(
-                order.id
-              )
-            ){
-
-              seenOrderIds.add(
-                order.id
-              );
-
-
-              showNewOrderDetected(
-                order
-              );
-
-            }
-
-          }
-
-
-          /*
-            Active order update.
-          */
-
-          if(
-            currentOrder &&
-            order &&
-            order.id ===
-            currentOrder.id
-          ){
-
-            currentOrder =
-              order;
-
-
-            updateOrderFromRealtime();
-
-          }
-
-
-          await loadRiderOrders();
-
-        }
-      )
-      .subscribe();
-
 }
 
+/* ============================================================
+   ENTER APP
+============================================================ */
 
-/* =====================================================
-   SHOW ORDER
-===================================================== */
-
-function showOrder(
-  order,
-  animate
-){
-
-  currentOrder =
-    order;
-
-
-  document
-    .getElementById("empty")
-    .style.display =
-    "none";
-
-
-  const card =
-    document.getElementById(
-      "orderCard"
-    );
-
-
-  card.style.display =
-    "block";
-
-
-  /*
-    New-order animation.
-  */
-
-  card.classList.remove(
-    "new-order-detected"
-  );
-
-
-  if(animate){
-
-    /*
-      Force browser reflow so
-      animation can run again.
-    */
-
-    void card.offsetWidth;
-
-
-    card.classList.add(
-      "new-order-detected"
-    );
-
-  }
-
-
-  document
-    .getElementById("deliveryDetails")
-    .style.display =
-    order.rider_id
-      ? "block"
-      : "none";
-
-
-  document
-    .getElementById("acceptButton")
-    .style.display =
-    order.rider_id
-      ? "none"
-      : "block";
-
-
-  document
-    .getElementById("orderNumber")
-    .textContent =
-    "#" +
-    (
-      order.order_number ||
-      "ORDER"
-    );
-
-
-  document
-    .getElementById("restaurantName")
-    .textContent =
-    order.vendor_name ||
-    order.restaurant_name ||
-    order.store_name ||
-    "QuickEats Restaurant";
-
-
-  document
-    .getElementById("pickupAddress")
-    .textContent =
-    order.pickup_address ||
-    order.restaurant_address ||
-    "Pickup address";
-
-
-  document
-    .getElementById("orderTotal")
-    .textContent =
-    money(
-      order.total_amount ||
-      order.total ||
-      order.amount ||
-      0
-    );
-
-
-  renderItems(
-    order.items
-  );
-
-
-  if(order.rider_id){
-
-    showAccepted();
-
-  }else{
+async function enterApp(){
 
     document
-      .getElementById("orderBadge")
-      .textContent =
-      "READY FOR PICKUP";
-
-  }
-
-}
-
-
-/* =====================================================
-   REALTIME ACTIVE ORDER UPDATE
-===================================================== */
-
-function updateOrderFromRealtime(){
-
-  if(!currentOrder){
-
-    return;
-
-  }
-
-
-  document
-    .getElementById("orderBadge")
-    .textContent =
-    formatStatus(
-      currentOrder.status
-    );
-
-
-  if(
-    currentOrder.rider_id ===
-    currentRider?.id
-  ){
-
-    showAccepted();
-
-  }
-
-}
-
-
-/* =====================================================
-   ITEMS
-===================================================== */
-
-function renderItems(items){
-
-  const box =
-    document.getElementById(
-      "items"
-    );
-
-
-  box.innerHTML =
-    "";
-
-
-  let list =
-    items;
-
-
-  if(typeof list === "string"){
-
-    try{
-
-      list =
-        JSON.parse(list);
-
-    }catch(error){
-
-      list = [];
-
-    }
-
-  }
-
-
-  if(!Array.isArray(list)){
-
-    list = [];
-
-  }
-
-
-  list.forEach(function(item){
-
-    const div =
-      document.createElement(
-        "div"
-      );
-
-
-    div.className =
-      "item";
-
-
-    const quantity =
-      Number(
-        item.quantity ||
-        item.qty ||
-        1
-      );
-
-
-    const price =
-      Number(
-        item.price ||
-        item.unit_price ||
-        0
-      );
-
-
-    div.innerHTML =
-      `
-        <span>
-          ${quantity}×
-          ${safe(
-            item.name ||
-            item.item_name ||
-            "Food"
-          )}
-        </span>
-
-        <strong>
-          ${money(
-            price * quantity
-          )}
-        </strong>
-      `;
-
-
-    box.appendChild(
-      div
-    );
-
-  });
-
-}
-
-
-/* =====================================================
-   ACCEPT DELIVERY
-===================================================== */
-
-async function acceptDelivery(){
-
-  if(!currentOrder){
-
-    return;
-
-  }
-
-
-  /*
-    Close detection popup if open.
-  */
-
-  dismissNewOrder();
-
-
-  if(demoMode){
-
-    acceptDemoDelivery();
-
-    return;
-
-  }
-
-
-  if(!supabaseClient){
-
-    message(
-      "Supabase is not connected."
-    );
-
-    return;
-
-  }
-
-
-  if(!currentRider){
-
-    message(
-      "Rider profile not found."
-    );
-
-    return;
-
-  }
-
-
-  const button =
-    document.getElementById(
-      "acceptButton"
-    );
-
-
-  button.disabled =
-    true;
-
-
-  button.textContent =
-    "ACCEPTING...";
-
-
-  try{
-
-    const result =
-      await supabaseClient.rpc(
-        "accept_delivery",
-        {
-          p_order_id:
-            currentOrder.id,
-
-          p_rider_id:
-            currentRider.id
-        }
-      );
-
-
-    if(result.error){
-
-      throw result.error;
-
-    }
-
-
-    currentOrder =
-      result.data;
-
-
-    showAccepted();
-
-
-    await loadRiderOrders();
-
-
-    toast(
-      "Delivery accepted."
-    );
-
-
-  }catch(error){
-
-    console.error(error);
-
-
-    button.disabled =
-      false;
-
-
-    button.textContent =
-      "ACCEPT DELIVERY";
-
-
-    /*
-      Another rider may have
-      accepted it first.
-    */
-
-    if(
-      String(
-        error.message || ""
-      ).toLowerCase()
-      .includes(
-        "no longer available"
-      )
-    ){
-
-      toast(
-        "This delivery was already accepted by another rider."
-      );
-
-
-      document
-        .getElementById(
-          "orderCard"
-        )
-        .style.display =
-        "none";
-
-
-      document
-        .getElementById(
-          "empty"
-        )
-        .style.display =
-        "block";
-
-
-      currentOrder =
-        null;
-
-    }else{
-
-      message(
-        error.message ||
-        "Could not accept delivery."
-      );
-
-    }
-
-  }
-
-}
-
-
-/* =====================================================
-   DEMO ACCEPT
-===================================================== */
-
-function acceptDemoDelivery(){
-
-  currentOrder.status =
-    "rider_accepted";
-
-
-  currentOrder.rider_id =
-    "demo-rider";
-
-
-  showAccepted();
-
-
-  updateDashboardStats();
-
-}
-
-
-/* =====================================================
-   SHOW ACCEPTED
-===================================================== */
-
-function showAccepted(){
-
-  document
-    .getElementById("acceptButton")
-    .style.display =
-    "none";
-
-
-  document
-    .getElementById("deliveryDetails")
-    .style.display =
-    "block";
-
-
-  document
-    .getElementById("customerName")
-    .textContent =
-    currentOrder.customer_name ||
-    "Customer";
-
-
-  document
-    .getElementById("customerPhone")
-    .textContent =
-    currentOrder.customer_phone ||
-    currentOrder.phone ||
-    "-";
-
-
-  document
-    .getElementById("detailPickup")
-    .textContent =
-    currentOrder.pickup_address ||
-    "Pickup address";
-
-
-  document
-    .getElementById("deliveryAddress")
-    .textContent =
-    currentOrder.delivery_address ||
-    "Delivery address";
-
-
-  document
-    .getElementById("deliveryFee")
-    .textContent =
-    money(
-      currentOrder.delivery_fee
-    );
-
-
-  const phone =
-    currentOrder.customer_phone ||
-    currentOrder.phone;
-
-
-  const phoneButton =
-    document.getElementById(
-      "phoneButton"
-    );
-
-
-  if(phone){
-
-    phoneButton.href =
-      "tel:" + phone;
-
-    phoneButton.style.display =
-      "block";
-
-  }else{
-
-    phoneButton.style.display =
-      "none";
-
-  }
-
-
-  updateStatusScreen();
-
-}
-
-
-/* =====================================================
-   NEXT STATUS
-===================================================== */
-
-async function nextStatus(){
-
-  if(!currentOrder){
-
-    return;
-
-  }
-
-
-  let next =
-    "";
-
-
-  if(
-    currentOrder.status ===
-    "rider_accepted"
-  ){
-
-    next =
-      "arrived_pickup";
-
-  }
-
-  else if(
-    currentOrder.status ===
-    "arrived_pickup"
-  ){
-
-    next =
-      "picked_up";
-
-  }
-
-  else if(
-    currentOrder.status ===
-    "picked_up"
-  ){
-
-    next =
-      "on_the_way";
-
-  }
-
-  else if(
-    currentOrder.status ===
-    "on_the_way"
-  ){
-
-    next =
-      "delivered";
-
-  }
-
-
-  if(!next){
-
-    return;
-
-  }
-
-
-  if(demoMode){
-
-    currentOrder.status =
-      next;
-
-
-    updateStatusScreen();
-
-    updateDashboardStats();
-
-
-    if(next === "delivered"){
-
-      renderEarnings();
-
-    }
-
-
-    return;
-
-  }
-
-
-  const button =
-    document.getElementById(
-      "statusButton"
-    );
-
-
-  button.disabled =
-    true;
-
-
-  button.textContent =
-    "UPDATING...";
-
-
-  try{
-
-    const result =
-      await supabaseClient.rpc(
-        "update_delivery_status",
-        {
-          p_order_id:
-            currentOrder.id,
-
-          p_status:
-            next
-        }
-      );
-
-
-    if(result.error){
-
-      throw result.error;
-
-    }
-
-
-    currentOrder =
-      result.data;
-
-
-    updateStatusScreen();
-
-
-    await loadRiderOrders();
-
-
-    toast(
-      "Delivery status updated."
-    );
-
-
-  }catch(error){
-
-    console.error(error);
-
-
-    button.disabled =
-      false;
-
-
-    message(
-      error.message ||
-      "Could not update delivery."
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   UPDATE STATUS SCREEN
-===================================================== */
-
-function updateStatusScreen(){
-
-  const button =
-    document.getElementById(
-      "statusButton"
-    );
-
-
-  const statusBox =
-    document.getElementById(
-      "statusBox"
-    );
-
-
-  button.disabled =
-    false;
-
-
-  button.style.display =
-    "block";
-
-
-  if(
-    currentOrder.status ===
-    "rider_accepted"
-  ){
-
-    button.textContent =
-      "ARRIVED AT RESTAURANT";
-
-
-    statusBox.textContent =
-      "Delivery accepted — head to the restaurant.";
-
-  }
-
-
-  else if(
-    currentOrder.status ===
-    "arrived_pickup"
-  ){
-
-    button.textContent =
-      "MARK FOOD PICKED UP";
-
-
-    statusBox.textContent =
-      "You have arrived at the restaurant.";
-
-  }
-
-
-  else if(
-    currentOrder.status ===
-    "picked_up"
-  ){
-
-    button.textContent =
-      "START DELIVERY";
-
-
-    statusBox.textContent =
-      "Food picked up — ready for delivery.";
-
-  }
-
-
-  else if(
-    currentOrder.status ===
-    "on_the_way"
-  ){
-
-    button.textContent =
-      "MARK DELIVERED";
-
-
-    statusBox.textContent =
-      "You are on the way to the customer.";
-
-  }
-
-
-  else if(
-    currentOrder.status ===
-    "delivered"
-  ){
-
-    statusBox.textContent =
-      "Delivery completed successfully.";
-
-
-    button.style.display =
-      "none";
-
+        .getElementById("loginPage")
+        .classList.add("hidden");
 
     document
-      .getElementById("success")
-      .style.display =
-      "flex";
+        .getElementById("app")
+        .classList.remove("hidden");
 
-  }
+    const name =
+        getRiderName();
+
+    document.getElementById("headerSub").textContent =
+        name + " • Rider";
+
+    document.getElementById("welcomeText").textContent =
+        "Your scanner is monitoring for new orders.";
+
+    document.getElementById("profileName").textContent =
+        name;
+
+    document.getElementById("profileEmail").textContent =
+        currentUser?.email || "Demo Rider";
+
+    document.getElementById("avatar").textContent =
+        name.charAt(0).toUpperCase();
+
+    isOnline = true;
+
+    updateOnlineUI();
+
+    await refreshStats();
+
+    await loadCompletedOrders();
+
+    startScanner();
 
 }
 
+/* ============================================================
+   RIDER HELPERS
+============================================================ */
 
-/* =====================================================
-   EARNINGS
-===================================================== */
+function getRiderName(){
 
-function renderEarnings(){
-
-  const list =
-    document.getElementById(
-      "earningsList"
+    return (
+        currentRider?.name ||
+        currentRider?.full_name ||
+        currentRider?.rider_name ||
+        "Rider"
     );
 
-
-  if(!list){
-
-    return;
-
-  }
-
-
-  let completed = [];
-
-
-  if(demoMode){
-
-    if(
-      currentOrder &&
-      currentOrder.status ===
-      "delivered"
-    ){
-
-      completed = [
-        currentOrder
-      ];
-
-    }
-
-  }else{
-
-    completed =
-      riderOrders.filter(
-        function(order){
-
-          return order.status ===
-            "delivered";
-
-        }
-      );
-
-  }
-
-
-  if(!completed.length){
-
-    list.innerHTML =
-      `
-        <div class="empty">
-          No completed deliveries yet.
-        </div>
-      `;
-
-    return;
-
-  }
-
-
-  list.innerHTML =
-    completed
-      .slice(0,20)
-      .map(function(order){
-
-        const date =
-          order.delivered_at ||
-          order.updated_at ||
-          order.created_at;
-
-
-        return `
-          <div class="earning-row">
-
-            <div>
-
-              <div class="earning-order">
-                #${safe(
-                  order.order_number ||
-                  "ORDER"
-                )}
-              </div>
-
-              <div class="earning-date">
-                ${formatDate(date)}
-              </div>
-
-            </div>
-
-            <div class="earning-amount">
-              ${money(
-                order.delivery_fee
-              )}
-            </div>
-
-          </div>
-        `;
-
-      })
-      .join("");
-
 }
 
+function getOrderNumber(order){
 
-/* =====================================================
-   PAGES
-===================================================== */
-
-function showPage(
-  pageId,
-  button
-){
-
-  document
-    .querySelectorAll(".page")
-    .forEach(
-      function(page){
-
-        page.classList.remove(
-          "active"
-        );
-
-      }
+    return (
+        order?.order_number ||
+        order?.order_no ||
+        order?.id?.slice(0,8) ||
+        "---"
     );
 
+}
 
-  document
-    .getElementById(pageId)
-    .classList.add(
-      "active"
+function getRestaurant(order){
+
+    return (
+        order?.restaurant_name ||
+        order?.store_name ||
+        order?.vendor_name ||
+        "QuickEats Restaurant"
     );
 
+}
 
-  document
-    .querySelectorAll(".nav button")
-    .forEach(
-      function(btn){
+function getPickup(order){
 
-        btn.classList.remove(
-          "active"
-        );
-
-      }
+    return (
+        order?.pickup_address ||
+        order?.vendor_address ||
+        order?.restaurant_address ||
+        order?.pickup ||
+        "Pickup location"
     );
 
-
-  button.classList.add(
-    "active"
-  );
-
-
-  if(
-    pageId ===
-    "earningsPage"
-  ){
-
-    renderEarnings();
-
-  }
-
 }
 
+function getDelivery(order){
 
-/* =====================================================
-   ONLINE
-===================================================== */
-
-function toggleOnline(){
-
-  online =
-    !online;
-
-
-  const button =
-    document.getElementById(
-      "onlineButton"
+    return (
+        order?.delivery_address ||
+        order?.customer_address ||
+        order?.dropoff_address ||
+        order?.address ||
+        "Delivery location"
     );
 
+}
 
-  button.textContent =
-    online
-      ? "🟢 ONLINE"
-      : "🔴 OFFLINE";
+function getCustomer(order){
 
-
-  document
-    .getElementById("profileStatus")
-    .textContent =
-    online
-      ? "Online"
-      : "Offline";
-
-
-  if(online){
-
-    updateScannerText(
-      "SCANNING FOR NEW ORDERS..."
+    return (
+        order?.customer_name ||
+        order?.name ||
+        "Customer"
     );
 
+}
 
-    if(
-      !scanTimer &&
-      currentRider
-    ){
+function getPhone(order){
 
-      startScanner();
-
-    }
-
-  }else{
-
-    updateScannerText(
-      "SCANNER PAUSED — YOU ARE OFFLINE"
+    return (
+        order?.customer_phone ||
+        order?.phone ||
+        "Not available"
     );
 
-  }
+}
+
+function getOrderTotal(order){
+
+    const value =
+        order?.total_amount ??
+        order?.total ??
+        order?.amount ??
+        0;
+
+    return Number(value) || 0;
 
 }
 
+function getDeliveryFee(order){
 
-/* =====================================================
-   LOGOUT
-===================================================== */
+    const value =
+        order?.delivery_fee ??
+        order?.rider_fee ??
+        order?.rider_earnings ??
+        order?.delivery_earnings ??
+        order?.rider_amount ??
+        0;
 
-async function logoutRider(){
-
-  stopScanner();
-
-
-  if(
-    supabaseClient &&
-    !demoMode
-  ){
-
-    await supabaseClient.auth.signOut();
-
-  }
-
-
-  if(
-    supabaseClient &&
-    realtimeChannel
-  ){
-
-    try{
-
-      await supabaseClient.removeChannel(
-        realtimeChannel
-      );
-
-    }catch(error){
-
-      console.error(error);
-
-    }
-
-  }
-
-
-  currentUser =
-    null;
-
-  currentRider =
-    null;
-
-  currentOrder =
-    null;
-
-  riderOrders =
-    [];
-
-  demoMode =
-    false;
-
-  realtimeChannel =
-    null;
-
-
-  scannerInitialized =
-    false;
-
-
-  seenOrderIds =
-    new Set();
-
-
-  lastDetectedOrderId =
-    null;
-
-
-  pendingDetectedOrder =
-    null;
-
-
-  document
-    .getElementById(
-      "newOrderOverlay"
-    )
-    .classList.remove(
-      "show"
-    );
-
-
-  document
-    .getElementById("app")
-    .style.display =
-    "none";
-
-
-  document
-    .getElementById("login")
-    .style.display =
-    "flex";
-
-
-  document
-    .getElementById("password")
-    .value =
-    "";
-
-
-  document
-    .getElementById("orderCard")
-    .style.display =
-    "none";
-
-
-  document
-    .getElementById("empty")
-    .style.display =
-    "block";
+    return Number(value) || 0;
 
 }
-
-
-/* =====================================================
-   SUCCESS
-===================================================== */
-
-function closeSuccess(){
-
-  document
-    .getElementById("success")
-    .style.display =
-    "none";
-
-
-  document
-    .getElementById("orderCard")
-    .style.display =
-    "none";
-
-
-  document
-    .getElementById("empty")
-    .style.display =
-    "block";
-
-
-  currentOrder =
-    null;
-
-
-  updateDashboardStats();
-
-}
-
-
-/* =====================================================
-   FORMAT STATUS
-===================================================== */
-
-function formatStatus(status){
-
-  const names = {
-
-    ready_for_pickup:
-      "READY FOR PICKUP",
-
-    rider_accepted:
-      "DELIVERY ACCEPTED",
-
-    arrived_pickup:
-      "AT RESTAURANT",
-
-    picked_up:
-      "FOOD PICKED UP",
-
-    on_the_way:
-      "ON THE WAY",
-
-    delivered:
-      "DELIVERED",
-
-    cancelled:
-      "CANCELLED"
-
-  };
-
-
-  return names[status] ||
-    "DELIVERY";
-
-}
-
-
-/* =====================================================
-   TODAY CHECK
-===================================================== */
-
-function isToday(value){
-
-  if(!value){
-
-    return false;
-
-  }
-
-
-  const date =
-    new Date(value);
-
-
-  const today =
-    new Date();
-
-
-  return (
-    date.getFullYear() ===
-      today.getFullYear() &&
-
-    date.getMonth() ===
-      today.getMonth() &&
-
-    date.getDate() ===
-      today.getDate()
-  );
-
-}
-
-
-/* =====================================================
-   DATE
-===================================================== */
-
-function formatDate(value){
-
-  if(!value){
-
-    return "-";
-
-  }
-
-
-  const date =
-    new Date(value);
-
-
-  if(
-    Number.isNaN(
-      date.getTime()
-    )
-  ){
-
-    return "-";
-
-  }
-
-
-  return date.toLocaleString(
-    "en-NG",
-    {
-      day:"numeric",
-      month:"short",
-      hour:"2-digit",
-      minute:"2-digit"
-    }
-  );
-
-}
-
-
-/* =====================================================
-   MONEY
-===================================================== */
 
 function money(value){
 
-  return "₦" +
-    Number(value || 0)
-      .toLocaleString(
-        "en-NG"
-      );
+    return "₦" +
+        Number(value || 0)
+            .toLocaleString("en-NG",{
+                maximumFractionDigits:0
+            });
 
 }
 
+/* ============================================================
+   PAGE NAVIGATION
+============================================================ */
 
-/* =====================================================
-   SAFE HTML
-===================================================== */
+function showPage(page){
 
-function safe(value){
+    document
+        .querySelectorAll(".page")
+        .forEach(el =>
+            el.classList.remove("active")
+        );
 
-  return String(value)
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-    .replaceAll(
-      "'",
-      "&#039;"
+    document
+        .querySelectorAll(".nav-btn")
+        .forEach(el =>
+            el.classList.remove("active")
+        );
+
+    if(page === "home"){
+
+        document
+            .getElementById("homePage")
+            .classList.add("active");
+
+        document
+            .getElementById("navHome")
+            .classList.add("active");
+
+    }
+
+    if(page === "earnings"){
+
+        document
+            .getElementById("earningsPage")
+            .classList.add("active");
+
+        document
+            .getElementById("navEarnings")
+            .classList.add("active");
+
+        loadCompletedOrders();
+
+    }
+
+    if(page === "profile"){
+
+        document
+            .getElementById("profilePage")
+            .classList.add("active");
+
+        document
+            .getElementById("navProfile")
+            .classList.add("active");
+
+    }
+
+}
+
+/* ============================================================
+   ONLINE / OFFLINE
+============================================================ */
+
+function toggleOnline(){
+
+    unlockAudio();
+
+    isOnline = !isOnline;
+
+    updateOnlineUI();
+
+    if(isOnline){
+
+        showToast("Scanner online");
+
+        startScanner();
+
+    }else{
+
+        stopScanner();
+
+        showToast("Scanner paused");
+
+    }
+
+}
+
+function updateOnlineUI(){
+
+    const button =
+        document.getElementById("onlineBtn");
+
+    const text =
+        document.getElementById("onlineText");
+
+    const scanner =
+        document.getElementById("scannerPanel");
+
+    const scannerText =
+        document.getElementById("scannerMainText");
+
+    const scannerStatus =
+        document.getElementById("scannerStatus");
+
+    if(isOnline){
+
+        button.classList.remove("offline");
+
+        text.textContent = "ONLINE";
+
+        scanner.classList.remove("scanner-paused");
+
+        scannerText.textContent =
+            "SCANNING FOR NEW ORDERS";
+
+        scannerStatus.textContent =
+            "SYSTEM ACTIVE • SIGNAL SEARCH";
+
+    }else{
+
+        button.classList.add("offline");
+
+        text.textContent = "OFFLINE";
+
+        scanner.classList.add("scanner-paused");
+
+        scannerText.textContent =
+            "SCANNER PAUSED";
+
+        scannerStatus.textContent =
+            "SYSTEM PAUSED • GO ONLINE";
+
+    }
+
+}
+
+/* ============================================================
+   SCANNER START / STOP
+============================================================ */
+
+function startScanner(){
+
+    if(!supabaseClient) return;
+
+    if(!isOnline) return;
+
+    if(scannerTimer) return;
+
+    scannerInitialized = false;
+
+    updateOnlineUI();
+
+    /*
+     * First scan is silent.
+     * This prevents existing orders from producing an alert
+     * when the rider first opens the app.
+     */
+    scanForNewOrders(true);
+
+    scannerTimer =
+        setInterval(() => {
+
+            scanForNewOrders(false);
+
+        },7000);
+
+    listenForOrders();
+
+}
+
+function stopScanner(){
+
+    if(scannerTimer){
+
+        clearInterval(scannerTimer);
+
+        scannerTimer = null;
+
+    }
+
+    if(realtimeChannel){
+
+        supabaseClient
+            .removeChannel(realtimeChannel)
+            .catch(()=>{});
+
+        realtimeChannel = null;
+
+    }
+
+}
+
+/* ============================================================
+   AUTOMATIC ORDER SCAN
+============================================================ */
+
+async function scanForNewOrders(initialScan = false){
+
+    if(!supabaseClient) return;
+
+    if(!isOnline) return;
+
+    if(scannerBusy) return;
+
+    scannerBusy = true;
+
+    try{
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("orders")
+                .select("*")
+                .eq("status","ready_for_pickup")
+                .is("rider_id",null)
+                .order("created_at",{
+                    ascending:false
+                })
+                .limit(30);
+
+        if(error) throw error;
+
+        const orders = data || [];
+
+        /*
+         * First scan:
+         * remember all current orders without alerting.
+         */
+        if(!scannerInitialized || initialScan){
+
+            orders.forEach(order => {
+
+                if(order?.id){
+
+                    seenOrderIds.add(order.id);
+
+                }
+
+            });
+
+            scannerInitialized = true;
+
+            /*
+             * If there is no active delivery,
+             * silently display the newest available order.
+             */
+            if(
+                orders.length &&
+                !hasActiveAssignedDelivery() &&
+                !currentOrder
+            ){
+
+                showOrder(
+                    orders[0],
+                    false
+                );
+
+            }
+
+        }else{
+
+            /*
+             * Look for a genuinely new order.
+             */
+            const newOrder =
+                orders.find(order =>
+                    order?.id &&
+                    !seenOrderIds.has(order.id)
+                );
+
+            orders.forEach(order => {
+
+                if(order?.id){
+
+                    seenOrderIds.add(order.id);
+
+                }
+
+            });
+
+            if(newOrder){
+
+                showNewOrderDetected(newOrder);
+
+            }
+
+        }
+
+        updateAvailableCount(orders.length);
+
+    }catch(error){
+
+        console.error(
+            "Scanner error:",
+            error
+        );
+
+        /*
+         * We don't interrupt the rider experience if one
+         * polling request fails. Realtime can still work.
+         */
+
+    }finally{
+
+        scannerBusy = false;
+
+    }
+
+}
+
+/* ============================================================
+   REALTIME
+============================================================ */
+
+function listenForOrders(){
+
+    if(!supabaseClient) return;
+
+    if(realtimeChannel) return;
+
+    realtimeChannel =
+        supabaseClient
+            .channel(
+                "rider-orders-" +
+                (currentRider?.id || "demo")
+            )
+            .on(
+                "postgres_changes",
+                {
+                    event:"*",
+                    schema:"public",
+                    table:"orders"
+                },
+                payload => {
+
+                    handleRealtimeOrder(payload);
+
+                }
+            )
+            .subscribe(status => {
+
+                if(status === "SUBSCRIBED"){
+
+                    console.log(
+                        "Rider realtime connected"
+                    );
+
+                    document
+                        .getElementById("scannerStatus")
+                        .textContent =
+                        "SYSTEM ACTIVE • LIVE LINK";
+
+                }
+
+                if(
+                    status === "CHANNEL_ERROR" ||
+                    status === "TIMED_OUT"
+                ){
+
+                    document
+                        .getElementById("scannerStatus")
+                        .textContent =
+                        "SYSTEM ACTIVE • POLLING FALLBACK";
+
+                }
+
+            });
+
+}
+
+function handleRealtimeOrder(payload){
+
+    if(!isOnline) return;
+
+    const order =
+        payload?.new;
+
+    if(!order?.id) return;
+
+    /*
+     * We care about orders becoming ready_for_pickup.
+     * This catches both INSERT and UPDATE events.
+     */
+    const becameReady =
+        order.status === "ready_for_pickup" &&
+        !order.rider_id;
+
+    if(!becameReady) return;
+
+    /*
+     * Duplicate protection:
+     * Realtime and polling may see the same order.
+     */
+    if(seenOrderIds.has(order.id)) return;
+
+    seenOrderIds.add(order.id);
+
+    showNewOrderDetected(order);
+
+    /*
+     * Refresh the available counter shortly after the event.
+     */
+    setTimeout(() => {
+
+        scanForNewOrders(false);
+
+    },500);
+
+}
+
+/* ============================================================
+   DETECT NEW ORDER
+============================================================ */
+
+function showNewOrderDetected(order){
+
+    if(!order?.id) return;
+
+    /*
+     * Extra duplicate protection.
+     */
+    if(lastDetectedOrderId === order.id){
+
+        return;
+
+    }
+
+    lastDetectedOrderId = order.id;
+
+    pendingDetectedOrder = order;
+
+    /*
+     * Make the scanner itself react.
+     */
+    const flash =
+        document.getElementById("scannerFlash");
+
+    flash.classList.remove("show");
+
+    void flash.offsetWidth;
+
+    flash.classList.add("show");
+
+    const scanner =
+        document.getElementById("scannerPanel");
+
+    scanner.classList.remove("scanner-paused");
+
+    /*
+     * Strong detection sound + vibration.
+     */
+    detectionSound();
+    vibrateDetection();
+
+    /*
+     * Fill popup.
+     */
+    document.getElementById(
+        "popupOrderNumber"
+    ).textContent =
+        "Order #" + getOrderNumber(order);
+
+    document.getElementById(
+        "popupRestaurant"
+    ).textContent =
+        getRestaurant(order);
+
+    document.getElementById(
+        "popupPickup"
+    ).textContent =
+        "📍 " + getPickup(order);
+
+    document.getElementById(
+        "popupFee"
+    ).textContent =
+        money(getDeliveryFee(order));
+
+    const popup =
+        document.getElementById("orderPopup");
+
+    popup.classList.remove("show");
+
+    void popup.offsetWidth;
+
+    popup.classList.add("show");
+
+    /*
+     * If the rider already has an active delivery,
+     * don't overwrite the active order card.
+     */
+    if(hasActiveAssignedDelivery()){
+
+        showToast(
+            "New delivery waiting. Finish your current delivery first."
+        );
+
+    }else{
+
+        showToast(
+            "New delivery detected"
+        );
+
+    }
+
+    /*
+     * Auto-hide popup after 8 seconds.
+     */
+    clearTimeout(popupTimer);
+
+    popupTimer =
+        setTimeout(() => {
+
+            dismissDetectedOrder();
+
+        },8000);
+
+}
+
+/* ============================================================
+   POPUP ACTIONS
+============================================================ */
+
+function openDetectedOrder(){
+
+    clearTimeout(popupTimer);
+
+    if(!pendingDetectedOrder){
+
+        dismissDetectedOrder();
+
+        return;
+
+    }
+
+    /*
+     * Never replace an active delivery.
+     */
+    if(hasActiveAssignedDelivery()){
+
+        hideOrderPopup();
+
+        showToast(
+            "Finish your current delivery first."
+        );
+
+        return;
+
+    }
+
+    const order =
+        pendingDetectedOrder;
+
+    hideOrderPopup();
+
+    showOrder(
+        order,
+        true
+    );
+
+    document
+        .getElementById("orderCard")
+        .scrollIntoView({
+            behavior:"smooth",
+            block:"center"
+        });
+
+}
+
+function dismissDetectedOrder(){
+
+    clearTimeout(popupTimer);
+
+    hideOrderPopup();
+
+}
+
+function hideOrderPopup(){
+
+    document
+        .getElementById("orderPopup")
+        .classList.remove("show");
+
+}
+
+/* ============================================================
+   ACTIVE DELIVERY CHECK
+============================================================ */
+
+function hasActiveAssignedDelivery(){
+
+    if(!currentOrder) return false;
+
+    const activeStatuses = [
+        "rider_accepted",
+        "arrived_pickup",
+        "picked_up",
+        "on_the_way"
+    ];
+
+    return (
+        !!currentOrder.rider_id &&
+        activeStatuses.includes(
+            currentOrder.status
+        )
     );
 
 }
 
+/* ============================================================
+   SHOW ORDER
+============================================================ */
 
-/* =====================================================
-   HIDE LOGIN MESSAGE
-===================================================== */
+function showOrder(order, animate = false){
 
-function showMessageAndHide(){
+    if(!order) return;
 
-  document
-    .getElementById("message")
-    .style.display =
-    "none";
+    currentOrder = order;
+
+    const card =
+        document.getElementById("orderCard");
+
+    document
+        .getElementById("emptyOrder")
+        .classList.add("hidden");
+
+    card.classList.remove("hidden");
+
+    /*
+     * Reset action controls every time.
+     * This prevents a previous completed order from
+     * leaving the next accepted order without a button.
+     */
+    document
+        .getElementById("acceptBtn")
+        .style.display = "block";
+
+    document
+        .getElementById("statusBtn")
+        .classList.add("hidden");
+
+    document
+        .getElementById("deliveryDetails")
+        .classList.add("hidden");
+
+    if(animate){
+
+        card.classList.remove("detected");
+
+        void card.offsetWidth;
+
+        card.classList.add("detected");
+
+    }
+
+    document.getElementById(
+        "orderNumber"
+    ).textContent =
+        "Order #" + getOrderNumber(order);
+
+    document.getElementById(
+        "orderRestaurant"
+    ).textContent =
+        getRestaurant(order);
+
+    document.getElementById(
+        "pickupAddress"
+    ).textContent =
+        getPickup(order);
+
+    document.getElementById(
+        "deliveryAddress"
+    ).textContent =
+        getDelivery(order);
+
+    document.getElementById(
+        "customerName"
+    ).textContent =
+        getCustomer(order);
+
+    document.getElementById(
+        "customerPhone"
+    ).textContent =
+        getPhone(order);
+
+    document.getElementById(
+        "deliveryFee"
+    ).textContent =
+        money(getDeliveryFee(order));
+
+    document.getElementById(
+        "orderTotal"
+    ).textContent =
+        "Order total: " +
+        money(getOrderTotal(order));
+
+    document.getElementById(
+        "orderStatus"
+    ).textContent =
+        formatStatus(order.status);
+
+    if(order.rider_id){
+
+        document
+            .getElementById("acceptBtn")
+            .style.display = "none";
+
+        showAccepted(order);
+
+    }else{
+
+        document
+            .getElementById("acceptBtn")
+            .style.display = "block";
+
+    }
 
 }
 
-</script>
+/* ============================================================
+   ACCEPT DELIVERY
+============================================================ */
 
-</body>
-</html>
+async function acceptCurrentOrder(){
+
+    if(!currentOrder){
+
+        showToast("No delivery selected.");
+
+        return;
+
+    }
+
+    if(
+        !currentRider?.id ||
+        currentRider.id === "demo-rider"
+    ){
+
+        /*
+         * Demo mode.
+         */
+        currentOrder.rider_id =
+            currentRider?.id || "demo-rider";
+
+        currentOrder.status =
+            "rider_accepted";
+
+        showAccepted(currentOrder);
+
+        showToast(
+            "Demo delivery accepted"
+        );
+
+        refreshStats();
+
+        return;
+
+    }
+
+    const button =
+        document.getElementById("acceptBtn");
+
+    button.disabled = true;
+
+    button.textContent =
+        "ACCEPTING...";
+
+    try{
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient.rpc(
+                "accept_delivery",
+                {
+                    p_order_id:currentOrder.id,
+                    p_rider_id:currentRider.id
+                }
+            );
+
+        if(error) throw error;
+
+        const accepted =
+            Array.isArray(data)
+                ? data[0]
+                : data;
+
+        if(!accepted){
+
+            throw new Error(
+                "This delivery is no longer available."
+            );
+
+        }
+
+        currentOrder =
+            accepted;
+
+        showAccepted(
+            accepted
+        );
+
+        showToast(
+            "Delivery accepted!"
+        );
+
+        await refreshStats();
+
+    }catch(error){
+
+        console.error(error);
+
+        button.disabled = false;
+
+        button.textContent =
+            "ACCEPT DELIVERY";
+
+        /*
+         * Another rider may have accepted it.
+         */
+        showToast(
+            error.message ||
+            "Delivery could not be accepted."
+        );
+
+        await scanForNewOrders(false);
+
+    }
+
+}
+
+/* ============================================================
+   ACCEPTED DELIVERY
+============================================================ */
+
+function showAccepted(order){
+
+    document
+        .getElementById("acceptBtn")
+        .style.display = "none";
+
+    document
+        .getElementById("statusBtn")
+        .classList.remove("hidden");
+
+    document
+        .getElementById("deliveryDetails")
+        .classList.remove("hidden");
+
+    updateStatusScreen(
+        order.status
+    );
+
+}
+
+/* ============================================================
+   STATUS FLOW
+============================================================ */
+
+function getNextStatus(status){
+
+    const flow = {
+        rider_accepted:"arrived_pickup",
+        arrived_pickup:"picked_up",
+        picked_up:"on_the_way",
+        on_the_way:"delivered"
+    };
+
+    return flow[status] || null;
+
+}
+
+function getStatusButtonText(status){
+
+    const text = {
+        rider_accepted:"ARRIVED AT PICKUP",
+        arrived_pickup:"CONFIRM PICKUP",
+        picked_up:"START DELIVERY",
+        on_the_way:"MARK DELIVERED"
+    };
+
+    return text[status] || "UPDATE STATUS";
+
+}
+
+function updateStatusScreen(status){
+
+    document.getElementById(
+        "orderStatus"
+    ).textContent =
+        formatStatus(status);
+
+    document.getElementById(
+        "currentStatusText"
+    ).textContent =
+        formatStatus(status);
+
+    const button =
+        document.getElementById("statusBtn");
+
+    const next =
+        getNextStatus(status);
+
+    if(!next){
+
+        button.style.display = "none";
+
+        return;
+
+    }
+
+    button.style.display = "block";
+
+    button.textContent =
+        getStatusButtonText(status);
+
+}
+
+async function advanceStatus(){
+
+    if(!currentOrder) return;
+
+    const currentStatus =
+        currentOrder.status;
+
+    const nextStatus =
+        getNextStatus(currentStatus);
+
+    if(!nextStatus){
+
+        return;
+
+    }
+
+    const button =
+        document.getElementById("statusBtn");
+
+    button.disabled = true;
+
+    button.textContent =
+        "UPDATING...";
+
+    try{
+
+        /*
+         * Demo mode.
+         */
+        if(
+            currentRider?.id === "demo-rider"
+        ){
+
+            currentOrder.status =
+                nextStatus;
+
+            updateStatusScreen(
+                nextStatus
+            );
+
+            if(nextStatus === "delivered"){
+
+                await deliveryCompleted();
+
+            }
+
+            button.disabled = false;
+
+            return;
+
+        }
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient.rpc(
+                "update_delivery_status",
+                {
+                    p_order_id:currentOrder.id,
+                    p_status:nextStatus
+                }
+            );
+
+        if(error) throw error;
+
+        const updated =
+            Array.isArray(data)
+                ? data[0]
+                : data;
+
+        if(!updated){
+
+            throw new Error(
+                "Unable to update delivery."
+            );
+
+        }
+
+        currentOrder =
+            updated;
+
+        updateStatusScreen(
+            updated.status
+        );
+
+        if(updated.status === "delivered"){
+
+            await deliveryCompleted();
+
+        }
+
+        button.disabled = false;
+
+    }catch(error){
+
+        console.error(error);
+
+        button.disabled = false;
+
+        button.textContent =
+            getStatusButtonText(
+                currentOrder.status
+            );
+
+        showToast(
+            error.message ||
+            "Status update failed."
+        );
+
+    }
+
+}
+
+/* ============================================================
+   DELIVERY COMPLETE
+============================================================ */
+
+async function deliveryCompleted(){
+
+    const fee =
+        getDeliveryFee(currentOrder);
+
+    document.getElementById(
+        "successTitle"
+    ).textContent =
+        "Delivery Complete";
+
+    document.getElementById(
+        "successMessage"
+    ).textContent =
+        "Great job! You earned " +
+        money(fee) +
+        " from this delivery.";
+
+    document
+        .getElementById("successOverlay")
+        .classList.add("show");
+
+    await refreshStats();
+
+}
+
+function closeSuccess(){
+
+    document
+        .getElementById("successOverlay")
+        .classList.remove("show");
+
+    currentOrder = null;
+
+    document
+        .getElementById("orderCard")
+        .classList.add("hidden");
+
+    document
+        .getElementById("emptyOrder")
+        .classList.remove("hidden");
+
+    document
+        .getElementById("statusBtn")
+        .style.display = "block";
+
+    document
+        .getElementById("statusBtn")
+        .classList.add("hidden");
+
+    document
+        .getElementById("deliveryDetails")
+        .classList.add("hidden");
+
+    scanForNewOrders(false);
+
+}
+
+/* ============================================================
+   STATUS FORMAT
+============================================================ */
+
+function formatStatus(status){
+
+    if(!status) return "READY";
+
+    return status
+        .replaceAll("_"," ")
+        .toUpperCase();
+
+}
+
+/* ============================================================
+   STATS
+============================================================ */
+
+async function refreshStats(){
+
+    if(!supabaseClient) return;
+
+    if(
+        !currentRider?.id ||
+        currentRider.id === "demo-rider"
+    ){
+
+        document.getElementById(
+            "availableCount"
+        ).textContent = "0";
+
+        document.getElementById(
+            "activeCount"
+        ).textContent =
+            currentOrder ? "1" : "0";
+
+        return;
+
+    }
+
+    try{
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("orders")
+                .select("*")
+                .eq(
+                    "rider_id",
+                    currentRider.id
+                );
+
+        if(error) throw error;
+
+        const orders =
+            data || [];
+
+        const activeStatuses
