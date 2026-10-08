@@ -3298,4 +3298,400 @@ async function refreshStats(){
         const orders =
             data || [];
 
-        const activeStatuses
+        const activeStatuses = [
+            "rider_accepted",
+            "arrived_pickup",
+            "picked_up",
+            "on_the_way"
+        ];
+
+        const active =
+            orders.filter(order =>
+                activeStatuses.includes(
+                    order.status
+                )
+            );
+
+        const completed =
+            orders.filter(order =>
+                order.status === "delivered"
+            );
+
+        const today =
+            new Date();
+
+        const todayStart =
+            new Date(
+                today.getFullYear(),
+                today.getMonth(),
+                today.getDate()
+            );
+
+        const todayCompleted =
+            completed.filter(order => {
+
+                const date =
+                    new Date(
+                        order.delivered_at ||
+                        order.updated_at ||
+                        order.created_at
+                    );
+
+                return date >= todayStart;
+
+            });
+
+        const todayMoney =
+            todayCompleted.reduce(
+                (sum,order) =>
+                    sum + getDeliveryFee(order),
+                0
+            );
+
+        const totalMoney =
+            completed.reduce(
+                (sum,order) =>
+                    sum + getDeliveryFee(order),
+                0
+            );
+
+        document.getElementById(
+            "activeCount"
+        ).textContent =
+            active.length;
+
+        document.getElementById(
+            "completedCount"
+        ).textContent =
+            completed.length;
+
+        document.getElementById(
+            "todayEarnings"
+        ).textContent =
+            money(todayMoney);
+
+        document.getElementById(
+            "totalEarnings"
+        ).textContent =
+            money(totalMoney);
+
+        completedOrders =
+            completed;
+
+    }catch(error){
+
+        console.error(
+            "Stats error:",
+            error
+        );
+
+    }
+
+}
+
+function updateAvailableCount(count){
+
+    document.getElementById(
+        "availableCount"
+    ).textContent =
+        count || 0;
+
+}
+
+/* ============================================================
+   EARNINGS
+============================================================ */
+
+async function loadCompletedOrders(){
+
+    if(
+        !supabaseClient ||
+        !currentRider?.id ||
+        currentRider.id === "demo-rider"
+    ){
+
+        renderEarnings();
+
+        return;
+
+    }
+
+    try{
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("orders")
+                .select("*")
+                .eq(
+                    "rider_id",
+                    currentRider.id
+                )
+                .eq(
+                    "status",
+                    "delivered"
+                )
+                .order(
+                    "delivered_at",
+                    {
+                        ascending:false
+                    }
+                )
+                .limit(50);
+
+        if(error) throw error;
+
+        completedOrders =
+            data || [];
+
+        renderEarnings();
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+}
+
+function renderEarnings(){
+
+    const list =
+        document.getElementById(
+            "earningsList"
+        );
+
+    if(!completedOrders.length){
+
+        list.innerHTML = `
+            <div class="empty-order">
+                No completed deliveries yet.
+            </div>
+        `;
+
+        return;
+
+    }
+
+    list.innerHTML =
+        completedOrders
+            .map(order => {
+
+                const date =
+                    order.delivered_at ||
+                    order.updated_at ||
+                    order.created_at;
+
+                return `
+                    <div class="earning-item">
+                        <div>
+                            <strong>
+                                Order #${escapeHtml(
+                                    getOrderNumber(order)
+                                )}
+                            </strong>
+                            <br>
+                            <small>
+                                ${escapeHtml(
+                                    getRestaurant(order)
+                                )}
+                            </small>
+                            <br>
+                            <small>
+                                ${date
+                                    ? new Date(date)
+                                        .toLocaleDateString("en-NG")
+                                    : ""}
+                            </small>
+                        </div>
+
+                        <strong>
+                            ${money(
+                                getDeliveryFee(order)
+                            )}
+                        </strong>
+                    </div>
+                `;
+
+            })
+            .join("");
+
+}
+
+/* ============================================================
+   LOGOUT
+============================================================ */
+
+async function logoutRider(){
+
+    stopScanner();
+
+    currentOrder = null;
+    currentRider = null;
+    currentUser = null;
+
+    seenOrderIds.clear();
+
+    lastDetectedOrderId = null;
+
+    pendingDetectedOrder = null;
+
+    scannerInitialized = false;
+
+    hideOrderPopup();
+
+    if(supabaseClient){
+
+        try{
+
+            await supabaseClient.auth.signOut();
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+
+    document
+        .getElementById("app")
+        .classList.add("hidden");
+
+    document
+        .getElementById("loginPage")
+        .classList.remove("hidden");
+
+    document.getElementById(
+        "emailInput"
+    ).value = "";
+
+    document.getElementById(
+        "passwordInput"
+    ).value = "";
+
+}
+
+/* ============================================================
+   TOAST
+============================================================ */
+
+let toastTimer = null;
+
+function showToast(message){
+
+    const toast =
+        document.getElementById("toast");
+
+    toast.textContent =
+        message;
+
+    toast.classList.add("show");
+
+    clearTimeout(toastTimer);
+
+    toastTimer =
+        setTimeout(() => {
+
+            toast.classList.remove("show");
+
+        },2800);
+
+}
+
+/* ============================================================
+   ESCAPE HTML
+============================================================ */
+
+function escapeHtml(value){
+
+    return String(value ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+
+}
+
+/* ============================================================
+   NETWORK EVENTS
+============================================================ */
+
+window.addEventListener(
+    "online",
+    () => {
+
+        if(!isOnline) return;
+
+        showToast(
+            "Internet connection restored"
+        );
+
+        startScanner();
+
+    }
+);
+
+window.addEventListener(
+    "offline",
+    () => {
+
+        /*
+         * Don't change the rider's chosen ONLINE/OFFLINE state.
+         * Simply pause scanning while the browser is offline.
+         */
+        const scannerStatus =
+            document.getElementById(
+                "scannerStatus"
+            );
+
+        if(scannerStatus){
+
+            scannerStatus.textContent =
+                "CONNECTION LOST • POLLING PAUSED";
+
+        }
+
+        showToast(
+            "Internet connection lost"
+        );
+
+    }
+);
+
+/* ============================================================
+   CLEANUP
+============================================================ */
+
+window.addEventListener(
+    "beforeunload",
+    () => {
+
+        if(scannerTimer){
+
+            clearInterval(
+                scannerTimer
+            );
+
+        }
+
+        if(realtimeChannel && supabaseClient){
+
+            supabaseClient
+                .removeChannel(
+                    realtimeChannel
+                )
+                .catch(()=>{});
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>
