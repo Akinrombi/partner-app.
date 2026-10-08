@@ -11,13 +11,14 @@
 <title>QuickEats Rider</title>
 
 <style>
+
 *{
   box-sizing:border-box;
 }
 
 body{
   margin:0;
-  font-family:Arial, sans-serif;
+  font-family:Arial,sans-serif;
   background:#f5f7f6;
   color:#171a19;
 }
@@ -30,6 +31,10 @@ input{
 button{
   cursor:pointer;
 }
+
+/* =========================
+   LOGIN
+========================= */
 
 #login{
   min-height:100vh;
@@ -130,6 +135,11 @@ input:focus{
   display:none;
 }
 
+
+/* =========================
+   APP
+========================= */
+
 #app{
   display:none;
   min-height:100vh;
@@ -166,8 +176,72 @@ input:focus{
   font-weight:bold;
 }
 
+.dashboard{
+  padding:18px;
+}
+
+.welcome{
+  background:#00a859;
+  color:white;
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:16px;
+  box-shadow:0 8px 20px #00a85925;
+}
+
+.welcome-title{
+  font-size:21px;
+  font-weight:bold;
+}
+
+.welcome-text{
+  margin-top:6px;
+  font-size:13px;
+  opacity:.9;
+}
+
+
+/* =========================
+   STATS
+========================= */
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.stat{
+  background:white;
+  border:1px solid #e0e5e2;
+  border-radius:16px;
+  padding:16px;
+}
+
+.stat-icon{
+  font-size:25px;
+  margin-bottom:10px;
+}
+
+.stat-label{
+  color:#68716d;
+  font-size:12px;
+}
+
+.stat-value{
+  font-size:22px;
+  font-weight:bold;
+  margin-top:5px;
+}
+
+
+/* =========================
+   MAP
+========================= */
+
 .map{
-  height:280px;
+  height:250px;
   background:#dfe8e4;
   position:relative;
   overflow:hidden;
@@ -215,6 +289,11 @@ input:focus{
   font-size:27px;
 }
 
+
+/* =========================
+   CONTENT
+========================= */
+
 .content{
   background:white;
   margin-top:-20px;
@@ -258,6 +337,11 @@ input:focus{
   margin:0 0 8px;
 }
 
+
+/* =========================
+   ORDER CARD
+========================= */
+
 .order-card{
   border:1px solid #e0e5e2;
   border-radius:16px;
@@ -269,6 +353,7 @@ input:focus{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:10px;
   margin-bottom:15px;
 }
 
@@ -307,6 +392,7 @@ input:focus{
 .item{
   display:flex;
   justify-content:space-between;
+  gap:15px;
   padding:6px 0;
   font-size:14px;
 }
@@ -335,6 +421,16 @@ input:focus{
   font-weight:bold;
 }
 
+.action:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+
+/* =========================
+   DELIVERY DETAILS
+========================= */
+
 .delivery-details{
   display:none;
   margin-top:15px;
@@ -347,8 +443,13 @@ input:focus{
   display:flex;
   justify-content:space-between;
   gap:15px;
-  padding:8px 0;
+  padding:9px 0;
   font-size:13px;
+  border-bottom:1px solid #e4e9e6;
+}
+
+.detail-row:last-child{
+  border-bottom:0;
 }
 
 .detail-row span:first-child{
@@ -358,7 +459,39 @@ input:focus{
 .detail-row span:last-child{
   text-align:right;
   font-weight:bold;
+  max-width:65%;
+  word-break:break-word;
 }
+
+.phone-button{
+  display:block;
+  width:100%;
+  text-align:center;
+  text-decoration:none;
+  background:white;
+  border:1px solid #dce2df;
+  color:#00a859;
+  border-radius:12px;
+  padding:13px;
+  margin-top:10px;
+  font-weight:bold;
+}
+
+.status-box{
+  margin-top:15px;
+  background:#e8f8f0;
+  color:#007a42;
+  padding:13px;
+  border-radius:12px;
+  text-align:center;
+  font-size:13px;
+  font-weight:bold;
+}
+
+
+/* =========================
+   NAVIGATION
+========================= */
 
 .nav{
   position:fixed;
@@ -391,6 +524,11 @@ input:focus{
   margin-bottom:3px;
 }
 
+
+/* =========================
+   PAGES
+========================= */
+
 .page{
   display:none;
 }
@@ -398,6 +536,11 @@ input:focus{
 .page.active{
   display:block;
 }
+
+
+/* =========================
+   PROFILE
+========================= */
 
 .profile{
   text-align:center;
@@ -425,22 +568,113 @@ input:focus{
   font-weight:bold;
 }
 
+.profile-info{
+  background:white;
+  border:1px solid #e0e5e2;
+  border-radius:16px;
+  padding:15px;
+  margin-top:20px;
+  text-align:left;
+}
+
+.profile-row{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  padding:12px 0;
+  border-bottom:1px solid #edf0ee;
+  font-size:13px;
+}
+
+.profile-row:last-child{
+  border-bottom:0;
+}
+
+.profile-row span:first-child{
+  color:#68716d;
+}
+
+.profile-row span:last-child{
+  font-weight:bold;
+  text-align:right;
+}
+
+
+/* =========================
+   EARNINGS
+========================= */
+
 .earnings{
   margin:20px;
   background:white;
   border-radius:18px;
-  padding:30px;
+  padding:25px;
   text-align:center;
+  border:1px solid #e0e5e2;
 }
 
 .earnings p{
   color:#68716d;
+  margin-bottom:8px;
 }
 
 .earnings h2{
   color:#00a859;
   font-size:35px;
+  margin:8px 0;
 }
+
+.earnings-note{
+  color:#68716d;
+  font-size:12px;
+}
+
+.earnings-list{
+  margin:20px;
+  background:white;
+  border:1px solid #e0e5e2;
+  border-radius:18px;
+  overflow:hidden;
+}
+
+.earnings-list-title{
+  padding:16px;
+  font-weight:bold;
+  border-bottom:1px solid #e0e5e2;
+}
+
+.earning-row{
+  padding:14px 16px;
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  border-bottom:1px solid #edf0ee;
+}
+
+.earning-row:last-child{
+  border-bottom:0;
+}
+
+.earning-order{
+  font-weight:bold;
+  font-size:13px;
+}
+
+.earning-date{
+  color:#68716d;
+  font-size:11px;
+  margin-top:4px;
+}
+
+.earning-amount{
+  color:#00a859;
+  font-weight:bold;
+}
+
+
+/* =========================
+   SUCCESS
+========================= */
 
 .success{
   display:none;
@@ -479,13 +713,230 @@ input:focus{
   color:#68716d;
 }
 
+
+/* =========================
+   TOAST
+========================= */
+
+.toast{
+  position:fixed;
+  left:18px;
+  right:18px;
+  bottom:90px;
+  background:#171a19;
+  color:white;
+  padding:14px 16px;
+  border-radius:12px;
+  z-index:200;
+  display:none;
+  font-size:13px;
+  text-align:center;
+}
+
+
+/* =========================
+   NEW ORDER ANIMATIONS
+========================= */
+
+@keyframes newOrderSlide{
+
+  0%{
+    opacity:0;
+    transform:
+      translateY(-25px)
+      scale(.96);
+  }
+
+  60%{
+    opacity:1;
+    transform:
+      translateY(5px)
+      scale(1.02);
+  }
+
+  100%{
+    opacity:1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+}
+
+@keyframes orderPulse{
+
+  0%,100%{
+    box-shadow:
+      0 8px 25px rgba(0,0,0,.08);
+  }
+
+  50%{
+    box-shadow:
+      0 0 0 8px rgba(0,168,89,.12),
+      0 12px 35px rgba(0,0,0,.18);
+  }
+
+}
+
+@keyframes bannerDrop{
+
+  0%{
+    opacity:0;
+    transform:translateY(-100%);
+  }
+
+  100%{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+}
+
+.new-order-animation{
+
+  animation:
+    newOrderSlide .45s ease,
+    orderPulse 1.2s ease .45s 3;
+
+}
+
+.new-order-banner{
+
+  position:fixed;
+
+  top:18px;
+
+  left:18px;
+
+  right:18px;
+
+  z-index:9999;
+
+  background:#111;
+
+  color:white;
+
+  padding:16px;
+
+  border-radius:16px;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:12px;
+
+  box-shadow:
+    0 12px 35px rgba(0,0,0,.25);
+
+  animation:
+    bannerDrop .4s ease;
+
+}
+
+.new-order-banner-icon{
+
+  font-size:30px;
+
+}
+
+.new-order-banner-title{
+
+  font-size:16px;
+
+  font-weight:800;
+
+}
+
+.new-order-banner-text{
+
+  font-size:12px;
+
+  opacity:.8;
+
+  margin-top:3px;
+
+}
+
+
+/* =========================
+   SCANNER STATUS
+========================= */
+
+.scanner-status{
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  gap:7px;
+
+  margin-top:12px;
+
+  color:#68716d;
+
+  font-size:11px;
+
+}
+
+.scanner-dot{
+
+  width:8px;
+
+  height:8px;
+
+  border-radius:50%;
+
+  background:#00a859;
+
+  animation:scannerBlink 1.4s infinite;
+
+}
+
+@keyframes scannerBlink{
+
+  0%,100%{
+    opacity:1;
+  }
+
+  50%{
+    opacity:.25;
+  }
+
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:380px){
+
+  .stats{
+    gap:8px;
+  }
+
+  .stat{
+    padding:13px;
+  }
+
+  .stat-value{
+    font-size:19px;
+  }
+
+}
+
 </style>
 </head>
 
 <body>
 
 
-<!-- LOGIN -->
+<!-- ==================================================
+LOGIN
+================================================== -->
 
 <div id="login">
 
@@ -503,7 +954,6 @@ input:focus{
       Rider App
     </div>
 
-
     <div class="input-group">
 
       <label>
@@ -519,7 +969,6 @@ input:focus{
 
     </div>
 
-
     <div class="input-group">
 
       <label>
@@ -534,7 +983,6 @@ input:focus{
 
     </div>
 
-
     <button
       class="main-button"
       onclick="loginRider()"
@@ -542,14 +990,12 @@ input:focus{
       LOG IN
     </button>
 
-
     <button
       class="demo-button"
       onclick="demoRider()"
     >
       CONTINUE AS DEMO RIDER
     </button>
-
 
     <div
       id="message"
@@ -561,235 +1007,385 @@ input:focus{
 </div>
 
 
-
-<!-- MAIN APP -->
+<!-- ==================================================
+MAIN APP
+================================================== -->
 
 <div id="app">
 
 
-  <!-- HOME -->
+<!-- ==================================================
+HOME
+================================================== -->
 
-  <div
-    id="homePage"
-    class="page active"
-  >
+<div
+  id="homePage"
+  class="page active"
+>
 
-    <div class="header">
+  <div class="header">
 
-      <div>
+    <div>
+
+      <div
+        id="riderGreeting"
+        class="header-title"
+      >
+        QuickEats Rider
+      </div>
+
+      <div class="header-sub">
+        Delivery Dashboard
+      </div>
+
+    </div>
+
+    <button
+      class="online"
+      onclick="toggleOnline()"
+      id="onlineButton"
+    >
+      🟢 ONLINE
+    </button>
+
+  </div>
+
+
+  <div class="dashboard">
+
+    <div class="welcome">
+
+      <div class="welcome-title">
+        Rider Dashboard
+      </div>
+
+      <div class="welcome-text">
+        Manage your deliveries and track your earnings.
+      </div>
+
+    </div>
+
+
+    <div class="stats">
+
+
+      <div class="stat">
+
+        <div class="stat-icon">
+          📦
+        </div>
+
+        <div class="stat-label">
+          Available
+        </div>
 
         <div
-          id="riderGreeting"
-          class="header-title"
+          id="availableCount"
+          class="stat-value"
         >
-          QuickEats Rider
+          0
         </div>
 
-        <div class="header-sub">
-          Delivery Dashboard
+      </div>
+
+
+      <div class="stat">
+
+        <div class="stat-icon">
+          🛵
         </div>
+
+        <div class="stat-label">
+          Active
+        </div>
+
+        <div
+          id="activeCount"
+          class="stat-value"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="stat-icon">
+          ✅
+        </div>
+
+        <div class="stat-label">
+          Completed
+        </div>
+
+        <div
+          id="completedCount"
+          class="stat-value"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="stat-icon">
+          💰
+        </div>
+
+        <div class="stat-label">
+          Today's Earnings
+        </div>
+
+        <div
+          id="todayStatsEarnings"
+          class="stat-value"
+        >
+          ₦0
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="map">
+
+    <div class="map-road"></div>
+
+    <div class="map-road2"></div>
+
+    <div class="map-pin restaurant-pin">
+      🍴
+    </div>
+
+    <div class="map-pin customer-pin">
+      📍
+    </div>
+
+    <div class="map-pin rider-pin">
+      🛵
+    </div>
+
+  </div>
+
+
+  <div class="content">
+
+    <div class="handle"></div>
+
+    <h2>
+      Delivery Orders
+    </h2>
+
+    <div class="description">
+      Orders ready for pickup will appear here.
+    </div>
+
+
+    <div
+      id="scannerStatus"
+      class="scanner-status"
+    >
+
+      <span class="scanner-dot"></span>
+
+      <span id="scannerText">
+        Automatically scanning for new orders
+      </span>
+
+    </div>
+
+
+    <div
+      id="empty"
+      class="empty"
+    >
+
+      <div class="empty-icon">
+        🛵
+      </div>
+
+      <h3>
+        Waiting for delivery
+      </h3>
+
+      <p>
+        When a vendor marks an order
+        as food ready, it will appear here.
+      </p>
+
+    </div>
+
+
+    <div
+      id="orderCard"
+      class="order-card"
+      style="display:none"
+    >
+
+      <div class="order-header">
+
+        <div
+          id="orderNumber"
+          class="order-number"
+        >
+          #QE1001
+        </div>
+
+        <div
+          id="orderBadge"
+          class="badge"
+        >
+          READY FOR PICKUP
+        </div>
+
+      </div>
+
+
+      <div
+        id="restaurantName"
+        class="restaurant-name"
+      >
+        QuickEats Vendor
+      </div>
+
+
+      <div
+        id="pickupAddress"
+        class="address"
+      >
+        Pickup address
+      </div>
+
+
+      <div
+        id="items"
+        class="items"
+      ></div>
+
+
+      <div class="total">
+
+        <span>
+          Order Total
+        </span>
+
+        <span id="orderTotal">
+          ₦0
+        </span>
 
       </div>
 
 
       <button
-        class="online"
-        onclick="toggleOnline()"
-        id="onlineButton"
+        id="acceptButton"
+        class="action"
+        onclick="acceptDelivery()"
       >
-        🟢 ONLINE
+        ACCEPT DELIVERY
       </button>
 
-    </div>
-
-
-    <div class="map">
-
-      <div class="map-road"></div>
-
-      <div class="map-road2"></div>
-
-      <div class="map-pin restaurant-pin">
-        🍴
-      </div>
-
-      <div class="map-pin customer-pin">
-        📍
-      </div>
-
-      <div class="map-pin rider-pin">
-        🛵
-      </div>
-
-    </div>
-
-
-    <div class="content">
-
-      <div class="handle"></div>
-
-      <h2>
-        Delivery Orders
-      </h2>
-
-      <div class="description">
-        Orders ready for pickup will appear here.
-      </div>
-
 
       <div
-        id="empty"
-        class="empty"
+        id="deliveryDetails"
+        class="delivery-details"
       >
 
-        <div class="empty-icon">
-          🛵
-        </div>
-
-        <h3>
-          Waiting for delivery
-        </h3>
-
-        <p>
-          When the vendor marks an order
-          as food ready, it will appear here.
-        </p>
-
-      </div>
-
-
-      <div
-        id="orderCard"
-        class="order-card"
-        style="display:none"
-      >
-
-        <div class="order-header">
-
-          <div
-            id="orderNumber"
-            class="order-number"
-          >
-            #QE1001
-          </div>
-
-          <div class="badge">
-            READY FOR PICKUP
-          </div>
-
-        </div>
-
-
-        <div
-          id="restaurantName"
-          class="restaurant-name"
-        >
-          QuickEats Vendor
-        </div>
-
-
-        <div
-          id="pickupAddress"
-          class="address"
-        >
-          Pickup address
-        </div>
-
-
-        <div
-          id="items"
-          class="items"
-        ></div>
-
-
-        <div class="total">
+        <div class="detail-row">
 
           <span>
-            Order Total
+            Customer
           </span>
 
-          <span id="orderTotal">
+          <span id="customerName">
+            -
+          </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+          <span>
+            Phone
+          </span>
+
+          <span id="customerPhone">
+            -
+          </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+          <span>
+            Pickup
+          </span>
+
+          <span id="detailPickup">
+            -
+          </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+          <span>
+            Drop-off
+          </span>
+
+          <span id="deliveryAddress">
+            -
+          </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+          <span>
+            Delivery Fee
+          </span>
+
+          <span id="deliveryFee">
             ₦0
           </span>
 
         </div>
 
 
-        <button
-          id="acceptButton"
-          class="action"
-          onclick="acceptDelivery()"
-        >
-          ACCEPT DELIVERY
-        </button>
-
-
         <div
-          id="deliveryDetails"
-          class="delivery-details"
+          id="statusBox"
+          class="status-box"
         >
-
-          <div class="detail-row">
-
-            <span>
-              Customer
-            </span>
-
-            <span id="customerName">
-              -
-            </span>
-
-          </div>
-
-
-          <div class="detail-row">
-
-            <span>
-              Pickup
-            </span>
-
-            <span id="detailPickup">
-              -
-            </span>
-
-          </div>
-
-
-          <div class="detail-row">
-
-            <span>
-              Drop-off
-            </span>
-
-            <span id="deliveryAddress">
-              -
-            </span>
-
-          </div>
-
-
-          <div class="detail-row">
-
-            <span>
-              Delivery Fee
-            </span>
-
-            <span id="deliveryFee">
-              ₦0
-            </span>
-
-          </div>
-
-
-          <button
-            id="statusButton"
-            class="action"
-            onclick="nextStatus()"
-          >
-            ARRIVED AT RESTAURANT
-          </button>
-
+          Delivery accepted
         </div>
+
+
+        <a
+          id="phoneButton"
+          class="phone-button"
+          href="#"
+          style="display:none"
+        >
+          📞 CALL CUSTOMER
+        </a>
+
+
+        <button
+          id="statusButton"
+          class="action"
+          onclick="nextStatus()"
+        >
+          ARRIVED AT RESTAURANT
+        </button>
 
       </div>
 
@@ -797,115 +1393,143 @@ input:focus{
 
   </div>
 
+</div>
 
 
-  <!-- EARNINGS -->
+<!-- ==================================================
+EARNINGS
+================================================== -->
 
-  <div
-    id="earningsPage"
-    class="page"
-  >
+<div
+  id="earningsPage"
+  class="page"
+>
 
-    <div class="header">
+  <div class="header">
+
+    <div>
 
       <div class="header-title">
         Earnings
       </div>
 
-    </div>
-
-
-    <div class="earnings">
-
-      <p>
-        Today's Earnings
-      </p>
-
-      <h2 id="earningsAmount">
-        ₦0
-      </h2>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- PROFILE -->
-
-  <div
-    id="profilePage"
-    class="page"
-  >
-
-    <div class="profile">
-
-      <div class="avatar">
-        👤
+      <div class="header-sub">
+        Your delivery earnings
       </div>
 
-      <h2 id="profileName">
-        QuickEats Rider
-      </h2>
-
-      <p>
-        ✓ QuickEats Rider
-      </p>
-
-      <button
-        class="demo-button"
-        onclick="logoutRider()"
-      >
-        LOG OUT
-      </button>
-
     </div>
 
   </div>
 
 
+  <div class="earnings">
 
-  <!-- NAVIGATION -->
+    <p>
+      Today's Earnings
+    </p>
 
-  <div class="nav">
+    <h2 id="earningsAmount">
+      ₦0
+    </h2>
+
+    <div class="earnings-note">
+      Based on completed deliveries
+    </div>
+
+  </div>
+
+
+  <div class="earnings-list">
+
+    <div class="earnings-list-title">
+      Recent Completed Deliveries
+    </div>
+
+    <div id="earningsList">
+
+      <div class="empty">
+        No completed deliveries yet.
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ==================================================
+PROFILE
+================================================== -->
+
+<div
+  id="profilePage"
+  class="page"
+>
+
+  <div class="profile">
+
+    <div class="avatar">
+      👤
+    </div>
+
+    <h2 id="profileName">
+      QuickEats Rider
+    </h2>
+
+    <p>
+      ✓ QuickEats Rider
+    </p>
+
+
+    <div class="profile-info">
+
+      <div class="profile-row">
+
+        <span>
+          Status
+        </span>
+
+        <span id="profileStatus">
+          Online
+        </span>
+
+      </div>
+
+
+      <div class="profile-row">
+
+        <span>
+          Rider ID
+        </span>
+
+        <span id="profileRiderId">
+          -
+        </span>
+
+      </div>
+
+
+      <div class="profile-row">
+
+        <span>
+          Phone
+        </span>
+
+        <span id="profilePhone">
+          -
+        </span>
+
+      </div>
+
+    </div>
+
 
     <button
-      class="active"
-      onclick="showPage('homePage',this)"
+      class="demo-button"
+      onclick="logoutRider()"
     >
-
-      <span class="nav-icon">
-        🏠
-      </span>
-
-      Home
-
-    </button>
-
-
-    <button
-      onclick="showPage('earningsPage',this)"
-    >
-
-      <span class="nav-icon">
-        💰
-      </span>
-
-      Earnings
-
-    </button>
-
-
-    <button
-      onclick="showPage('profilePage',this)"
-    >
-
-      <span class="nav-icon">
-        👤
-      </span>
-
-      Profile
-
+      LOG OUT
     </button>
 
   </div>
@@ -913,8 +1537,59 @@ input:focus{
 </div>
 
 
+<!-- ==================================================
+NAVIGATION
+================================================== -->
 
-<!-- SUCCESS -->
+<div class="nav">
+
+  <button
+    class="active"
+    onclick="showPage('homePage',this)"
+  >
+
+    <span class="nav-icon">
+      🏠
+    </span>
+
+    Home
+
+  </button>
+
+
+  <button
+    onclick="showPage('earningsPage',this)"
+  >
+
+    <span class="nav-icon">
+      💰
+    </span>
+
+    Earnings
+
+  </button>
+
+
+  <button
+    onclick="showPage('profilePage',this)"
+  >
+
+    <span class="nav-icon">
+      👤
+    </span>
+
+    Profile
+
+  </button>
+
+</div>
+
+</div>
+
+
+<!-- ==================================================
+SUCCESS
+================================================== -->
 
 <div
   id="success"
@@ -947,12 +1622,18 @@ input:focus{
 </div>
 
 
+<div
+  id="toast"
+  class="toast"
+></div>
+
 
 <script>
 
 /*
 ========================================================
 QUICKEATS RIDER APP
+AUTOMATIC NEW ORDER SCANNER
 ========================================================
 */
 
@@ -964,6 +1645,12 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
 "sb_publishable_lQkN8HQP2Tm3tPiDYJbrNw_ydO7bqXU";
 
+
+/*
+========================================================
+GLOBAL STATE
+========================================================
+*/
 
 let supabaseClient = null;
 
@@ -979,11 +1666,29 @@ let online = true;
 
 let realtimeChannel = null;
 
+let riderOrders = [];
 
 
 /*
 ========================================================
-SHOW MESSAGE
+NEW ORDER SCANNER STATE
+========================================================
+*/
+
+let seenOrderIds = new Set();
+
+let scannerInitialized = false;
+
+let scanTimer = null;
+
+let lastAlertedOrderId = null;
+
+let scannerRunning = false;
+
+
+/*
+========================================================
+MESSAGE
 ========================================================
 */
 
@@ -1000,6 +1705,39 @@ function message(text){
 
 }
 
+
+/*
+========================================================
+TOAST
+========================================================
+*/
+
+function toast(text){
+
+  const box =
+    document.getElementById("toast");
+
+  box.textContent =
+    text;
+
+  box.style.display =
+    "block";
+
+
+  clearTimeout(
+    window.toastTimer
+  );
+
+
+  window.toastTimer =
+    setTimeout(function(){
+
+      box.style.display =
+        "none";
+
+    },3000);
+
+}
 
 
 /*
@@ -1041,8 +1779,10 @@ function loadSupabase(){
     const script =
       document.createElement("script");
 
+
     script.src =
       "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+
 
     script.onload =
       function(){
@@ -1076,14 +1816,11 @@ function loadSupabase(){
       };
 
 
-    document.head.appendChild(
-      script
-    );
+    document.head.appendChild(script);
 
   });
 
 }
-
 
 
 /*
@@ -1100,7 +1837,6 @@ window.addEventListener(
 
   }
 );
-
 
 
 /*
@@ -1123,7 +1859,8 @@ function demoRider(){
   currentRider = {
     id:"demo-rider",
     owner_id:"demo-rider",
-    name:"Demo Rider"
+    name:"Demo Rider",
+    phone:"08000000000"
   };
 
 
@@ -1151,13 +1888,33 @@ function demoRider(){
     "Hello, Demo Rider! 👋";
 
 
-  showMessageAndHide();
+  document
+    .getElementById("profileRiderId")
+    .textContent =
+    "DEMO";
+
+
+  document
+    .getElementById("profilePhone")
+    .textContent =
+    "08000000000";
+
+
+  document
+    .getElementById("profileStatus")
+    .textContent =
+    "Online";
+
+
+  updateScannerUI();
 
 
   loadDemoOrder();
 
-}
 
+  updateDashboardStats();
+
+}
 
 
 /*
@@ -1176,7 +1933,7 @@ function loadDemoOrder(){
 
     customer_name:"John Customer",
 
-    customer_phone:"WhatsApp Customer",
+    customer_phone:"08012345678",
 
     pickup_address:
       "Allen Avenue, Ikeja, Lagos",
@@ -1191,21 +1948,25 @@ function loadDemoOrder(){
     status:"ready_for_pickup",
 
     items:[
+
       {
         name:"Jollof Rice",
         quantity:1,
         price:2500
       },
+
       {
         name:"Chicken",
         quantity:1,
         price:2000
       },
+
       {
         name:"Coke",
         quantity:1,
         price:500
       }
+
     ]
 
   };
@@ -1216,7 +1977,6 @@ function loadDemoOrder(){
   );
 
 }
-
 
 
 /*
@@ -1265,12 +2025,23 @@ async function loginRider(){
   if(!supabaseClient){
 
     message(
-      "Supabase is still loading. Please wait a moment and try again."
+      "Supabase is still loading. Please wait a moment."
     );
 
-    await loadSupabase();
 
-    return;
+    const loaded =
+      await loadSupabase();
+
+
+    if(!loaded){
+
+      message(
+        "Could not connect to Supabase."
+      );
+
+      return;
+
+    }
 
   }
 
@@ -1303,6 +2074,10 @@ async function loginRider(){
       result.data.user;
 
 
+    demoMode =
+      false;
+
+
     await loadRealRider();
 
 
@@ -1318,12 +2093,24 @@ async function loginRider(){
       "block";
 
 
-    listenForOrders();
+    await loadRiderOrders();
+
+
+    await listenForOrders();
+
+
+    startOrderScanner();
+
+
+    toast(
+      "Welcome back, rider."
+    );
 
 
   }catch(error){
 
     console.error(error);
+
 
     message(
       error.message ||
@@ -1333,7 +2120,6 @@ async function loginRider(){
   }
 
 }
-
 
 
 /*
@@ -1395,19 +2181,963 @@ async function loadRealRider(){
     name +
     "! 👋";
 
-}
 
+  document
+    .getElementById("profileRiderId")
+    .textContent =
+    result.data.id || "-";
+
+
+  document
+    .getElementById("profilePhone")
+    .textContent =
+    result.data.phone ||
+    result.data.phone_number ||
+    "-";
+
+
+  document
+    .getElementById("profileStatus")
+    .textContent =
+    online
+      ? "Online"
+      : "Offline";
+
+}
 
 
 /*
 ========================================================
-LISTEN FOR REAL ORDERS
+LOAD RIDER ORDERS
+========================================================
+*/
+
+async function loadRiderOrders(){
+
+  if(
+    demoMode ||
+    !supabaseClient ||
+    !currentRider
+  ){
+
+    updateDashboardStats();
+
+    return;
+
+  }
+
+
+  try{
+
+    const result =
+      await supabaseClient
+        .from("orders")
+        .select("*")
+        .eq(
+          "rider_id",
+          currentRider.id
+        )
+        .order(
+          "created_at",
+          {
+            ascending:false
+          }
+        )
+        .limit(100);
+
+
+    if(result.error){
+
+      throw result.error;
+
+    }
+
+
+    riderOrders =
+      result.data || [];
+
+
+    updateDashboardStats();
+
+
+    renderEarnings();
+
+
+  }catch(error){
+
+    console.error(error);
+
+  }
+
+}
+
+
+/*
+========================================================
+AVAILABLE ORDER COUNT
+========================================================
+*/
+
+async function getAvailableCount(){
+
+  if(
+    demoMode ||
+    !supabaseClient
+  ){
+
+    return currentOrder &&
+      currentOrder.status ===
+      "ready_for_pickup"
+      ? 1
+      : 0;
+
+  }
+
+
+  if(!online){
+
+    return 0;
+
+  }
+
+
+  const result =
+    await supabaseClient
+      .from("orders")
+      .select(
+        "id",
+        {
+          count:"exact",
+          head:true
+        }
+      )
+      .eq(
+        "status",
+        "ready_for_pickup"
+      )
+      .is(
+        "rider_id",
+        null
+      );
+
+
+  if(result.error){
+
+    console.error(
+      result.error
+    );
+
+
+    return 0;
+
+  }
+
+
+  return result.count || 0;
+
+}
+
+
+/*
+========================================================
+DASHBOARD STATS
+========================================================
+*/
+
+async function updateDashboardStats(){
+
+  const available =
+    await getAvailableCount();
+
+
+  let active =
+    0;
+
+
+  let completed =
+    0;
+
+
+  let todayEarnings =
+    0;
+
+
+  if(demoMode){
+
+    active =
+      currentOrder &&
+      currentOrder.status !== "delivered"
+      ? 1
+      : 0;
+
+
+    completed =
+      currentOrder &&
+      currentOrder.status === "delivered"
+      ? 1
+      : 0;
+
+
+    todayEarnings =
+      completed
+        ? Number(
+            currentOrder.delivery_fee || 0
+          )
+        : 0;
+
+  }else{
+
+    riderOrders.forEach(function(order){
+
+      if(
+        [
+          "rider_accepted",
+          "arrived_pickup",
+          "picked_up",
+          "on_the_way"
+        ].includes(order.status)
+      ){
+
+        active++;
+
+      }
+
+
+      if(
+        order.status ===
+        "delivered"
+      ){
+
+        completed++;
+
+
+        if(
+          isToday(
+            order.delivered_at ||
+            order.updated_at ||
+            order.created_at
+          )
+        ){
+
+          todayEarnings +=
+            Number(
+              order.delivery_fee || 0
+            );
+
+        }
+
+      }
+
+    });
+
+  }
+
+
+  document
+    .getElementById("availableCount")
+    .textContent =
+    available;
+
+
+  document
+    .getElementById("activeCount")
+    .textContent =
+    active;
+
+
+  document
+    .getElementById("completedCount")
+    .textContent =
+    completed;
+
+
+  document
+    .getElementById("todayStatsEarnings")
+    .textContent =
+    money(todayEarnings);
+
+
+  document
+    .getElementById("earningsAmount")
+    .textContent =
+    money(todayEarnings);
+
+}
+
+
+/*
+========================================================
+AUTOMATIC NEW ORDER SCANNER
+========================================================
+*/
+
+async function scanForNewOrders(){
+
+  if(
+    demoMode ||
+    !supabaseClient ||
+    !currentRider ||
+    !online
+  ){
+
+    return;
+
+  }
+
+
+  try{
+
+    const result =
+      await supabaseClient
+        .from("orders")
+        .select("*")
+        .eq(
+          "status",
+          "ready_for_pickup"
+        )
+        .is(
+          "rider_id",
+          null
+        )
+        .order(
+          "created_at",
+          {
+            ascending:false
+          }
+        )
+        .limit(10);
+
+
+    if(result.error){
+
+      console.error(
+        "Order scanner error:",
+        result.error
+      );
+
+      updateScannerUI(
+        "Scanner connection issue"
+      );
+
+      return;
+
+    }
+
+
+    const orders =
+      result.data || [];
+
+
+    /*
+    FIRST SCAN
+
+    Existing ready orders are remembered,
+    but are NOT treated as new alerts.
+    */
+
+    if(!scannerInitialized){
+
+      orders.forEach(function(order){
+
+        seenOrderIds.add(
+          order.id
+        );
+
+      });
+
+
+      scannerInitialized =
+        true;
+
+
+      if(
+        orders.length &&
+        !currentOrder
+      ){
+
+        showOrder(
+          orders[0]
+        );
+
+      }
+
+
+      updateScannerUI();
+
+      await updateDashboardStats();
+
+      return;
+
+    }
+
+
+    /*
+    Find a genuinely new order.
+    */
+
+    const newOrder =
+      orders.find(function(order){
+
+        return !seenOrderIds.has(
+          order.id
+        );
+
+      });
+
+
+    /*
+    Remember all currently
+    available orders.
+    */
+
+    orders.forEach(function(order){
+
+      seenOrderIds.add(
+        order.id
+      );
+
+    });
+
+
+    updateScannerUI();
+
+
+    await updateDashboardStats();
+
+
+    /*
+    Animate only once.
+    */
+
+    if(
+      newOrder &&
+      newOrder.id !==
+      lastAlertedOrderId
+    ){
+
+      lastAlertedOrderId =
+        newOrder.id;
+
+
+      showNewOrderAnimation(
+        newOrder
+      );
+
+    }
+
+
+  }catch(error){
+
+    console.error(
+      "Automatic order scanning failed:",
+      error
+    );
+
+    updateScannerUI(
+      "Scanner temporarily unavailable"
+    );
+
+  }
+
+}
+
+
+/*
+========================================================
+START ORDER SCANNER
+========================================================
+*/
+
+function startOrderScanner(){
+
+  if(
+    demoMode ||
+    !supabaseClient ||
+    !currentRider
+  ){
+
+    return;
+
+  }
+
+
+  stopOrderScanner();
+
+
+  scannerRunning =
+    true;
+
+
+  scannerInitialized =
+    false;
+
+
+  seenOrderIds =
+    new Set();
+
+
+  lastAlertedOrderId =
+    null;
+
+
+  updateScannerUI();
+
+
+  /*
+  Scan immediately.
+  */
+
+  scanForNewOrders();
+
+
+  /*
+  Then scan every 8 seconds.
+  */
+
+  scanTimer =
+    setInterval(
+      scanForNewOrders,
+      8000
+    );
+
+}
+
+
+/*
+========================================================
+STOP ORDER SCANNER
+========================================================
+*/
+
+function stopOrderScanner(){
+
+  if(scanTimer){
+
+    clearInterval(
+      scanTimer
+    );
+
+    scanTimer =
+      null;
+
+  }
+
+
+  scannerRunning =
+    false;
+
+}
+
+
+/*
+========================================================
+SCANNER UI
+========================================================
+*/
+
+function updateScannerUI(customText){
+
+  const text =
+    document.getElementById(
+      "scannerText"
+    );
+
+
+  const dot =
+    document.querySelector(
+      ".scanner-dot"
+    );
+
+
+  if(!text || !dot){
+
+    return;
+
+  }
+
+
+  if(customText){
+
+    text.textContent =
+      customText;
+
+    dot.style.background =
+      "#d97706";
+
+    return;
+
+  }
+
+
+  if(
+    scannerRunning &&
+    online
+  ){
+
+    text.textContent =
+      "Automatically scanning for new orders";
+
+    dot.style.background =
+      "#00a859";
+
+  }else{
+
+    text.textContent =
+      "Order scanning is paused";
+
+    dot.style.background =
+      "#999";
+
+  }
+
+}
+
+
+/*
+========================================================
+NEW ORDER ANIMATION
+========================================================
+*/
+
+function showNewOrderAnimation(order){
+
+  /*
+  Show the order.
+  */
+
+  showOrder(
+    order
+  );
+
+
+  /*
+  Scroll the order into view.
+  */
+
+  const card =
+    document.getElementById(
+      "orderCard"
+    );
+
+
+  if(card){
+
+    card.classList.remove(
+      "new-order-animation"
+    );
+
+
+    /*
+    Force browser to restart animation.
+    */
+
+    void card.offsetWidth;
+
+
+    card.classList.add(
+      "new-order-animation"
+    );
+
+
+    setTimeout(function(){
+
+      card.classList.remove(
+        "new-order-animation"
+      );
+
+    },4200);
+
+  }
+
+
+  /*
+  Show banner.
+  */
+
+  showNewOrderBanner(
+    order
+  );
+
+
+  /*
+  Vibrate supported phones.
+  */
+
+  if(
+    navigator.vibrate &&
+    typeof navigator.vibrate ===
+      "function"
+  ){
+
+    try{
+
+      navigator.vibrate([
+        200,
+        100,
+        200
+      ]);
+
+    }catch(error){
+
+      console.log(
+        "Vibration unavailable"
+      );
+
+    }
+
+  }
+
+
+  /*
+  Play notification sound.
+  */
+
+  playNewOrderSound();
+
+
+  /*
+  Scroll order into view.
+  */
+
+  setTimeout(function(){
+
+    if(card){
+
+      card.scrollIntoView({
+        behavior:"smooth",
+        block:"center"
+      });
+
+    }
+
+  },100);
+
+}
+
+
+/*
+========================================================
+NEW ORDER BANNER
+========================================================
+*/
+
+function showNewOrderBanner(order){
+
+  const oldBanner =
+    document.querySelector(
+      ".new-order-banner"
+    );
+
+
+  if(oldBanner){
+
+    oldBanner.remove();
+
+  }
+
+
+  const banner =
+    document.createElement(
+      "div"
+    );
+
+
+  banner.className =
+    "new-order-banner";
+
+
+  banner.innerHTML =
+    `
+      <div class="new-order-banner-icon">
+        🚨
+      </div>
+
+      <div>
+
+        <div class="new-order-banner-title">
+          NEW DELIVERY AVAILABLE
+        </div>
+
+        <div class="new-order-banner-text">
+          Order #${safe(
+            order.order_number ||
+            "ORDER"
+          )}
+          is ready for pickup
+        </div>
+
+      </div>
+    `;
+
+
+  document.body.appendChild(
+    banner
+  );
+
+
+  setTimeout(function(){
+
+    if(!banner){
+
+      return;
+
+    }
+
+
+    banner.style.transition =
+      "opacity .3s ease, transform .3s ease";
+
+
+    banner.style.opacity =
+      "0";
+
+
+    banner.style.transform =
+      "translateY(-100%)";
+
+
+    setTimeout(function(){
+
+      if(banner.parentNode){
+
+        banner.remove();
+
+      }
+
+    },300);
+
+
+  },4000);
+
+}
+
+
+/*
+========================================================
+NEW ORDER SOUND
+========================================================
+*/
+
+function playNewOrderSound(){
+
+  try{
+
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+
+    if(!AudioContext){
+
+      return;
+
+    }
+
+
+    const audioContext =
+      new AudioContext();
+
+
+    /*
+    Mobile browsers can suspend
+    audio until the rider interacts
+    with the page.
+    */
+
+    if(
+      audioContext.state ===
+      "suspended"
+    ){
+
+      audioContext.resume()
+        .catch(function(){});
+
+    }
+
+
+    const oscillator =
+      audioContext.createOscillator();
+
+
+    const gain =
+      audioContext.createGain();
+
+
+    oscillator.type =
+      "sine";
+
+
+    oscillator.frequency.setValueAtTime(
+      880,
+      audioContext.currentTime
+    );
+
+
+    oscillator.frequency.setValueAtTime(
+      660,
+      audioContext.currentTime + 0.15
+    );
+
+
+    gain.gain.setValueAtTime(
+      0.001,
+      audioContext.currentTime
+    );
+
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.25,
+      audioContext.currentTime + 0.02
+    );
+
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.001,
+      audioContext.currentTime + 0.35
+    );
+
+
+    oscillator.connect(
+      gain
+    );
+
+
+    gain.connect(
+      audioContext.destination
+    );
+
+
+    oscillator.start();
+
+
+    oscillator.stop(
+      audioContext.currentTime + 0.35
+    );
+
+
+  }catch(error){
+
+    console.log(
+      "Notification sound unavailable"
+    );
+
+  }
+
+}
+
+
+/*
+========================================================
+LISTEN FOR REALTIME ORDERS
 ========================================================
 */
 
 async function listenForOrders(){
 
-  if(!supabaseClient){
+  if(
+    !supabaseClient ||
+    !currentRider
+  ){
 
     return;
 
@@ -1439,9 +3169,11 @@ async function listenForOrders(){
       .limit(1);
 
 
-  if(!result.error &&
-     result.data &&
-     result.data.length){
+  if(
+    !result.error &&
+    result.data &&
+    result.data.length
+  ){
 
     showOrder(
       result.data[0]
@@ -1451,49 +3183,162 @@ async function listenForOrders(){
 
 
   /*
-  Real-time listener.
+  Remove old realtime channel.
+  */
+
+  if(realtimeChannel){
+
+    try{
+
+      await supabaseClient.removeChannel(
+        realtimeChannel
+      );
+
+    }catch(error){
+
+      console.error(error);
+
+    }
+
+  }
+
+
+  /*
+  Realtime listener.
   */
 
   realtimeChannel =
     supabaseClient
       .channel(
-        "quickeats-rider-orders"
+        "quickeats-rider-orders-" +
+        currentRider.id
       )
       .on(
         "postgres_changes",
         {
-          event:"UPDATE",
+          event:"*",
           schema:"public",
           table:"orders"
         },
-        function(payload){
+        async function(payload){
 
           const order =
             payload.new;
 
 
+          /*
+          New ready order.
+
+          IMPORTANT:
+          The scanner also detects this,
+          so we only animate it here if
+          the scanner has not already seen it.
+          */
+
           if(
+            order &&
             order.status ===
             "ready_for_pickup" &&
             !order.rider_id
           ){
 
-            showOrder(
-              order
-            );
+            if(
+              !seenOrderIds.has(
+                order.id
+              )
+            ){
 
-            alert(
-              "🚨 New QuickEats delivery is ready!"
-            );
+              seenOrderIds.add(
+                order.id
+              );
+
+
+              lastAlertedOrderId =
+                order.id;
+
+
+              showNewOrderAnimation(
+                order
+              );
+
+            }else{
+
+              showOrder(
+                order
+              );
+
+            }
 
           }
 
+
+          /*
+          If our active order changes,
+          refresh it.
+          */
+
+          if(
+            currentOrder &&
+            order &&
+            order.id ===
+            currentOrder.id
+          ){
+
+            currentOrder =
+              order;
+
+
+            /*
+            If another rider accepted it,
+            stop showing it as available.
+            */
+
+            if(
+              order.rider_id &&
+              order.rider_id !==
+              currentRider.id
+            ){
+
+              currentOrder =
+                null;
+
+
+              document
+                .getElementById("orderCard")
+                .style.display =
+                "none";
+
+
+              document
+                .getElementById("empty")
+                .style.display =
+                "block";
+
+            }else{
+
+              updateOrderFromRealtime();
+
+            }
+
+          }
+
+
+          await loadRiderOrders();
+
         }
       )
-      .subscribe();
+      .subscribe(
+        function(status){
+
+          console.log(
+            "Rider realtime status:",
+            status
+          );
+
+        }
+      );
 
 }
-
 
 
 /*
@@ -1503,6 +3348,13 @@ SHOW ORDER
 */
 
 function showOrder(order){
+
+  if(!order){
+
+    return;
+
+  }
+
 
   currentOrder =
     order;
@@ -1523,13 +3375,17 @@ function showOrder(order){
   document
     .getElementById("deliveryDetails")
     .style.display =
-    "none";
+    order.rider_id
+      ? "block"
+      : "none";
 
 
   document
     .getElementById("acceptButton")
     .style.display =
-    "block";
+    order.rider_id
+      ? "none"
+      : "block";
 
 
   document
@@ -1543,9 +3399,19 @@ function showOrder(order){
 
 
   document
+    .getElementById("restaurantName")
+    .textContent =
+    order.vendor_name ||
+    order.restaurant_name ||
+    order.store_name ||
+    "QuickEats Restaurant";
+
+
+  document
     .getElementById("pickupAddress")
     .textContent =
     order.pickup_address ||
+    order.restaurant_address ||
     "Pickup address";
 
 
@@ -1553,7 +3419,10 @@ function showOrder(order){
     .getElementById("orderTotal")
     .textContent =
     money(
-      order.total_amount
+      order.total_amount ||
+      order.total ||
+      order.amount ||
+      0
     );
 
 
@@ -1561,8 +3430,56 @@ function showOrder(order){
     order.items
   );
 
+
+  if(order.rider_id){
+
+    showAccepted();
+
+  }else{
+
+    document
+      .getElementById("orderBadge")
+      .textContent =
+      "READY FOR PICKUP";
+
+  }
+
 }
 
+
+/*
+========================================================
+REALTIME ACTIVE ORDER UPDATE
+========================================================
+*/
+
+function updateOrderFromRealtime(){
+
+  if(!currentOrder){
+
+    return;
+
+  }
+
+
+  document
+    .getElementById("orderBadge")
+    .textContent =
+    formatStatus(
+      currentOrder.status
+    );
+
+
+  if(
+    currentOrder.rider_id ===
+    currentRider?.id
+  ){
+
+    showAccepted();
+
+  }
+
+}
 
 
 /*
@@ -1574,7 +3491,9 @@ ITEMS
 function renderItems(items){
 
   const box =
-    document.getElementById("items");
+    document.getElementById(
+      "items"
+    );
 
 
   box.innerHTML =
@@ -1611,22 +3530,46 @@ function renderItems(items){
   list.forEach(function(item){
 
     const div =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
 
     div.className =
       "item";
 
 
+    const quantity =
+      Number(
+        item.quantity ||
+        item.qty ||
+        1
+      );
+
+
+    const price =
+      Number(
+        item.price ||
+        item.unit_price ||
+        0
+      );
+
+
     div.innerHTML =
       `
         <span>
-          ${item.quantity || 1}×
-          ${safe(item.name || "Food")}
+          ${quantity}×
+          ${safe(
+            item.name ||
+            item.item_name ||
+            "Food"
+          )}
         </span>
 
         <strong>
-          ${money(item.price || 0)}
+          ${money(
+            price * quantity
+          )}
         </strong>
       `;
 
@@ -1638,7 +3581,6 @@ function renderItems(items){
   });
 
 }
-
 
 
 /*
@@ -1655,10 +3597,6 @@ async function acceptDelivery(){
 
   }
 
-
-  /*
-  Demo mode
-  */
 
   if(demoMode){
 
@@ -1731,12 +3669,32 @@ async function acceptDelivery(){
       result.data;
 
 
+    /*
+    Remove accepted order from
+    the available-order tracking set.
+    */
+
+    seenOrderIds.add(
+      currentOrder.id
+    );
+
+
     showAccepted();
+
+
+    await loadRiderOrders();
+
+
+    toast(
+      "Delivery accepted."
+    );
 
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      error
+    );
 
 
     button.disabled =
@@ -1747,6 +3705,45 @@ async function acceptDelivery(){
       "ACCEPT DELIVERY";
 
 
+    /*
+    If another rider already accepted
+    the order, refresh available orders.
+    */
+
+    if(
+      error.message &&
+      error.message.toLowerCase()
+        .includes("no longer available")
+    ){
+
+      currentOrder =
+        null;
+
+
+      document
+        .getElementById("orderCard")
+        .style.display =
+        "none";
+
+
+      document
+        .getElementById("empty")
+        .style.display =
+        "block";
+
+
+      toast(
+        "Another rider accepted this delivery."
+      );
+
+
+      await scanForNewOrders();
+
+      return;
+
+    }
+
+
     message(
       error.message ||
       "Could not accept delivery."
@@ -1755,7 +3752,6 @@ async function acceptDelivery(){
   }
 
 }
-
 
 
 /*
@@ -1770,10 +3766,16 @@ function acceptDemoDelivery(){
     "rider_accepted";
 
 
+  currentOrder.rider_id =
+    "demo-rider";
+
+
   showAccepted();
 
-}
 
+  updateDashboardStats();
+
+}
 
 
 /*
@@ -1804,17 +3806,25 @@ function showAccepted(){
 
 
   document
+    .getElementById("customerPhone")
+    .textContent =
+    currentOrder.customer_phone ||
+    currentOrder.phone ||
+    "-";
+
+
+  document
     .getElementById("detailPickup")
     .textContent =
     currentOrder.pickup_address ||
-    "-";
+    "Pickup address";
 
 
   document
     .getElementById("deliveryAddress")
     .textContent =
     currentOrder.delivery_address ||
-    "-";
+    "Delivery address";
 
 
   document
@@ -1825,13 +3835,37 @@ function showAccepted(){
     );
 
 
-  document
-    .getElementById("statusButton")
-    .textContent =
-    "ARRIVED AT RESTAURANT";
+  const phone =
+    currentOrder.customer_phone ||
+    currentOrder.phone;
+
+
+  const phoneButton =
+    document.getElementById(
+      "phoneButton"
+    );
+
+
+  if(phone){
+
+    phoneButton.href =
+      "tel:" + phone;
+
+
+    phoneButton.style.display =
+      "block";
+
+  }else{
+
+    phoneButton.style.display =
+      "none";
+
+  }
+
+
+  updateStatusScreen();
 
 }
-
 
 
 /*
@@ -1901,10 +3935,6 @@ async function nextStatus(){
   }
 
 
-  /*
-  Demo
-  */
-
   if(demoMode){
 
     currentOrder.status =
@@ -1913,9 +3943,37 @@ async function nextStatus(){
 
     updateStatusScreen();
 
+
+    updateDashboardStats();
+
+
+    if(
+      next ===
+      "delivered"
+    ){
+
+      renderEarnings();
+
+    }
+
+
     return;
 
   }
+
+
+  const button =
+    document.getElementById(
+      "statusButton"
+    );
+
+
+  button.disabled =
+    true;
+
+
+  button.textContent =
+    "UPDATING...";
 
 
   try{
@@ -1947,7 +4005,24 @@ async function nextStatus(){
     updateStatusScreen();
 
 
+    await loadRiderOrders();
+
+
+    toast(
+      "Delivery status updated."
+    );
+
+
   }catch(error){
+
+    console.error(
+      error
+    );
+
+
+    button.disabled =
+      false;
+
 
     message(
       error.message ||
@@ -1957,7 +4032,6 @@ async function nextStatus(){
   }
 
 }
-
 
 
 /*
@@ -1974,13 +4048,46 @@ function updateStatusScreen(){
     );
 
 
+  const statusBox =
+    document.getElementById(
+      "statusBox"
+    );
+
+
+  button.disabled =
+    false;
+
+
+  button.style.display =
+    "block";
+
+
   if(
+    currentOrder.status ===
+    "rider_accepted"
+  ){
+
+    button.textContent =
+      "ARRIVED AT RESTAURANT";
+
+
+    statusBox.textContent =
+      "Delivery accepted — head to the restaurant.";
+
+  }
+
+
+  else if(
     currentOrder.status ===
     "arrived_pickup"
   ){
 
     button.textContent =
       "MARK FOOD PICKED UP";
+
+
+    statusBox.textContent =
+      "You have arrived at the restaurant.";
 
   }
 
@@ -1993,6 +4100,10 @@ function updateStatusScreen(){
     button.textContent =
       "START DELIVERY";
 
+
+    statusBox.textContent =
+      "Food picked up — ready for delivery.";
+
   }
 
 
@@ -2004,6 +4115,10 @@ function updateStatusScreen(){
     button.textContent =
       "MARK DELIVERED";
 
+
+    statusBox.textContent =
+      "You are on the way to the customer.";
+
   }
 
 
@@ -2011,6 +4126,14 @@ function updateStatusScreen(){
     currentOrder.status ===
     "delivered"
   ){
+
+    statusBox.textContent =
+      "Delivery completed successfully.";
+
+
+    button.style.display =
+      "none";
+
 
     document
       .getElementById("success")
@@ -2021,6 +4144,118 @@ function updateStatusScreen(){
 
 }
 
+
+/*
+========================================================
+EARNINGS
+========================================================
+*/
+
+function renderEarnings(){
+
+  const list =
+    document.getElementById(
+      "earningsList"
+    );
+
+
+  if(!list){
+
+    return;
+
+  }
+
+
+  let completed =
+    [];
+
+
+  if(demoMode){
+
+    if(
+      currentOrder &&
+      currentOrder.status ===
+      "delivered"
+    ){
+
+      completed = [
+        currentOrder
+      ];
+
+    }
+
+  }else{
+
+    completed =
+      riderOrders.filter(
+        function(order){
+
+          return order.status ===
+            "delivered";
+
+        }
+      );
+
+  }
+
+
+  if(!completed.length){
+
+    list.innerHTML =
+      `
+        <div class="empty">
+          No completed deliveries yet.
+        </div>
+      `;
+
+
+    return;
+
+  }
+
+
+  list.innerHTML =
+    completed
+      .slice(0,20)
+      .map(function(order){
+
+        const date =
+          order.delivered_at ||
+          order.updated_at ||
+          order.created_at;
+
+
+        return `
+          <div class="earning-row">
+
+            <div>
+
+              <div class="earning-order">
+                #${safe(
+                  order.order_number ||
+                  "ORDER"
+                )}
+              </div>
+
+              <div class="earning-date">
+                ${formatDate(date)}
+              </div>
+
+            </div>
+
+            <div class="earning-amount">
+              ${money(
+                order.delivery_fee
+              )}
+            </div>
+
+          </div>
+        `;
+
+      })
+      .join("");
+
+}
 
 
 /*
@@ -2071,13 +4306,22 @@ function showPage(
     "active"
   );
 
-}
 
+  if(
+    pageId ===
+    "earningsPage"
+  ){
+
+    renderEarnings();
+
+  }
+
+}
 
 
 /*
 ========================================================
-ONLINE
+ONLINE / OFFLINE
 ========================================================
 */
 
@@ -2098,8 +4342,52 @@ function toggleOnline(){
       ? "🟢 ONLINE"
       : "🔴 OFFLINE";
 
-}
 
+  document
+    .getElementById("profileStatus")
+    .textContent =
+    online
+      ? "Online"
+      : "Offline";
+
+
+  if(online){
+
+    if(
+      !demoMode &&
+      currentRider
+    ){
+
+      startOrderScanner();
+
+    }
+
+
+    updateScannerUI();
+
+
+    toast(
+      "You are now online."
+    );
+
+  }else{
+
+    stopOrderScanner();
+
+
+    updateScannerUI();
+
+
+    toast(
+      "You are now offline."
+    );
+
+  }
+
+
+  updateDashboardStats();
+
+}
 
 
 /*
@@ -2109,6 +4397,41 @@ LOGOUT
 */
 
 async function logoutRider(){
+
+  /*
+  Stop automatic scanner.
+  */
+
+  stopOrderScanner();
+
+
+  /*
+  Remove realtime listener.
+  */
+
+  if(
+    supabaseClient &&
+    realtimeChannel
+  ){
+
+    try{
+
+      await supabaseClient.removeChannel(
+        realtimeChannel
+      );
+
+    }catch(error){
+
+      console.error(error);
+
+    }
+
+  }
+
+
+  /*
+  Sign out.
+  */
 
   if(
     supabaseClient &&
@@ -2123,14 +4446,37 @@ async function logoutRider(){
   currentUser =
     null;
 
+
   currentRider =
     null;
+
 
   currentOrder =
     null;
 
+
+  riderOrders =
+    [];
+
+
   demoMode =
     false;
+
+
+  realtimeChannel =
+    null;
+
+
+  seenOrderIds =
+    new Set();
+
+
+  scannerInitialized =
+    false;
+
+
+  lastAlertedOrderId =
+    null;
 
 
   document
@@ -2144,8 +4490,44 @@ async function logoutRider(){
     .style.display =
     "flex";
 
-}
 
+  document
+    .getElementById("password")
+    .value =
+    "";
+
+
+  document
+    .getElementById("orderCard")
+    .style.display =
+    "none";
+
+
+  document
+    .getElementById("empty")
+    .style.display =
+    "block";
+
+
+  document
+    .getElementById("profileStatus")
+    .textContent =
+    "Online";
+
+
+  document
+    .getElementById("onlineButton")
+    .textContent =
+    "🟢 ONLINE";
+
+
+  online =
+    true;
+
+
+  updateScannerUI();
+
+}
 
 
 /*
@@ -2177,13 +4559,150 @@ function closeSuccess(){
   currentOrder =
     null;
 
-}
 
+  updateDashboardStats();
+
+
+  /*
+  Immediately look for another
+  available delivery.
+  */
+
+  if(
+    !demoMode &&
+    online
+  ){
+
+    scanForNewOrders();
+
+  }
+
+}
 
 
 /*
 ========================================================
-HELPERS
+FORMAT STATUS
+========================================================
+*/
+
+function formatStatus(status){
+
+  const names = {
+
+    ready_for_pickup:
+      "READY FOR PICKUP",
+
+    rider_accepted:
+      "DELIVERY ACCEPTED",
+
+    arrived_pickup:
+      "AT RESTAURANT",
+
+    picked_up:
+      "FOOD PICKED UP",
+
+    on_the_way:
+      "ON THE WAY",
+
+    delivered:
+      "DELIVERED",
+
+    cancelled:
+      "CANCELLED"
+
+  };
+
+
+  return names[status] ||
+    "DELIVERY";
+
+}
+
+
+/*
+========================================================
+TODAY CHECK
+========================================================
+*/
+
+function isToday(value){
+
+  if(!value){
+
+    return false;
+
+  }
+
+
+  const date =
+    new Date(value);
+
+
+  const today =
+    new Date();
+
+
+  return (
+    date.getFullYear() ===
+      today.getFullYear() &&
+
+    date.getMonth() ===
+      today.getMonth() &&
+
+    date.getDate() ===
+      today.getDate()
+  );
+
+}
+
+
+/*
+========================================================
+DATE
+========================================================
+*/
+
+function formatDate(value){
+
+  if(!value){
+
+    return "-";
+
+  }
+
+
+  const date =
+    new Date(value);
+
+
+  if(
+    Number.isNaN(
+      date.getTime()
+    )
+  ){
+
+    return "-";
+
+  }
+
+
+  return date.toLocaleString(
+    "en-NG",
+    {
+      day:"numeric",
+      month:"short",
+      hour:"2-digit",
+      minute:"2-digit"
+    }
+  );
+
+}
+
+
+/*
+========================================================
+MONEY
 ========================================================
 */
 
@@ -2191,21 +4710,51 @@ function money(value){
 
   return "₦" +
     Number(value || 0)
-      .toLocaleString("en-NG");
+      .toLocaleString(
+        "en-NG"
+      );
 
 }
 
+
+/*
+========================================================
+SAFE HTML
+========================================================
+*/
 
 function safe(value){
 
   return String(value)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;");
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 
 }
 
+
+/*
+========================================================
+HIDE LOGIN MESSAGE
+========================================================
+*/
 
 function showMessageAndHide(){
 
