@@ -1356,13 +1356,6 @@ html, body {
 .auth-tab.active{background:#078747;color:#fff;box-shadow:0 2px 8px #07874722}
 .signup-fields{display:grid;gap:10px}
 .signup-fields.hidden{display:none!important}
-.signup-fields .field-label{display:block;margin:2px 0 -5px;font-size:12px;font-weight:800;color:#405047}
-.signup-fields select,.signup-fields input[type=file]{display:block;width:100%;min-height:44px;padding:10px;border:1px solid #d9e2dc;border-radius:11px;background:#fff;color:#17201b;font-size:13px}
-.signup-fields .field-note{font-size:11px;line-height:1.4;color:#64736a;margin-top:-5px}
-.vehicle-docs{display:grid;gap:10px;padding:12px;border:1px solid #dbe6de;border-radius:12px;background:#f8fbf9}
-.vehicle-docs.hidden{display:none!important}
-.vehicle-docs h4{font-size:13px;color:#08733d}
-.doc-required{color:#b42318}
 .login-card input{display:block;width:100%;min-height:46px;margin:0 0 10px;padding:12px 13px;border:1px solid #d9e2dc;border-radius:11px;background:#fff;color:#17201b;font-size:15px;outline-color:#078747}
 .primary-btn,.demo-btn{width:100%;min-height:46px;margin-top:8px;border-radius:11px;font-weight:800}
 .text-btn{display:block;width:100%;padding:12px 8px;background:transparent;color:#078747;font-weight:700}
@@ -1384,36 +1377,8 @@ html, body {
           <button id="signupTab" class="auth-tab" type="button" onclick="setAuthMode('signup')">Create account</button>
         </div>
         <div id="signupFields" class="signup-fields hidden">
-          <input id="riderNameInput" type="text" autocomplete="name" maxlength="80" placeholder="Full name" required>
-          <input id="riderPhoneInput" type="tel" autocomplete="tel" maxlength="24" placeholder="Phone number" required>
-          <label class="field-label" for="vehicleTypeInput">Vehicle type <span class="doc-required">*</span></label>
-          <select id="vehicleTypeInput" required onchange="updateVehicleDocumentFields()">
-            <option value="">Choose your delivery vehicle</option>
-            <option value="bicycle">Bicycle</option>
-            <option value="motorbike">Motorbike</option>
-          </select>
-          <div class="field-label">Required documents <span class="doc-required">*</span></div>
-          <div class="field-note">Accepted files: JPG, PNG, or PDF. Maximum 5 MB per file. Use clear photos. Documents are submitted privately for admin review.</div>
-          <label class="field-label" for="riderIdDocument">Government-issued ID</label>
-          <input id="riderIdDocument" type="file" accept="image/jpeg,image/png,application/pdf" required>
-          <label class="field-label" for="riderProfilePhoto">Profile photo</label>
-          <input id="riderProfilePhoto" type="file" accept="image/jpeg,image/png" required>
-          <div id="bicycleDocuments" class="vehicle-docs hidden">
-            <h4>Bicycle documents</h4>
-            <label class="field-label" for="bicyclePhoto">Photo of your bicycle</label>
-            <input id="bicyclePhoto" type="file" accept="image/jpeg,image/png">
-          </div>
-          <div id="motorbikeDocuments" class="vehicle-docs hidden">
-            <h4>Motorbike documents</h4>
-            <label class="field-label" for="motorbikeLicence">Valid motorcycle driving licence</label>
-            <input id="motorbikeLicence" type="file" accept="image/jpeg,image/png,application/pdf">
-            <label class="field-label" for="motorbikePhoto">Photo of your motorbike</label>
-            <input id="motorbikePhoto" type="file" accept="image/jpeg,image/png">
-            <label class="field-label" for="motorbikeRegistration">Motorbike registration document</label>
-            <input id="motorbikeRegistration" type="file" accept="image/jpeg,image/png,application/pdf">
-            <label class="field-label" for="motorbikeInsurance">Motorbike insurance document</label>
-            <input id="motorbikeInsurance" type="file" accept="image/jpeg,image/png,application/pdf">
-          </div>
+          <input id="riderNameInput" type="text" autocomplete="name" maxlength="80" placeholder="Full name">
+          <input id="riderPhoneInput" type="tel" autocomplete="tel" maxlength="24" placeholder="Phone number">
         </div>
         <input id="emailInput" type="email" autocomplete="email" placeholder="Email address">
         <input id="passwordInput" type="password" autocomplete="current-password" minlength="8" placeholder="Password (at least 8 characters)">
@@ -1430,6 +1395,7 @@ html, body {
   <span id="networkBannerText">Connection lost. Reconnect to update orders.</span>
 </div>
 
+
     <header class="header">
         <div>
             <div class="header-title">QuickEats Rider</div>
@@ -1441,6 +1407,21 @@ html, body {
             <span id="onlineText">ONLINE</span>
         </button>
     </header>
+
+    <!-- RIDER APPLICATION / DOCUMENT VERIFICATION -->
+    <section id="riderApplicationPanel" class="profile-card" style="margin:14px; padding:18px; display:none;">
+      <h2 style="margin-top:0">Rider verification</h2>
+      <p id="riderApplicationStatus" role="status">Complete the required documents before accepting deliveries.</p>
+      <div id="riderApplicationForm">
+        <label for="riderVehicleType">Delivery vehicle</label>
+        <select id="riderVehicleType" onchange="renderRiderDocumentFields()" style="width:100%;padding:12px;margin:8px 0 14px;border-radius:10px">
+          <option value="bicycle">Bicycle</option><option value="motorbike">Motorbike</option>
+        </select>
+        <div id="riderDocumentFields"></div>
+        <button id="submitRiderApplicationBtn" class="support-submit" onclick="submitRiderApplication()">SUBMIT FOR REVIEW</button>
+        <p id="riderApplicationFeedback" role="status" class="support-feedback"></p>
+      </div>
+    </section>
 
     <!-- HOME -->
     <main id="homePage" class="page active">
@@ -1811,11 +1792,13 @@ let riderMapMarker = null;
 let destinationMapMarker = null;
 let gpsStartRequested = false;
 
+
 /* ============================================================
    INITIALIZE
 ============================================================ */
 
 document.addEventListener("DOMContentLoaded", async () => {
+    renderRiderDocumentFields();
 
     try {
 
@@ -1869,6 +1852,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 });
 
+
 /* ============================================================
    AUDIO
 ============================================================ */
@@ -1907,6 +1891,7 @@ function unlockAudio() {
     }
 
 }
+
 
 function playTone(frequency, startTime, duration) {
 
@@ -1955,6 +1940,7 @@ function playTone(frequency, startTime, duration) {
     }
 
 }
+
 
 function detectionSound() {
 
@@ -2008,6 +1994,7 @@ function vibrateDetection() {
 
 }
 
+
 /* ============================================================
    LOGIN
 ============================================================ */
@@ -2026,57 +2013,9 @@ function setAuthMode(mode) {
     document.getElementById("loginError").textContent = "";
 }
 
-function updateVehicleDocumentFields() {
-    const vehicle = document.getElementById("vehicleTypeInput")?.value || "";
-    document.getElementById("bicycleDocuments")?.classList.toggle("hidden", vehicle !== "bicycle");
-    document.getElementById("motorbikeDocuments")?.classList.toggle("hidden", vehicle !== "motorbike");
-    const bicycle = document.getElementById("bicyclePhoto");
-    if (bicycle) bicycle.required = vehicle === "bicycle";
-    ["motorbikeLicence", "motorbikePhoto", "motorbikeRegistration", "motorbikeInsurance"].forEach(id => {
-        const field = document.getElementById(id);
-        if (field) field.required = vehicle === "motorbike";
-    });
-}
-
-function validateRiderDocument(file, label) {
-    if (!file) throw new Error("Please upload: " + label + ".");
-    const allowed = ["image/jpeg", "image/png", "application/pdf"];
-    if (!allowed.includes(file.type)) throw new Error(label + ": use a JPG, PNG, or PDF file.");
-    if (file.size > 5 * 1024 * 1024) throw new Error(label + ": file must be 5 MB or smaller.");
-}
-
-async function uploadRiderDocuments(userId, vehicleType) {
-    const required = [
-        ["government_id", "riderIdDocument", "Government-issued ID"],
-        ["profile_photo", "riderProfilePhoto", "Profile photo"]
-    ];
-    if (vehicleType === "bicycle") required.push(["bicycle_photo", "bicyclePhoto", "Bicycle photo"]);
-    if (vehicleType === "motorbike") required.push(
-        ["motorbike_licence", "motorbikeLicence", "Motorcycle driving licence"],
-        ["motorbike_photo", "motorbikePhoto", "Motorbike photo"],
-        ["motorbike_registration", "motorbikeRegistration", "Motorbike registration"],
-        ["motorbike_insurance", "motorbikeInsurance", "Motorbike insurance"]
-    );
-    const uploads = [];
-    for (const [documentType, inputId, label] of required) {
-        const file = document.getElementById(inputId)?.files?.[0];
-        validateRiderDocument(file, label);
-        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-        const path = `${userId}/${documentType}-${Date.now()}-${safeName}`;
-        const { error: uploadError } = await supabaseClient.storage.from("rider-documents").upload(path, file, {
-            cacheControl: "3600", upsert: false, contentType: file.type
-        });
-        if (uploadError) throw new Error("Could not upload " + label + ": " + uploadError.message + ". Check the rider-documents storage bucket and policies.");
-        uploads.push({ user_id: userId, document_type: documentType, storage_path: path, review_status: "pending" });
-    }
-    const { error: rowsError } = await supabaseClient.from("rider_documents").insert(uploads);
-    if (rowsError) throw new Error("Files were uploaded, but document records could not be saved: " + rowsError.message + ". Ask the administrator to apply the rider document SQL setup.");
-}
-
 async function createRiderAccount() {
     const name = document.getElementById("riderNameInput").value.trim();
     const phone = document.getElementById("riderPhoneInput").value.trim();
-    const vehicleType = document.getElementById("vehicleTypeInput").value;
     const email = document.getElementById("emailInput").value.trim();
     const password = document.getElementById("passwordInput").value;
     const feedback = document.getElementById("loginError");
@@ -2085,76 +2024,52 @@ async function createRiderAccount() {
     if (!supabaseClient) { feedback.textContent = "Connection is not ready. Check your internet and reload."; return; }
     if (name.length < 2) { feedback.textContent = "Enter your full name."; return; }
     if (phone.replace(/\D/g, "").length < 7) { feedback.textContent = "Enter a valid phone number."; return; }
-    if (!["bicycle", "motorbike"].includes(vehicleType)) { feedback.textContent = "Choose bicycle or motorbike."; return; }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { feedback.textContent = "Enter a valid email address."; return; }
     if (password.length < 8) { feedback.textContent = "Use a password with at least 8 characters."; return; }
-    try {
-        validateRiderDocument(document.getElementById("riderIdDocument").files[0], "Government-issued ID");
-        validateRiderDocument(document.getElementById("riderProfilePhoto").files[0], "Profile photo");
-        if (vehicleType === "bicycle") validateRiderDocument(document.getElementById("bicyclePhoto").files[0], "Bicycle photo");
-        if (vehicleType === "motorbike") {
-            validateRiderDocument(document.getElementById("motorbikeLicence").files[0], "Motorcycle driving licence");
-            validateRiderDocument(document.getElementById("motorbikePhoto").files[0], "Motorbike photo");
-            validateRiderDocument(document.getElementById("motorbikeRegistration").files[0], "Motorbike registration");
-            validateRiderDocument(document.getElementById("motorbikeInsurance").files[0], "Motorbike insurance");
-        }
-    } catch (validationError) { feedback.textContent = validationError.message; return; }
 
     const button = document.getElementById("authSubmitBtn");
     button.disabled = true;
     button.textContent = "CREATING ACCOUNT…";
     try {
         const { data, error } = await supabaseClient.auth.signUp({
-            email, password,
-            options: { data: { full_name: name, phone, account_type: "rider", vehicle_type: vehicleType } }
+            email,
+            password,
+            // These metadata keys match the existing Supabase handle_new_user() trigger.
+            options: { data: { name, phone, role: "rider" } }
         });
         if (error) throw error;
         if (data.session && data.user) {
             currentUser = data.user;
-            await createOrLoadRiderProfile(name, phone, vehicleType);
-            await uploadRiderDocuments(data.user.id, vehicleType);
-            feedback.textContent = "Application submitted. Your documents are awaiting admin review. You cannot accept deliveries until approved.";
+            await createOrLoadRiderProfile();
             return;
         }
-        feedback.textContent = "Account created, but email confirmation is enabled. Confirm your email and log in, then reselect your documents to submit them. Your application will remain pending until documents are submitted and reviewed.";
+        feedback.textContent = "Account created. Check your email to confirm your address, then log in. Your rider profile will be created automatically by QuickEats.";
         setAuthMode("login");
     } catch (error) {
         console.error("Rider signup error:", error);
-        feedback.textContent = error.message || "Unable to create account. Check Supabase Auth, database, and private storage setup.";
+        feedback.textContent = error.message || "Unable to create account. Check your email and try again.";
     } finally {
         button.disabled = false;
         button.textContent = riderAuthMode === "signup" ? "CREATE RIDER ACCOUNT" : "LOGIN";
     }
 }
 
-async function createOrLoadRiderProfile(name, phone, vehicleType) {
+async function createOrLoadRiderProfile() {
     const feedback = document.getElementById("loginError");
     try {
-        const { data: existing, error: readError } = await supabaseClient
-            .from("riders").select("*").eq("owner_id", currentUser.id).maybeSingle();
-        if (readError) throw readError;
-        if (existing) {
-            const { data: updated, error: updateError } = await supabaseClient.from("riders")
-                .update({ vehicle_type: vehicleType || existing.vehicle_type || currentUser.user_metadata?.vehicle_type || "bicycle" })
-                .eq("owner_id", currentUser.id).select("*").single();
-            if (updateError) throw updateError;
-            currentRider = updated;
-            return;
-        }
-        const profile = {
-            owner_id: currentUser.id,
-            rider_name: name || currentUser.user_metadata?.full_name || "Rider",
-            phone: phone || currentUser.user_metadata?.phone || "",
-            vehicle_type: vehicleType || currentUser.user_metadata?.vehicle_type || "bicycle",
-            approval_status: "pending"
-        };
-        const { data, error } = await supabaseClient.from("riders").insert(profile).select("*").single();
-        if (error) throw error;
-        currentRider = data;
+        // The database trigger creates profiles, riders and wallets. Do not insert duplicate rows here.
+        const { data: rider, error: riderError } = await supabaseClient
+            .from("riders").select("*").eq("user_id", currentUser.id).maybeSingle();
+        if (riderError) throw riderError;
+        if (!rider) throw new Error("Your account is active, but the rider profile has not appeared yet. Please log out and log in again, or contact QuickEats support.");
+        const { data: profile, error: profileError } = await supabaseClient
+            .from("profiles").select("name, phone").eq("id", currentUser.id).maybeSingle();
+        if (profileError) throw profileError;
+        currentRider = { ...rider, rider_name: profile?.name || currentUser.user_metadata?.name || "Rider", phone: profile?.phone || currentUser.user_metadata?.phone || "" };
+        enterApp();
     } catch (error) {
         console.error("Rider profile setup error:", error);
-        feedback.textContent = "Your login account exists, but the rider profile could not be saved. Apply the SQL setup and check the riders table policies. Details: " + (error.message || "profile setup failed");
-        throw error;
+        feedback.textContent = error.message || "Your rider profile could not be loaded. Please try logging in again.";
     }
 }
 
@@ -2225,6 +2140,7 @@ async function loginRider() {
 
 }
 
+
 /*
  * Demo rider is intentionally UI-only.
  * Production rider login uses Supabase Auth.
@@ -2250,56 +2166,138 @@ function demoLogin() {
 
 }
 
+
 /* ============================================================
    LOAD RIDER
 ============================================================ */
 
 async function loadRider() {
-
     try {
-
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .from("riders")
-                .select("*")
-                .eq("owner_id", currentUser.id)
-                .limit(1)
-                .maybeSingle();
-
+        const { data, error } = await supabaseClient
+            .from("riders").select("*").eq("user_id", currentUser.id).maybeSingle();
         if (error) throw error;
+        if (!data) throw new Error("No rider profile was found for this account. Please sign up as a rider or contact QuickEats support.");
 
-        if (!data) {
-            const metadata = currentUser.user_metadata || {};
-            const fullName = String(metadata.full_name || "").trim();
-            const phone = String(metadata.phone || "").trim();
-            if (!fullName || !phone) {
-                throw new Error("Your account is signed in, but no rider profile exists. Sign up with your name and phone number, or ask the administrator to create your rider profile.");
-            }
-            const { data: created, error: createError } = await supabaseClient
-                .from("riders")
-                .insert({ owner_id: currentUser.id, rider_name: fullName, phone })
-                .select("*")
-                .single();
-            if (createError) throw createError;
-            currentRider = created;
-        } else {
-            currentRider = data;
-        }
+        const { data: profile, error: profileError } = await supabaseClient
+            .from("profiles").select("name, phone, role").eq("id", currentUser.id).maybeSingle();
+        if (profileError) throw profileError;
+        if (profile && profile.role !== "rider") throw new Error("This account is not registered as a rider.");
 
+        currentRider = {
+            ...data,
+            rider_name: profile?.name || currentUser.user_metadata?.name || "Rider",
+            phone: profile?.phone || currentUser.user_metadata?.phone || ""
+        };
         enterApp();
-
     } catch (error) {
-
-        console.error(error);
-
-        document.getElementById("loginError").textContent =
-            error.message || "Unable to load rider profile.";
-
+        console.error("Rider profile load error:", error);
+        document.getElementById("loginError").textContent = error.message || "Unable to load rider profile.";
     }
+}
 
+
+/* ============================================================
+   RIDER DOCUMENT APPLICATION
+============================================================ */
+const RIDER_DOCS = {
+  bicycle: [
+    ["government_id", "Government-issued ID"],
+    ["profile_photo", "Clear face photo"],
+    ["bicycle_photo", "Photo of your bicycle"]
+  ],
+  motorbike: [
+    ["government_id", "Government-issued ID"],
+    ["profile_photo", "Clear face photo"],
+    ["motorbike_photo", "Photo of your motorbike"],
+    ["motorcycle_licence", "Valid motorcycle licence"],
+    ["vehicle_registration", "Vehicle registration document"],
+    ["insurance", "Valid vehicle insurance"]
+  ]
+};
+
+function renderRiderDocumentFields() {
+  const vehicle = document.getElementById("riderVehicleType")?.value || "bicycle";
+  const holder = document.getElementById("riderDocumentFields");
+  if (!holder) return;
+  holder.innerHTML = RIDER_DOCS[vehicle].map(([key,label]) => `
+    <label for="riderDoc_${key}" style="display:block;margin:12px 0 5px;font-weight:600">${label}</label>
+    <input id="riderDoc_${key}" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" required style="display:block;width:100%;margin-bottom:10px" />
+  `).join("") + '<small>Accepted: JPG, PNG, WebP, or PDF. Maximum 5 MB per file.</small>';
+}
+
+function updateRiderApplicationUI() {
+  const panel = document.getElementById("riderApplicationPanel");
+  if (!panel || !currentRider || currentRider.id === "demo-rider") return;
+  const status = currentRider.approval_status || "pending";
+  panel.style.display = status === "approved" ? "none" : "block";
+  const messages = {
+    pending: "Your account is awaiting verification. You must submit documents before accepting deliveries.",
+    rejected: "Your application was rejected. Review the note from QuickEats support and resubmit your documents.",
+    needs_resubmission: "QuickEats needs you to resubmit your documents. Please upload clear, valid files.",
+    approved: "Your rider account is approved."
+  };
+  document.getElementById("riderApplicationStatus").textContent = messages[status] || messages.pending;
+  const form = document.getElementById("riderApplicationForm");
+  form.style.display = status === "pending" && currentRider.documents_submitted_at ? "none" : "block";
+  if (!document.getElementById("riderDocumentFields").children.length) renderRiderDocumentFields();
+  const online = document.getElementById("onlineBtn");
+  if (online) {
+    online.disabled = status !== "approved";
+    online.title = status === "approved" ? "Toggle availability" : "Verification required before going online";
+  }
+  if (status !== "approved") {
+    isOnline = false;
+    stopScanner();
+    updateOnlineUI();
+  }
+}
+
+async function submitRiderApplication() {
+  const feedback = document.getElementById("riderApplicationFeedback");
+  const button = document.getElementById("submitRiderApplicationBtn");
+  feedback.textContent = "";
+  if (!currentUser?.id || !supabaseClient) { feedback.textContent = "Please sign in again before uploading documents."; return; }
+  const vehicle = document.getElementById("riderVehicleType").value;
+  const required = RIDER_DOCS[vehicle];
+  const files = [];
+  for (const [type,label] of required) {
+    const input = document.getElementById("riderDoc_" + type);
+    const file = input?.files?.[0];
+    if (!file) { feedback.textContent = `Please choose a file for: ${label}.`; input?.focus(); return; }
+    if (file.size > 5 * 1024 * 1024) { feedback.textContent = `${label} must be 5 MB or smaller.`; return; }
+    if (!["image/jpeg","image/png","image/webp","application/pdf"].includes(file.type)) { feedback.textContent = `${label}: use JPG, PNG, WebP, or PDF.`; return; }
+    files.push({type,label,file});
+  }
+  button.disabled = true; button.textContent = "UPLOADING DOCUMENTS…";
+  const uploadedPaths = [];
+  try {
+    const docs = [];
+    for (const item of files) {
+      const ext = (item.file.name.split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "");
+      const path = `${currentUser.id}/${Date.now()}_${item.type}.${ext}`;
+      const { error: uploadError } = await supabaseClient.storage.from("rider-documents").upload(path, item.file, { upsert: false, contentType: item.file.type });
+      if (uploadError) throw uploadError;
+      uploadedPaths.push(path);
+      docs.push({ document_type: item.type, storage_path: path });
+    }
+    button.textContent = "SUBMITTING FOR REVIEW…";
+    const { data, error } = await supabaseClient.rpc("submit_rider_application", { p_vehicle_type: vehicle, p_documents: docs });
+    if (error) throw error;
+    const result = Array.isArray(data) ? data[0] : data;
+    if (!result?.success) throw new Error(result?.message || "Application submission failed.");
+    const { data: rider, error: riderError } = await supabaseClient.from("riders").select("*").eq("user_id", currentUser.id).single();
+    if (riderError) throw riderError;
+    currentRider = { ...currentRider, ...rider };
+    feedback.textContent = "Documents submitted successfully. Your account is now awaiting administrator review.";
+    updateRiderApplicationUI();
+    showToast("Application submitted for review");
+  } catch (error) {
+    console.error("Rider application submission failed", error);
+    feedback.textContent = error.message || "Could not submit documents. Please try again.";
+    // Keep uploaded files in private storage so the user can retry; paths are scoped to their own account.
+  } finally {
+    button.disabled = false; button.textContent = "SUBMIT FOR REVIEW";
+  }
 }
 
 /* ============================================================
@@ -2333,9 +2331,10 @@ async function enterApp() {
     document.getElementById("avatar").textContent =
         name.charAt(0).toUpperCase();
 
-    isOnline = true;
+    isOnline = currentRider?.approval_status === "approved";
 
     updateOnlineUI();
+    updateRiderApplicationUI();
 
     await refreshStats();
 
@@ -2348,6 +2347,7 @@ async function enterApp() {
     startScanner();
 
 }
+
 
 /* ============================================================
    RIDER HELPERS
@@ -2464,6 +2464,7 @@ function money(value) {
 
 }
 
+
 /* ============================================================
    PAGE NAVIGATION
 ============================================================ */
@@ -2522,6 +2523,7 @@ function showPage(page) {
 
 }
 
+
 /* ============================================================
    LIVE GPS + GOOGLE MAPS NAVIGATION
 ============================================================ */
@@ -2555,6 +2557,7 @@ function initializeLiveMap() {
 
 }
 
+
 function setGPSMessage(message, coordsText) {
 
     const status =
@@ -2570,6 +2573,7 @@ function setGPSMessage(message, coordsText) {
     }
 
 }
+
 
 function startLiveGPS(showMessage = true) {
 
@@ -2736,6 +2740,7 @@ function stopLiveGPS() {
 
 }
 
+
 function openCurrentLocationInMaps() {
 
     if (!riderPosition) {
@@ -2758,6 +2763,7 @@ function openCurrentLocationInMaps() {
 
 }
 
+
 function finiteCoordinate(value) {
 
     if (
@@ -2771,6 +2777,7 @@ function finiteCoordinate(value) {
     return Number.isFinite(number) ? number : null;
 
 }
+
 
 function coordinatePair(latValue, lngValue) {
 
@@ -2789,6 +2796,7 @@ function coordinatePair(latValue, lngValue) {
     return { lat, lng };
 
 }
+
 
 function getOrderCoordinates(order, type) {
 
@@ -2826,6 +2834,7 @@ function getOrderCoordinates(order, type) {
 
 }
 
+
 function getDestinationText(order, type) {
 
     if (type === "pickup") return getPickup(order);
@@ -2833,6 +2842,7 @@ function getDestinationText(order, type) {
     return getDelivery(order);
 
 }
+
 
 function updateDestinationOnMap(order) {
 
@@ -2901,6 +2911,7 @@ function updateDestinationOnMap(order) {
     }
 
 }
+
 
 async function navigateToOrderLocation(type) {
 
@@ -2997,11 +3008,18 @@ async function navigateToOrderLocation(type) {
 
 }
 
+
 /* ============================================================
    ONLINE / OFFLINE
 ============================================================ */
 
 function toggleOnline() {
+
+    if (currentRider?.id !== "demo-rider" && currentRider?.approval_status !== "approved") {
+        showToast("Complete rider verification and wait for approval first.");
+        updateRiderApplicationUI();
+        return;
+    }
 
     unlockAudio();
 
@@ -3024,6 +3042,7 @@ function toggleOnline() {
     }
 
 }
+
 
 function updateOnlineUI() {
 
@@ -3074,6 +3093,7 @@ function updateOnlineUI() {
 
 }
 
+
 /* ============================================================
    SCANNER START / STOP
 ============================================================ */
@@ -3103,6 +3123,7 @@ function startScanner() {
 
 }
 
+
 function stopScanner() {
 
     if (scannerTimer) {
@@ -3124,6 +3145,7 @@ function stopScanner() {
     }
 
 }
+
 
 /* ============================================================
    AUTOMATIC ORDER SCAN
@@ -3267,6 +3289,7 @@ function handleRealtimeOrder(payload) {
     setTimeout(() => scanForNewOrders(false), 500);
 }
 
+
 /* ============================================================
    NEW ORDER ALERT
 ============================================================ */
@@ -3352,6 +3375,7 @@ function hideOrderPopup() {
     document.getElementById("orderPopup").classList.remove("show");
 }
 
+
 /* ============================================================
    ACTIVE DELIVERY CHECK
 ============================================================ */
@@ -3369,6 +3393,7 @@ function hasActiveAssignedDelivery() {
     return !!currentOrder.rider_id &&
         activeStatuses.includes(currentOrder.status);
 }
+
 
 /* ============================================================
    DISPLAY ORDER
@@ -3431,6 +3456,7 @@ function showOrder(order, animate = false) {
     }
 }
 
+
 /* ============================================================
    ACCEPT DELIVERY
 ============================================================ */
@@ -3438,11 +3464,6 @@ function showOrder(order, animate = false) {
 async function acceptCurrentOrder() {
     if (!currentOrder) {
         showToast("No delivery selected.");
-        return;
-    }
-
-    if (currentRider?.id !== "demo-rider" && currentRider?.approval_status !== "approved") {
-        showToast("Your rider account is awaiting admin approval. You cannot accept deliveries yet.");
         return;
     }
 
@@ -3461,24 +3482,14 @@ async function acceptCurrentOrder() {
     button.textContent = "ACCEPTING...";
 
     try {
-        const { data, error } = await supabaseClient.rpc(
-            "accept_delivery",
-            {
-                p_order_id: currentOrder.id,
-                p_rider_id: currentRider.id
-            }
-        );
-
+        const { data, error } = await supabaseClient.rpc("accept_order", { p_order_id: currentOrder.id });
         if (error) throw error;
-
-        const accepted = Array.isArray(data) ? data[0] : data;
-
-        if (!accepted) {
-            throw new Error("This delivery is no longer available.");
-        }
-
-        currentOrder = accepted;
-        showAccepted(accepted);
+        const result = Array.isArray(data) ? data[0] : data;
+        if (!result?.success) throw new Error(result?.message || "This delivery is no longer available.");
+        const { data: acceptedOrder, error: orderError } = await supabaseClient.from("orders").select("*").eq("id", currentOrder.id).single();
+        if (orderError) throw orderError;
+        currentOrder = acceptedOrder;
+        showAccepted(acceptedOrder);
         showToast("Delivery accepted!");
 
         await refreshStats();
@@ -3495,6 +3506,7 @@ async function acceptCurrentOrder() {
     }
 }
 
+
 /* ============================================================
    ACCEPTED DELIVERY
 ============================================================ */
@@ -3507,16 +3519,17 @@ function showAccepted(order) {
     updateStatusScreen(order.status);
 }
 
+
 /* ============================================================
    DELIVERY STATUS FLOW
 ============================================================ */
 
 function getNextStatus(status) {
     const flow = {
-        rider_accepted: "arrived_pickup",
-        arrived_pickup: "picked_up",
-        picked_up: "on_the_way",
-        on_the_way: "delivered"
+        accepted: "arrived_at_vendor",
+        arrived_at_vendor: "picked_up",
+        picked_up: "arrived_at_customer",
+        arrived_at_customer: "delivered"
     };
 
     return flow[status] || null;
@@ -3524,10 +3537,10 @@ function getNextStatus(status) {
 
 function getStatusButtonText(status) {
     const text = {
-        rider_accepted: "ARRIVED AT PICKUP",
-        arrived_pickup: "CONFIRM PICKUP",
-        picked_up: "START DELIVERY",
-        on_the_way: "MARK DELIVERED"
+        accepted: "ARRIVED AT PICKUP",
+        arrived_at_vendor: "CONFIRM PICKUP",
+        picked_up: "ARRIVED AT CUSTOMER",
+        arrived_at_customer: "CONFIRM DELIVERY"
     };
 
     return text[status] || "UPDATE STATUS";
@@ -3578,28 +3591,28 @@ async function advanceStatus() {
             return;
         }
 
-        const { data, error } = await supabaseClient.rpc(
-            "update_delivery_status",
-            {
-                p_order_id: currentOrder.id,
-                p_status: nextStatus
-            }
-        );
-
-        if (error) throw error;
-
-        const updated = Array.isArray(data) ? data[0] : data;
-
-        if (!updated) {
-            throw new Error("Unable to update delivery.");
+        let verificationCode = null;
+        if (nextStatus === "picked_up") {
+            verificationCode = prompt("Enter the pickup code provided by the restaurant:");
+        } else if (nextStatus === "delivered") {
+            verificationCode = prompt("Enter the delivery code provided by the customer:");
         }
-
+        if ((nextStatus === "picked_up" || nextStatus === "delivered") && !verificationCode) {
+            throw new Error("Verification code is required for this step.");
+        }
+        const { data, error } = await supabaseClient.rpc("update_order_status", {
+            p_order_id: currentOrder.id,
+            p_new_status: nextStatus,
+            p_verification_code: verificationCode
+        });
+        if (error) throw error;
+        const result = Array.isArray(data) ? data[0] : data;
+        if (!result?.success) throw new Error(result?.message || "Unable to update delivery.");
+        const { data: updated, error: refreshError } = await supabaseClient.from("orders").select("*").eq("id", currentOrder.id).single();
+        if (refreshError) throw refreshError;
         currentOrder = updated;
         updateStatusScreen(updated.status);
-
-        if (updated.status === "delivered") {
-            await deliveryCompleted();
-        }
+        if (updated.status === "delivered") await deliveryCompleted();
 
         button.disabled = false;
 
@@ -3612,6 +3625,7 @@ async function advanceStatus() {
         showToast(error.message || "Status update failed.");
     }
 }
+
 
 /* ============================================================
    DELIVERY COMPLETED
@@ -3647,6 +3661,7 @@ function closeSuccess() {
     scanForNewOrders(false);
 }
 
+
 /* ============================================================
    STATUS FORMATTING
 ============================================================ */
@@ -3656,6 +3671,7 @@ function formatStatus(status) {
 
     return status.replaceAll("_", " ").toUpperCase();
 }
+
 
 /* ============================================================
    DASHBOARD STATISTICS
@@ -3748,6 +3764,7 @@ function updateAvailableCount(count) {
         count || 0;
 }
 
+
 /* ============================================================
    EARNINGS
 ============================================================ */
@@ -3819,6 +3836,7 @@ function renderEarnings() {
     }).join("");
 }
 
+
 /* ============================================================
    LOGOUT
 ============================================================ */
@@ -3853,6 +3871,7 @@ async function logoutRider() {
     document.getElementById("passwordInput").value = "";
 }
 
+
 /* ============================================================
    TOAST NOTIFICATIONS
 ============================================================ */
@@ -3872,6 +3891,7 @@ function showToast(message) {
     }, 2800);
 }
 
+
 /* ============================================================
    HTML ESCAPING
 ============================================================ */
@@ -3884,6 +3904,8 @@ function escapeHtml(value) {
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
 }
+
+
 
 /* Rider support report. This prepares a report for the device email app; it does not claim the report was sent to a backend. */
 function submitRiderSupport(){
@@ -3931,6 +3953,7 @@ window.addEventListener("offline", () => {
 
     showToast("Internet connection lost");
 });
+
 
 updateNetworkBanner();
 
