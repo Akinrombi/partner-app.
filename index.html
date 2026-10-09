@@ -1195,56 +1195,144 @@ button{
         opacity:.7;
     }
 }
-/* QUICK EATS MOBILE SPACING FIX */
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
+/* QUICK EATS RESPONSIVE LAYOUT FIX — overrides older styles */
+html, body {
+  width: 100%;
+  min-height: 100%;
   margin: 0;
   padding: 0;
-  width: 100%;
   overflow-x: hidden;
 }
 
-#app {
+.app {
+  min-height: 100vh;
+  padding-bottom: calc(78px + env(safe-area-inset-bottom));
+}
+
+.header {
+  height: 64px;
+  padding: 0 14px;
+}
+
+.page,
+.page.active {
   width: 100%;
-  min-width: 0;
+  min-height: 0;
+  height: auto;
+  margin: 0;
+  padding: 12px;
 }
 
-.stats {
-  gap: 8px !important;
-  margin-bottom: 10px !important;
-}
-
-.stat {
-  padding: 11px !important;
-}
-
-.map-wrap {
-  margin-bottom: 10px !important;
-}
-
-#liveMap {
-  height: 180px !important;
-  min-height: 180px !important;
+/* Never vertically center or stretch page content */
+#homePage, #earningsPage, #profilePage {
+  align-content: start;
+  justify-content: flex-start;
 }
 
 .welcome {
-  margin-bottom: 10px !important;
-  padding: 12px !important;
+  padding: 14px;
+  margin: 0 0 10px;
+}
+
+.welcome h2 {
+  font-size: 19px;
+  line-height: 1.25;
+  margin-bottom: 5px;
+}
+
+.welcome p {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.scanner-panel {
+  height: 112px;
+  min-height: 112px;
+  margin: 0 0 10px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+.stat {
+  min-width: 0;
+  padding: 11px;
+  border-radius: 13px;
+}
+
+.stat-label {
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.stat-value {
+  font-size: 20px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.map-wrap {
+  width: 100%;
+  margin: 0 0 10px;
+}
+
+#liveMap {
+  width: 100%;
+  height: 165px;
+  min-height: 165px;
+}
+
+.map-heading { padding: 10px 12px; }
+.map-actions { padding: 8px; gap: 7px; }
+.map-action-btn, .nav-action-btn { min-height: 40px; padding: 9px 7px; }
+
+/* Earnings page must start at the top, not below a tall blank area */
+#earningsPage {
+  display: none;
+  padding-top: 12px;
+}
+#earningsPage.active {
+  display: block;
+}
+#earningsPage .section-title {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+#earningsPage .balance-card {
+  margin-top: 0;
+  margin-bottom: 14px;
+  padding: 20px;
+}
+#earningsPage #earningsList {
+  margin-top: 0;
+}
+
+.profile-card { margin-top: 0; }
+
+.bottom-nav {
+  height: calc(66px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 @media (max-width: 480px) {
-  .page {
-    padding: 10px !important;
-  }
+  .page, .page.active { padding: 10px; }
+  .header { height: 60px; padding: 0 12px; }
+  .scanner-panel { height: 104px; min-height: 104px; }
+  #liveMap { height: 155px; min-height: 155px; }
+  #earningsPage { padding-top: 10px; }
+  #earningsPage .balance-card { padding: 18px; }
+}
 
-  #liveMap {
-    height: 160px !important;
-    min-height: 160px !important;
-  }
+@media (max-width: 360px) {
+  .page, .page.active { padding: 8px; }
+  .welcome h2 { font-size: 17px; }
+  .stat { padding: 9px; }
+  .stat-value { font-size: 18px; }
+  #liveMap { height: 145px; min-height: 145px; }
 }
 
 </style>
@@ -1462,9 +1550,6 @@ body {
                     <small>CURRENT DELIVERY</small>
                     <strong id="currentStatusText">Awaiting pickup</strong>
                 </div>
-                    <small>CURRENT DELIVERY</small>
-                    <strong id="currentStatusText">Awaiting pickup</strong>
-                </div>
 
                 <div class="info-row">
                     <div class="info-icon">📱</div>
@@ -1638,7 +1723,6 @@ let riderMapMarker = null;
 let destinationMapMarker = null;
 let gpsStartRequested = false;
 
-
 /* ============================================================
    INITIALIZE
 ============================================================ */
@@ -1697,7 +1781,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 });
 
-
 /* ============================================================
    AUDIO
 ============================================================ */
@@ -1736,7 +1819,6 @@ function unlockAudio() {
     }
 
 }
-
 
 function playTone(frequency, startTime, duration) {
 
@@ -1785,7 +1867,6 @@ function playTone(frequency, startTime, duration) {
     }
 
 }
-
 
 function detectionSound() {
 
@@ -1838,7 +1919,6 @@ function vibrateDetection() {
     } catch (error) {}
 
 }
-
 
 /* ============================================================
    LOGIN
@@ -1895,7 +1975,6 @@ async function loginRider() {
 
 }
 
-
 /*
  * Demo rider is intentionally UI-only.
  * Production rider login uses Supabase Auth.
@@ -1920,7 +1999,6 @@ function demoLogin() {
     enterApp();
 
 }
-
 
 /* ============================================================
    LOAD RIDER
@@ -1965,7 +2043,6 @@ async function loadRider() {
     }
 
 }
-
 
 /* ============================================================
    ENTER APP
@@ -2013,7 +2090,6 @@ async function enterApp() {
     startScanner();
 
 }
-
 
 /* ============================================================
    RIDER HELPERS
@@ -2130,7 +2206,6 @@ function money(value) {
 
 }
 
-
 /* ============================================================
    PAGE NAVIGATION
 ============================================================ */
@@ -2189,7 +2264,6 @@ function showPage(page) {
 
 }
 
-
 /* ============================================================
    LIVE GPS + GOOGLE MAPS NAVIGATION
 ============================================================ */
@@ -2223,7 +2297,6 @@ function initializeLiveMap() {
 
 }
 
-
 function setGPSMessage(message, coordsText) {
 
     const status =
@@ -2239,7 +2312,6 @@ function setGPSMessage(message, coordsText) {
     }
 
 }
-
 
 function startLiveGPS(showMessage = true) {
 
@@ -2406,7 +2478,6 @@ function stopLiveGPS() {
 
 }
 
-
 function openCurrentLocationInMaps() {
 
     if (!riderPosition) {
@@ -2429,7 +2500,6 @@ function openCurrentLocationInMaps() {
 
 }
 
-
 function finiteCoordinate(value) {
 
     if (
@@ -2443,7 +2513,6 @@ function finiteCoordinate(value) {
     return Number.isFinite(number) ? number : null;
 
 }
-
 
 function coordinatePair(latValue, lngValue) {
 
@@ -2462,7 +2531,6 @@ function coordinatePair(latValue, lngValue) {
     return { lat, lng };
 
 }
-
 
 function getOrderCoordinates(order, type) {
 
@@ -2500,7 +2568,6 @@ function getOrderCoordinates(order, type) {
 
 }
 
-
 function getDestinationText(order, type) {
 
     if (type === "pickup") return getPickup(order);
@@ -2508,7 +2575,6 @@ function getDestinationText(order, type) {
     return getDelivery(order);
 
 }
-
 
 function updateDestinationOnMap(order) {
 
@@ -2577,7 +2643,6 @@ function updateDestinationOnMap(order) {
     }
 
 }
-
 
 async function navigateToOrderLocation(type) {
 
@@ -2674,7 +2739,6 @@ async function navigateToOrderLocation(type) {
 
 }
 
-
 /* ============================================================
    ONLINE / OFFLINE
 ============================================================ */
@@ -2702,7 +2766,6 @@ function toggleOnline() {
     }
 
 }
-
 
 function updateOnlineUI() {
 
@@ -2753,7 +2816,6 @@ function updateOnlineUI() {
 
 }
 
-
 /* ============================================================
    SCANNER START / STOP
 ============================================================ */
@@ -2783,7 +2845,6 @@ function startScanner() {
 
 }
 
-
 function stopScanner() {
 
     if (scannerTimer) {
@@ -2805,7 +2866,6 @@ function stopScanner() {
     }
 
 }
-
 
 /* ============================================================
    AUTOMATIC ORDER SCAN
@@ -2949,7 +3009,6 @@ function handleRealtimeOrder(payload) {
     setTimeout(() => scanForNewOrders(false), 500);
 }
 
-
 /* ============================================================
    NEW ORDER ALERT
 ============================================================ */
@@ -3035,7 +3094,6 @@ function hideOrderPopup() {
     document.getElementById("orderPopup").classList.remove("show");
 }
 
-
 /* ============================================================
    ACTIVE DELIVERY CHECK
 ============================================================ */
@@ -3053,7 +3111,6 @@ function hasActiveAssignedDelivery() {
     return !!currentOrder.rider_id &&
         activeStatuses.includes(currentOrder.status);
 }
-
 
 /* ============================================================
    DISPLAY ORDER
@@ -3116,7 +3173,6 @@ function showOrder(order, animate = false) {
     }
 }
 
-
 /* ============================================================
    ACCEPT DELIVERY
 ============================================================ */
@@ -3176,7 +3232,6 @@ async function acceptCurrentOrder() {
     }
 }
 
-
 /* ============================================================
    ACCEPTED DELIVERY
 ============================================================ */
@@ -3188,7 +3243,6 @@ function showAccepted(order) {
 
     updateStatusScreen(order.status);
 }
-
 
 /* ============================================================
    DELIVERY STATUS FLOW
@@ -3296,7 +3350,6 @@ async function advanceStatus() {
     }
 }
 
-
 /* ============================================================
    DELIVERY COMPLETED
 ============================================================ */
@@ -3331,7 +3384,6 @@ function closeSuccess() {
     scanForNewOrders(false);
 }
 
-
 /* ============================================================
    STATUS FORMATTING
 ============================================================ */
@@ -3341,7 +3393,6 @@ function formatStatus(status) {
 
     return status.replaceAll("_", " ").toUpperCase();
 }
-
 
 /* ============================================================
    DASHBOARD STATISTICS
@@ -3434,7 +3485,6 @@ function updateAvailableCount(count) {
         count || 0;
 }
 
-
 /* ============================================================
    EARNINGS
 ============================================================ */
@@ -3506,7 +3556,6 @@ function renderEarnings() {
     }).join("");
 }
 
-
 /* ============================================================
    LOGOUT
 ============================================================ */
@@ -3541,7 +3590,6 @@ async function logoutRider() {
     document.getElementById("passwordInput").value = "";
 }
 
-
 /* ============================================================
    TOAST NOTIFICATIONS
 ============================================================ */
@@ -3561,7 +3609,6 @@ function showToast(message) {
     }, 2800);
 }
 
-
 /* ============================================================
    HTML ESCAPING
 ============================================================ */
@@ -3574,7 +3621,6 @@ function escapeHtml(value) {
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
 }
-
 
 /* ============================================================
    NETWORK EVENTS
@@ -3598,7 +3644,6 @@ window.addEventListener("offline", () => {
 
     showToast("Internet connection lost");
 });
-
 
 /* ============================================================
    CLEANUP
