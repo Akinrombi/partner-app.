@@ -1195,6 +1195,58 @@ button{
         opacity:.7;
     }
 }
+/* QUICK EATS MOBILE SPACING FIX */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+#app {
+  width: 100%;
+  min-width: 0;
+}
+
+.stats {
+  gap: 8px !important;
+  margin-bottom: 10px !important;
+}
+
+.stat {
+  padding: 11px !important;
+}
+
+.map-wrap {
+  margin-bottom: 10px !important;
+}
+
+#liveMap {
+  height: 180px !important;
+  min-height: 180px !important;
+}
+
+.welcome {
+  margin-bottom: 10px !important;
+  padding: 12px !important;
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 10px !important;
+  }
+
+  #liveMap {
+    height: 160px !important;
+    min-height: 160px !important;
+  }
+}
+
 </style>
 </head>
 
