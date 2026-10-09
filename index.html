@@ -1335,6 +1335,19 @@ html, body {
   #liveMap { height: 145px; min-height: 145px; }
 }
 
+/* Final compact layout + support/network status */
+.network-banner{position:sticky;top:0;z-index:1200;padding:10px 14px;background:#fff0d8;color:#7a4100;font-size:13px;font-weight:700;border-bottom:1px solid #f0d5a8}
+.network-banner[hidden]{display:none!important}
+.support-card{margin:16px 0;padding:16px;background:#fff;border:1px solid #e1e9e4;border-radius:16px;text-align:left}
+.support-card h3{font-size:17px;margin-bottom:6px}
+.support-card p{font-size:12px;color:#69766e;line-height:1.45;margin-bottom:12px}
+.support-card label{display:block;font-size:12px;font-weight:700;margin:10px 0 6px}
+.support-card select,.support-card textarea{display:block;width:100%;padding:11px;border:1px solid #d6e0da;border-radius:10px;background:#fff;color:#17201b;font-size:14px}
+.support-card textarea{resize:vertical}
+.support-submit{width:100%;margin-top:12px;padding:12px;border-radius:10px;background:#078747;color:#fff;font-weight:800}
+.support-feedback{margin-top:9px!important;overflow-wrap:anywhere}
+@media(max-width:480px){.page,.page.active{padding:10px}.welcome{margin-bottom:9px}.scanner-panel{height:104px;min-height:104px;margin-bottom:9px}.stats{gap:8px;margin-bottom:9px}.stat{padding:10px}.map-wrap{margin-bottom:10px}#liveMap{height:155px;min-height:155px}.bottom-nav{padding-bottom:env(safe-area-inset-bottom)}}
+
 </style>
 </head>
 
@@ -1358,6 +1371,9 @@ html, body {
 
 <!-- APP -->
 <div id="app" class="app hidden">
+<div id="networkBanner" class="network-banner" role="status" aria-live="polite" hidden>
+  <span id="networkBannerText">Connection lost. Reconnect to update orders.</span>
+</div>
 
     <header class="header">
         <div>
@@ -1589,6 +1605,23 @@ html, body {
             <div id="profileName" class="profile-name">Rider</div>
             <div id="profileEmail" class="profile-email">---</div>
 
+            <section class="support-card" aria-labelledby="supportTitle">
+                <h3 id="supportTitle">Rider Support</h3>
+                <p>Report a delivery, payment, restaurant, or app problem.</p>
+                <label for="supportCategory">Problem type</label>
+                <select id="supportCategory">
+                    <option value="delivery">Delivery problem</option>
+                    <option value="payment">Earnings or payment</option>
+                    <option value="restaurant">Restaurant issue</option>
+                    <option value="customer">Customer issue</option>
+                    <option value="app">App or GPS issue</option>
+                    <option value="safety">Safety concern</option>
+                </select>
+                <label for="supportDescription">Describe the problem</label>
+                <textarea id="supportDescription" rows="3" maxlength="1200" placeholder="Include the order number if relevant. Do not include passwords or PINs."></textarea>
+                <button class="support-submit" onclick="submitRiderSupport()">Prepare support report</button>
+                <p id="supportFeedback" class="support-feedback" role="status"></p>
+            </section>
             <button class="logout-btn" onclick="logoutRider()">
                 LOG OUT
             </button>
@@ -3622,18 +3655,42 @@ function escapeHtml(value) {
         .replaceAll("'", "&#039;");
 }
 
+/* Rider support report. This prepares a report for the device email app; it does not claim the report was sent to a backend. */
+function submitRiderSupport(){
+  const category=document.getElementById("supportCategory");
+  const description=document.getElementById("supportDescription");
+  const feedback=document.getElementById("supportFeedback");
+  if(!category||!description||!feedback)return;
+  const detail=description.value.trim();
+  if(detail.length<8){feedback.textContent="Please describe the problem in a little more detail.";return;}
+  const orderRef=currentOrder?.id ? "\nOrder ID: "+currentOrder.id : "";
+  const subject=encodeURIComponent("QuickEats Rider Support - "+category.value);
+  const body=encodeURIComponent("Category: "+category.value+orderRef+"\nRider: "+(currentRider?.email||currentRider?.id||"Not signed in")+"\n\nProblem:\n"+detail+"\n\nDevice online: "+navigator.onLine);
+  feedback.textContent="Your report is ready. Choose an email app to send it; it has not been sent automatically.";
+  window.location.href="mailto:support@quickeats.ng?subject="+subject+"&body="+body;
+}
+
+function updateNetworkBanner(){
+  const banner=document.getElementById("networkBanner");
+  const text=document.getElementById("networkBannerText");
+  if(!banner||!text)return;
+  const offline=!navigator.onLine;
+  banner.hidden=!offline;
+  text.textContent=offline?"You're offline. Order updates are paused; don't repeat an action until connection returns.":"Connection restored.";
+}
+
 /* ============================================================
    NETWORK EVENTS
 ============================================================ */
 
 window.addEventListener("online", () => {
-    if (!isOnline) return;
-
+    updateNetworkBanner();
     showToast("Internet connection restored");
-    startScanner();
+    if (typeof startScanner === "function") startScanner();
 });
 
 window.addEventListener("offline", () => {
+    updateNetworkBanner();
     const scannerStatus =
         document.getElementById("scannerStatus");
 
@@ -3644,6 +3701,8 @@ window.addEventListener("offline", () => {
 
     showToast("Internet connection lost");
 });
+
+updateNetworkBanner();
 
 /* ============================================================
    CLEANUP
