@@ -6,6 +6,8 @@
 <meta name="theme-color" content="#07110d">
 <title>QuickEats Rider</title>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -41,9 +43,7 @@ button{
     display:none!important;
 }
 
-/* =========================
-   LOGIN
-========================= */
+/* LOGIN */
 
 .login-page{
     min-height:100vh;
@@ -127,9 +127,7 @@ button{
     font-size:14px;
 }
 
-/* =========================
-   APP
-========================= */
+/* APP */
 
 .app{
     min-height:100vh;
@@ -199,9 +197,7 @@ button{
     display:block;
 }
 
-/* =========================
-   WELCOME
-========================= */
+/* WELCOME */
 
 .welcome{
     background:linear-gradient(135deg,#0b9d4f,#08773b);
@@ -234,9 +230,7 @@ button{
     opacity:.9;
 }
 
-/* =========================
-   CINEMATIC SCANNER
-========================= */
+/* CINEMATIC SCANNER */
 
 .scanner-panel{
     position:relative;
@@ -575,9 +569,7 @@ button{
     100%{opacity:0}
 }
 
-/* =========================
-   STATS
-========================= */
+/* STATS */
 
 .stats{
     display:grid;
@@ -608,61 +600,78 @@ button{
     color:#0ca653;
 }
 
-/* =========================
-   MAP
-========================= */
+/* LIVE GPS MAP + NAVIGATION */
 
-.map{
-    height:190px;
+.map-wrap{
+    background:#fff;
+    border:1px solid #e5ebe7;
     border-radius:18px;
     overflow:hidden;
     margin-bottom:15px;
-    position:relative;
-    background:
-        linear-gradient(28deg,transparent 47%,#d7ded9 48%,#d7ded9 50%,transparent 51%),
-        linear-gradient(-20deg,transparent 46%,#d7ded9 47%,#d7ded9 49%,transparent 50%),
-        linear-gradient(90deg,transparent 48%,#dce2de 49%,#dce2de 51%,transparent 52%),
-        #eef2ef;
-    background-size:80px 80px,100px 100px,110px 110px;
 }
 
-.map:after{
-    content:"";
-    position:absolute;
+.map-heading{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:12px 14px;
+    font-size:12px;
+    font-weight:900;
+}
+
+.gps-status{
+    color:#75827a;
+    font-size:10px;
+    font-weight:700;
+    text-align:right;
+}
+
+#liveMap{
     width:100%;
-    height:100%;
-    background:linear-gradient(135deg,transparent 45%,rgba(15,150,80,.08) 46%,transparent 48%);
+    height:230px;
+    background:#e9efeb;
+    z-index:1;
 }
 
-.map-label{
-    position:absolute;
-    left:12px;
-    top:12px;
-    background:white;
-    padding:8px 10px;
+.map-actions{
+    display:flex;
+    gap:8px;
+    padding:10px;
+}
+
+.map-actions button{
+    flex:1;
+    padding:11px;
     border-radius:10px;
-    font-size:11px;
+    background:#e9f9ef;
+    color:#08753a;
     font-weight:800;
-    z-index:2;
-    box-shadow:0 3px 12px rgba(0,0,0,.08);
+    font-size:12px;
+}
+.map-action-btn,.nav-action-btn{
+    min-height:42px;
+    padding:10px 12px;
+    border-radius:11px;
+    background:#eaf8ef;
+    color:#087a3d;
+    font-size:12px;
+    font-weight:900;
 }
 
-.map-rider{
-    position:absolute;
-    left:50%;
-    top:50%;
-    width:17px;
-    height:17px;
-    border-radius:50%;
-    background:#0ab457;
-    border:3px solid white;
-    box-shadow:0 0 0 8px rgba(10,180,87,.16);
-    z-index:3;
+.map-action-btn{flex:1}
+.nav-action-btn{margin-top:8px;width:100%;text-align:center}
+.nav-action-btn:disabled,.map-action-btn:disabled{opacity:.45;cursor:not-allowed}
+
+.gps-coords{
+    padding:0 14px 10px;
+    color:#849087;
+    font-size:10px;
 }
 
-/* =========================
-   ORDER CARD
-========================= */
+.leaflet-container{font:12px Arial,Helvetica,sans-serif}
+
+/* ORDER CARD */
 
 .section-title{
     font-size:17px;
@@ -683,25 +692,11 @@ button{
 }
 
 @keyframes orderDetected{
-    0%{
-        transform:scale(1);
-        box-shadow:0 0 0 rgba(0,255,140,0);
-    }
-    18%{
-        transform:scale(1.025);
-        box-shadow:0 0 0 5px rgba(0,255,140,.22),0 0 35px rgba(0,255,140,.25);
-    }
-    42%{
-        transform:scale(.995);
-    }
-    65%{
-        transform:scale(1.015);
-        box-shadow:0 0 0 3px rgba(0,255,140,.12),0 0 20px rgba(0,255,140,.15);
-    }
-    100%{
-        transform:scale(1);
-        box-shadow:0 4px 16px rgba(20,40,30,.04);
-    }
+    0%{transform:scale(1);box-shadow:0 0 0 rgba(0,255,140,0)}
+    18%{transform:scale(1.025);box-shadow:0 0 0 5px rgba(0,255,140,.22),0 0 35px rgba(0,255,140,.25)}
+    42%{transform:scale(.995)}
+    65%{transform:scale(1.015);box-shadow:0 0 0 3px rgba(0,255,140,.12),0 0 20px rgba(0,255,140,.15)}
+    100%{transform:scale(1);box-shadow:0 4px 16px rgba(20,40,30,.04)}
 }
 
 .empty-order{
@@ -747,9 +742,7 @@ button{
     border-bottom:1px solid #eef2ef;
 }
 
-.info-row:last-child{
-    border-bottom:0;
-}
+.info-row:last-child{border-bottom:0}
 
 .info-icon{
     width:28px;
@@ -799,9 +792,7 @@ button{
     margin-top:13px;
 }
 
-.action-btn:disabled{
-    opacity:.5;
-}
+.action-btn:disabled{opacity:.5}
 
 .secondary-btn{
     width:100%;
@@ -824,9 +815,7 @@ button{
     margin-top:13px;
 }
 
-/* =========================
-   DELIVERY DETAILS
-========================= */
+/* DELIVERY DETAILS */
 
 .delivery-details{
     margin-top:15px;
@@ -855,9 +844,7 @@ button{
     font-size:15px;
 }
 
-/* =========================
-   EARNINGS
-========================= */
+/* EARNINGS */
 
 .balance-card{
     background:linear-gradient(135deg,#087b3f,#0db45a);
@@ -888,17 +875,10 @@ button{
     border:1px solid #e8eeea;
 }
 
-.earning-item small{
-    color:#8a938e;
-}
+.earning-item small{color:#8a938e}
+.earning-item strong{color:#0a9b4e}
 
-.earning-item strong{
-    color:#0a9b4e;
-}
-
-/* =========================
-   PROFILE
-========================= */
+/* PROFILE */
 
 .profile-card{
     background:white;
@@ -943,9 +923,7 @@ button{
     margin-top:20px;
 }
 
-/* =========================
-   BOTTOM NAV
-========================= */
+/* BOTTOM NAV */
 
 .bottom-nav{
     position:fixed;
@@ -976,17 +954,10 @@ button{
     font-weight:800;
 }
 
-.nav-btn span:first-child{
-    font-size:20px;
-}
+.nav-btn span:first-child{font-size:20px}
+.nav-btn.active{color:#079b4d}
 
-.nav-btn.active{
-    color:#079b4d;
-}
-
-/* =========================
-   NEW ORDER POPUP
-========================= */
+/* NEW ORDER POPUP */
 
 .order-popup{
     position:fixed;
@@ -1003,14 +974,8 @@ button{
 }
 
 @keyframes popupIn{
-    from{
-        opacity:0;
-        transform:translateY(35px) scale(.92);
-    }
-    to{
-        opacity:1;
-        transform:translateY(0) scale(1);
-    }
+    from{opacity:0;transform:translateY(35px) scale(.92)}
+    to{opacity:1;transform:translateY(0) scale(1)}
 }
 
 .popup-card{
@@ -1019,9 +984,7 @@ button{
     border-radius:21px;
     padding:17px;
     border:1px solid rgba(0,255,140,.35);
-    box-shadow:
-        0 15px 55px rgba(0,0,0,.45),
-        0 0 35px rgba(0,255,140,.15);
+    box-shadow:0 15px 55px rgba(0,0,0,.45),0 0 35px rgba(0,255,140,.15);
     position:relative;
     overflow:hidden;
 }
@@ -1131,9 +1094,7 @@ button{
     font-weight:800;
 }
 
-/* =========================
-   SUCCESS OVERLAY
-========================= */
+/* SUCCESS OVERLAY */
 
 .success-overlay{
     position:fixed;
@@ -1147,9 +1108,7 @@ button{
     padding:25px;
 }
 
-.success-overlay.show{
-    display:flex;
-}
+.success-overlay.show{display:flex}
 
 .success-card{
     width:100%;
@@ -1186,48 +1145,7 @@ button{
     color:#aabdb1;
     font-size:13px;
 }
-
-.success-card button{
-    margin-top:20px;
-    width:100%;
-    height:50px;
-    border-radius:13px;
-    background:white;
-    color:#087b3f;
-    font-weight:900;
-}
-
-/* =========================
-   TOAST
-========================= */
-
-.toast{
-    position:fixed;
-    left:50%;
-    bottom:92px;
-    transform:translateX(-50%) translateY(15px);
-    background:#101813;
-    color:white;
-    padding:11px 15px;
-    border-radius:12px;
-    font-size:12px;
-    font-weight:800;
-    opacity:0;
-    pointer-events:none;
-    z-index:800;
-    transition:.25s ease;
-    white-space:nowrap;
-    box-shadow:0 8px 30px rgba(0,0,0,.25);
-}
-
-.toast.show{
-    opacity:1;
-    transform:translateX(-50%) translateY(0);
-}
-
-/* =========================
-   DETECTION CARD FLASH
-========================= */
+/* DETECTION CARD FLASH */
 
 .detection-label{
     display:none;
@@ -1254,22 +1172,12 @@ button{
     100%{transform:scale(1)}
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
+/* RESPONSIVE */
 
 @media(max-width:360px){
-    .scanner-panel{
-        height:118px;
-    }
-
-    .scanner-status{
-        display:none;
-    }
-
-    .welcome h2{
-        font-size:19px;
-    }
+    .scanner-panel{height:118px}
+    .scanner-status{display:none}
+    .welcome h2{font-size:19px}
 }
 
 @media(prefers-reduced-motion:reduce){
@@ -1333,7 +1241,6 @@ button{
 
         <!-- CINEMATIC SCANNER -->
         <section id="scannerPanel" class="scanner-panel">
-
             <div class="scanner-noise"></div>
 
             <div class="scanner-top">
@@ -1369,7 +1276,6 @@ button{
             <div class="scanner-main-text">
                 <span id="scannerMainText">SCANNING FOR NEW ORDERS</span>
             </div>
-
         </section>
 
         <section class="stats">
@@ -1394,9 +1300,27 @@ button{
             </div>
         </section>
 
-        <section class="map">
-            <div class="map-label">📍 Rider Location</div>
-            <div class="map-rider"></div>
+        <!-- LIVE GPS MAP -->
+        <section class="map-wrap">
+            <div class="map-heading">
+                <span>📍 LIVE RIDER GPS</span>
+                <span id="gpsStatus" class="gps-status">GPS not started</span>
+            </div>
+
+            <div id="liveMap" aria-label="Live map showing rider location"></div>
+
+            <div id="gpsCoords" class="gps-coords">
+                Enable location to show your live position.
+            </div>
+
+            <div class="map-actions">
+                <button class="map-action-btn" onclick="startLiveGPS(true)">
+                    📍 Find my location
+                </button>
+                <button class="map-action-btn" onclick="openCurrentLocationInMaps()">
+                    🧭 Open map
+                </button>
+            </div>
         </section>
 
         <div class="section-title">Delivery Orders</div>
@@ -1415,7 +1339,8 @@ button{
             <div class="order-head">
                 <div>
                     <div id="orderNumber" class="order-number">Order #---</div>
-                    <div id="orderRestaurant" style="font-size:12px;color:#7d8782;margin-top:3px;">
+                    <div id="orderRestaurant"
+                         style="font-size:12px;color:#7d8782;margin-top:3px;">
                         Restaurant
                     </div>
                 </div>
@@ -1428,6 +1353,11 @@ button{
                 <div>
                     <div class="info-label">PICKUP</div>
                     <div id="pickupAddress" class="info-value">---</div>
+                    <button id="pickupNavBtn"
+                            class="nav-action-btn"
+                            onclick="navigateToOrderLocation('pickup')">
+                        🧭 Navigate to pickup
+                    </button>
                 </div>
             </div>
 
@@ -1436,6 +1366,11 @@ button{
                 <div>
                     <div class="info-label">DELIVERY</div>
                     <div id="deliveryAddress" class="info-value">---</div>
+                    <button id="deliveryNavBtn"
+                            class="nav-action-btn"
+                            onclick="navigateToOrderLocation('delivery')">
+                        🧭 Navigate to customer
+                    </button>
                 </div>
             </div>
 
@@ -1450,26 +1385,33 @@ button{
             <div class="earn-box">
                 <div>
                     <div class="earn-label">YOUR DELIVERY EARNINGS</div>
-                    <div id="orderTotal" style="font-size:11px;color:#718177;margin-top:3px;">
+                    <div id="orderTotal"
+                         style="font-size:11px;color:#718177;margin-top:3px;">
                         Order total: ₦0
                     </div>
                 </div>
                 <div id="deliveryFee" class="earn-value">₦0</div>
             </div>
 
-            <button id="acceptBtn" class="action-btn" onclick="acceptCurrentOrder()">
+            <button id="acceptBtn"
+                    class="action-btn"
+                    onclick="acceptCurrentOrder()">
                 ACCEPT DELIVERY
             </button>
 
-            <button id="statusBtn" class="status-btn hidden" onclick="advanceStatus()">
+            <button id="statusBtn"
+                    class="status-btn hidden"
+                    onclick="advanceStatus()">
                 UPDATE STATUS
             </button>
 
             <div id="deliveryDetails" class="delivery-details hidden">
-
                 <div class="delivery-banner">
                     <small>CURRENT DELIVERY</small>
-                    <strong id="currentStatusText">RIDER ACCEPTED</strong>
+                    <strong id="currentStatusText">Awaiting pickup</strong>
+                </div>
+                    <small>CURRENT DELIVERY</small>
+                    <strong id="currentStatusText">Awaiting pickup</strong>
                 </div>
 
                 <div class="info-row">
@@ -1479,15 +1421,12 @@ button{
                         <div id="customerPhone" class="info-value">---</div>
                     </div>
                 </div>
-
             </div>
         </section>
-
     </main>
 
     <!-- EARNINGS -->
     <main id="earningsPage" class="page">
-
         <div class="section-title">Earnings</div>
 
         <section class="balance-card">
@@ -1502,67 +1441,53 @@ button{
                 No completed deliveries yet.
             </div>
         </div>
-
     </main>
 
     <!-- PROFILE -->
     <main id="profilePage" class="page">
-
         <div class="section-title">Profile</div>
 
         <section class="profile-card">
-
             <div id="avatar" class="avatar">R</div>
-
-            <div id="profileName" class="profile-name">
-                Rider
-            </div>
-
-            <div id="profileEmail" class="profile-email">
-                ---
-            </div>
+            <div id="profileName" class="profile-name">Rider</div>
+            <div id="profileEmail" class="profile-email">---</div>
 
             <button class="logout-btn" onclick="logoutRider()">
                 LOG OUT
             </button>
-
         </section>
-
     </main>
 
-    <!-- BOTTOM NAV -->
+    <!-- BOTTOM NAVIGATION -->
     <nav class="bottom-nav">
-
-        <button id="navHome" class="nav-btn active" onclick="showPage('home')">
+        <button id="navHome" class="nav-btn active"
+                onclick="showPage('home')">
             <span>🏠</span>
             <span>Home</span>
         </button>
 
-        <button id="navEarnings" class="nav-btn" onclick="showPage('earnings')">
+        <button id="navEarnings" class="nav-btn"
+                onclick="showPage('earnings')">
             <span>💰</span>
             <span>Earnings</span>
         </button>
 
-        <button id="navProfile" class="nav-btn" onclick="showPage('profile')">
+        <button id="navProfile" class="nav-btn"
+                onclick="showPage('profile')">
             <span>👤</span>
             <span>Profile</span>
         </button>
-
     </nav>
-
 </div>
 
-<!-- DETECTION FLASH -->
+<!-- SCANNER FLASH -->
 <div id="scannerFlash" class="scanner-flash"></div>
 
 <!-- NEW ORDER POPUP -->
 <div id="orderPopup" class="order-popup">
-
     <div class="popup-card">
-
         <div class="popup-top">
             <div class="popup-icon">🚨</div>
-
             <div>
                 <div class="popup-title">ORDER DETECTED</div>
                 <div class="popup-subtitle">NEW DELIVERY AVAILABLE</div>
@@ -1570,7 +1495,6 @@ button{
         </div>
 
         <div class="popup-info">
-
             <div id="popupOrderNumber" class="popup-order-number">
                 Order #---
             </div>
@@ -1584,50 +1508,40 @@ button{
             </div>
 
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:9px;">
-                <div style="font-size:10px;color:#789084;">DELIVERY EARNINGS</div>
-                <div id="popupFee" style="font-size:16px;color:#55ffa8;font-weight:900;">₦0</div>
+                <div style="font-size:10px;color:#789084;">
+                    DELIVERY EARNINGS
+                </div>
+                <div id="popupFee"
+                     style="font-size:16px;color:#55ffa8;font-weight:900;">
+                    ₦0
+                </div>
             </div>
-
         </div>
 
         <div class="popup-bottom">
             <button class="popup-view" onclick="openDetectedOrder()">
                 VIEW DELIVERY
             </button>
-
-            <button class="popup-dismiss" onclick="dismissDetectedOrder()">
+            <button class="popup-dismiss" onclick="dismissOrderPopup()">
                 DISMISS
             </button>
         </div>
-
     </div>
-
 </div>
 
-<!-- SUCCESS -->
+<!-- SUCCESS OVERLAY -->
 <div id="successOverlay" class="success-overlay">
-
     <div class="success-card">
-
         <div class="success-icon">✓</div>
-
-        <h2 id="successTitle">Delivery Complete</h2>
-
-        <p id="successMessage">
-            Great job! Your delivery has been completed.
-        </p>
-
-        <button onclick="closeSuccess()">
+        <h2 id="successTitle">Delivery Updated</h2>
+        <p id="successMessage">Your delivery status has been updated.</p>
+        <button class="action-btn" onclick="closeSuccess()">
             CONTINUE
         </button>
-
     </div>
-
 </div>
 
-<!-- TOAST -->
-<div id="toast" class="toast"></div>
-
+<!-- JAVASCRIPT STARTS IN THE NEXT PART -->
 <script>
 /* ============================================================
    QUICK EATS RIDER APP
@@ -1664,6 +1578,15 @@ let popupTimer = null;
 
 let completedOrders = [];
 
+// Live GPS and Leaflet map state.
+let gpsWatchId = null;
+let riderPosition = null;
+let liveMap = null;
+let riderMapMarker = null;
+let destinationMapMarker = null;
+let gpsStartRequested = false;
+
+
 /* ============================================================
    INITIALIZE
 ============================================================ */
@@ -1680,34 +1603,33 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         /*
          * Unlock audio after the first real user interaction.
-         * This prevents browser autoplay restrictions from
-         * blocking the detection sound.
+         * This helps the browser allow order detection sounds.
          */
         const unlock = () => {
             unlockAudio();
         };
 
         document.addEventListener("pointerdown", unlock, {
-            once:true,
-            passive:true
+            once: true,
+            passive: true
         });
 
         document.addEventListener("touchstart", unlock, {
-            once:true,
-            passive:true
+            once: true,
+            passive: true
         });
 
         document.addEventListener("keydown", unlock, {
-            once:true
+            once: true
         });
 
         const {
-            data:{
+            data: {
                 session
             }
         } = await supabaseClient.auth.getSession();
 
-        if(session){
+        if (session) {
 
             currentUser = session.user;
 
@@ -1715,7 +1637,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         }
 
-    } catch(error){
+    } catch (error) {
 
         console.error(error);
 
@@ -1723,38 +1645,39 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 });
 
+
 /* ============================================================
    AUDIO
 ============================================================ */
 
-function unlockAudio(){
+function unlockAudio() {
 
-    if(audioUnlocked) return;
+    if (audioUnlocked) return;
 
-    try{
+    try {
 
         const AudioContextClass =
             window.AudioContext ||
             window.webkitAudioContext;
 
-        if(!AudioContextClass) return;
+        if (!AudioContextClass) return;
 
-        if(!audioContext){
+        if (!audioContext) {
 
             audioContext =
                 new AudioContextClass();
 
         }
 
-        if(audioContext.state === "suspended"){
+        if (audioContext.state === "suspended") {
 
-            audioContext.resume().catch(()=>{});
+            audioContext.resume().catch(() => {});
 
         }
 
         audioUnlocked = true;
 
-    }catch(error){
+    } catch (error) {
 
         console.log("Audio unavailable");
 
@@ -1762,11 +1685,12 @@ function unlockAudio(){
 
 }
 
-function playTone(frequency,startTime,duration){
 
-    if(!audioContext) return;
+function playTone(frequency, startTime, duration) {
 
-    try{
+    if (!audioContext) return;
+
+    try {
 
         const oscillator =
             audioContext.createOscillator();
@@ -1800,9 +1724,9 @@ function playTone(frequency,startTime,duration){
         gain.connect(audioContext.destination);
 
         oscillator.start(startTime);
-        oscillator.stop(startTime + duration + .03);
+        oscillator.stop(startTime + duration + 0.03);
 
-    }catch(error){
+    } catch (error) {
 
         console.log(error);
 
@@ -1810,42 +1734,44 @@ function playTone(frequency,startTime,duration){
 
 }
 
-function detectionSound(){
 
-    try{
+function detectionSound() {
+
+    try {
 
         unlockAudio();
 
-        if(!audioContext) return;
+        if (!audioContext) return;
 
-        if(audioContext.state === "suspended"){
+        if (audioContext.state === "suspended") {
 
-            audioContext.resume().catch(()=>{});
+            audioContext.resume().catch(() => {});
 
         }
 
         const now =
             audioContext.currentTime;
 
-        playTone(720,now,.16);
-        playTone(980,now + .17,.16);
-        playTone(1240,now + .34,.22);
+        playTone(720, now, 0.16);
+        playTone(980, now + 0.17, 0.16);
+        playTone(1240, now + 0.34, 0.22);
 
-    }catch(error){
+    } catch (error) {
 
         console.log("Detection sound failed");
 
     }
 
 }
+/* ============================================================
+   VIBRATION
+============================================================ */
 
-function vibrateDetection(){
+function vibrateDetection() {
 
-    try{
+    try {
 
-        if(
-            "vibrate" in navigator
-        ){
+        if ("vibrate" in navigator) {
 
             navigator.vibrate([
                 120,
@@ -1857,15 +1783,16 @@ function vibrateDetection(){
 
         }
 
-    }catch(error){}
+    } catch (error) {}
 
 }
+
 
 /* ============================================================
    LOGIN
 ============================================================ */
 
-async function loginRider(){
+async function loginRider() {
 
     const email =
         document.getElementById("emailInput").value.trim();
@@ -1878,7 +1805,7 @@ async function loginRider(){
 
     errorBox.textContent = "";
 
-    if(!email || !password){
+    if (!email || !password) {
 
         errorBox.textContent =
             "Enter your email and password.";
@@ -1887,7 +1814,7 @@ async function loginRider(){
 
     }
 
-    try{
+    try {
 
         unlockAudio();
 
@@ -1899,13 +1826,13 @@ async function loginRider(){
             password
         });
 
-        if(error) throw error;
+        if (error) throw error;
 
         currentUser = data.user;
 
         await loadRider();
 
-    }catch(error){
+    } catch (error) {
 
         console.error(error);
 
@@ -1916,37 +1843,40 @@ async function loginRider(){
 
 }
 
+
 /*
  * Demo rider is intentionally UI-only.
  * Production rider login uses Supabase Auth.
  */
-function demoLogin(){
+
+function demoLogin() {
 
     unlockAudio();
 
     currentUser = {
-        id:"demo-user",
-        email:"demo@quickeats.local"
+        id: "demo-user",
+        email: "demo@quickeats.local"
     };
 
     currentRider = {
-        id:"demo-rider",
-        owner_id:"demo-user",
-        name:"Demo Rider",
-        phone:"08000000000"
+        id: "demo-rider",
+        owner_id: "demo-user",
+        name: "Demo Rider",
+        phone: "08000000000"
     };
 
     enterApp();
 
 }
 
+
 /* ============================================================
    LOAD RIDER
 ============================================================ */
 
-async function loadRider(){
+async function loadRider() {
 
-    try{
+    try {
 
         const {
             data,
@@ -1955,13 +1885,13 @@ async function loadRider(){
             await supabaseClient
                 .from("riders")
                 .select("*")
-                .eq("owner_id",currentUser.id)
+                .eq("owner_id", currentUser.id)
                 .limit(1)
                 .maybeSingle();
 
-        if(error) throw error;
+        if (error) throw error;
 
-        if(!data){
+        if (!data) {
 
             throw new Error(
                 "No rider profile was found for this account."
@@ -1973,7 +1903,7 @@ async function loadRider(){
 
         enterApp();
 
-    }catch(error){
+    } catch (error) {
 
         console.error(error);
 
@@ -1984,11 +1914,12 @@ async function loadRider(){
 
 }
 
+
 /* ============================================================
    ENTER APP
 ============================================================ */
 
-async function enterApp(){
+async function enterApp() {
 
     document
         .getElementById("loginPage")
@@ -1998,8 +1929,7 @@ async function enterApp(){
         .getElementById("app")
         .classList.remove("hidden");
 
-    const name =
-        getRiderName();
+    const name = getRiderName();
 
     document.getElementById("headerSub").textContent =
         name + " • Rider";
@@ -2024,15 +1954,20 @@ async function enterApp(){
 
     await loadCompletedOrders();
 
+    initializeLiveMap();
+
+    startLiveGPS(false);
+
     startScanner();
 
 }
+
 
 /* ============================================================
    RIDER HELPERS
 ============================================================ */
 
-function getRiderName(){
+function getRiderName() {
 
     return (
         currentRider?.name ||
@@ -2042,19 +1977,18 @@ function getRiderName(){
     );
 
 }
-
-function getOrderNumber(order){
+function getOrderNumber(order) {
 
     return (
         order?.order_number ||
         order?.order_no ||
-        order?.id?.slice(0,8) ||
+        order?.id?.slice(0, 8) ||
         "---"
     );
 
 }
 
-function getRestaurant(order){
+function getRestaurant(order) {
 
     return (
         order?.restaurant_name ||
@@ -2065,7 +1999,7 @@ function getRestaurant(order){
 
 }
 
-function getPickup(order){
+function getPickup(order) {
 
     return (
         order?.pickup_address ||
@@ -2077,7 +2011,7 @@ function getPickup(order){
 
 }
 
-function getDelivery(order){
+function getDelivery(order) {
 
     return (
         order?.delivery_address ||
@@ -2089,7 +2023,7 @@ function getDelivery(order){
 
 }
 
-function getCustomer(order){
+function getCustomer(order) {
 
     return (
         order?.customer_name ||
@@ -2099,7 +2033,7 @@ function getCustomer(order){
 
 }
 
-function getPhone(order){
+function getPhone(order) {
 
     return (
         order?.customer_phone ||
@@ -2109,7 +2043,7 @@ function getPhone(order){
 
 }
 
-function getOrderTotal(order){
+function getOrderTotal(order) {
 
     const value =
         order?.total_amount ??
@@ -2121,7 +2055,7 @@ function getOrderTotal(order){
 
 }
 
-function getDeliveryFee(order){
+function getDeliveryFee(order) {
 
     const value =
         order?.delivery_fee ??
@@ -2135,21 +2069,21 @@ function getDeliveryFee(order){
 
 }
 
-function money(value){
+function money(value) {
 
     return "₦" +
-        Number(value || 0)
-            .toLocaleString("en-NG",{
-                maximumFractionDigits:0
-            });
+        Number(value || 0).toLocaleString("en-NG", {
+            maximumFractionDigits: 0
+        });
 
 }
+
 
 /* ============================================================
    PAGE NAVIGATION
 ============================================================ */
 
-function showPage(page){
+function showPage(page) {
 
     document
         .querySelectorAll(".page")
@@ -2163,7 +2097,7 @@ function showPage(page){
             el.classList.remove("active")
         );
 
-    if(page === "home"){
+    if (page === "home") {
 
         document
             .getElementById("homePage")
@@ -2175,7 +2109,7 @@ function showPage(page){
 
     }
 
-    if(page === "earnings"){
+    if (page === "earnings") {
 
         document
             .getElementById("earningsPage")
@@ -2189,7 +2123,7 @@ function showPage(page){
 
     }
 
-    if(page === "profile"){
+    if (page === "profile") {
 
         document
             .getElementById("profilePage")
@@ -2203,11 +2137,497 @@ function showPage(page){
 
 }
 
+
+/* ============================================================
+   LIVE GPS + GOOGLE MAPS NAVIGATION
+============================================================ */
+
+function initializeLiveMap() {
+
+    if (liveMap || typeof L === "undefined") return;
+
+    const mapElement =
+        document.getElementById("liveMap");
+
+    if (!mapElement) return;
+
+    // Default map view only; no fake rider position is displayed.
+    liveMap = L.map(mapElement, {
+        zoomControl: true
+    }).setView([6.5244, 3.3792], 11);
+
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            maxZoom: 19,
+            attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+        }
+    ).addTo(liveMap);
+
+    setTimeout(() => {
+        if (liveMap) liveMap.invalidateSize();
+    }, 250);
+
+}
+
+
+function setGPSMessage(message, coordsText) {
+
+    const status =
+        document.getElementById("gpsStatus");
+
+    const coords =
+        document.getElementById("gpsCoords");
+
+    if (status) status.textContent = message;
+
+    if (coords && coordsText) {
+        coords.textContent = coordsText;
+    }
+
+}
+
+
+function startLiveGPS(showMessage = true) {
+
+    initializeLiveMap();
+
+    if (!navigator.geolocation) {
+
+        setGPSMessage(
+            "GPS unsupported",
+            "This browser does not provide GPS location access."
+        );
+
+        if (showMessage) {
+            showToast("Your browser does not support GPS location.");
+        }
+
+        return;
+
+    }
+
+    if (gpsWatchId !== null) {
+
+        if (showMessage) {
+            showToast("Live GPS is already running.");
+        }
+
+        return;
+
+    }
+
+    gpsStartRequested = true;
+
+    setGPSMessage(
+        "Requesting GPS…",
+        "Allow location access when your browser asks."
+    );
+
+    gpsWatchId = navigator.geolocation.watchPosition(
+
+        position => {
+
+            riderPosition = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+                accuracy: position.coords.accuracy,
+                heading: position.coords.heading,
+                speed: position.coords.speed,
+                updatedAt: position.timestamp
+            };
+
+            initializeLiveMap();
+
+            if (liveMap && typeof L !== "undefined") {
+
+                const point = [
+                    riderPosition.lat,
+                    riderPosition.lng
+                ];
+
+                if (!riderMapMarker) {
+
+                    riderMapMarker =
+                        L.circleMarker(point, {
+                            radius: 8,
+                            color: "#ffffff",
+                            weight: 3,
+                            fillColor: "#0ba957",
+                            fillOpacity: 1
+                        })
+                        .addTo(liveMap)
+                        .bindPopup("Your live rider location");
+
+                } else {
+
+                    riderMapMarker.setLatLng(point);
+
+                }
+
+                if (liveMap.getZoom() < 14) {
+
+                    liveMap.setView(point, 15);
+
+                } else {
+
+                    liveMap.panTo(point, {
+                        animate: true
+                    });
+
+                }
+
+            }
+
+            const accuracy =
+                Math.round(riderPosition.accuracy || 0);
+
+            const time =
+                new Date(riderPosition.updatedAt)
+                    .toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    });
+
+            setGPSMessage(
+                "GPS active • ±" + accuracy + " m",
+                "Lat " + riderPosition.lat.toFixed(6) +
+                " • Lng " + riderPosition.lng.toFixed(6) +
+                " • Updated " + time
+            );
+
+            gpsStartRequested = false;
+
+        },
+
+        error => {
+
+            gpsWatchId = null;
+
+            let message = "Could not get location.";
+
+            if (error.code === 1) {
+                message =
+                    "Location permission denied. Allow location in browser settings.";
+            } else if (error.code === 2) {
+                message =
+                    "GPS signal unavailable. Check device location settings.";
+            } else if (error.code === 3) {
+                message =
+                    "GPS request timed out. Try again in an open area.";
+            }
+
+            setGPSMessage("GPS unavailable", message);
+
+            if (showMessage || gpsStartRequested) {
+                showToast(message);
+            }
+
+            gpsStartRequested = false;
+
+        },
+
+        {
+            enableHighAccuracy: true,
+            maximumAge: 5000,
+            timeout: 20000
+        }
+
+    );
+
+}
+function stopLiveGPS() {
+
+    if (
+        gpsWatchId !== null &&
+        navigator.geolocation
+    ) {
+
+        navigator.geolocation.clearWatch(gpsWatchId);
+
+    }
+
+    gpsWatchId = null;
+    riderPosition = null;
+    gpsStartRequested = false;
+
+}
+
+
+function openCurrentLocationInMaps() {
+
+    if (!riderPosition) {
+
+        showToast("Wait for GPS to find your location first.");
+
+        startLiveGPS(true);
+
+        return;
+
+    }
+
+    const url =
+        "https://www.google.com/maps/search/?api=1&query=" +
+        encodeURIComponent(
+            riderPosition.lat + "," + riderPosition.lng
+        );
+
+    window.open(url, "_blank", "noopener,noreferrer");
+
+}
+
+
+function finiteCoordinate(value) {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) return null;
+
+    const number = Number(value);
+
+    return Number.isFinite(number) ? number : null;
+
+}
+
+
+function coordinatePair(latValue, lngValue) {
+
+    const lat = finiteCoordinate(latValue);
+    const lng = finiteCoordinate(lngValue);
+
+    if (
+        lat === null ||
+        lng === null ||
+        Math.abs(lat) > 90 ||
+        Math.abs(lng) > 180
+    ) return null;
+
+    if (lat === 0 && lng === 0) return null;
+
+    return { lat, lng };
+
+}
+
+
+function getOrderCoordinates(order, type) {
+
+    if (!order) return null;
+
+    if (type === "pickup") {
+
+        return coordinatePair(
+            order.pickup_lat ??
+            order.vendor_lat ??
+            order.restaurant_lat ??
+            order.store_lat ??
+            order.lat,
+
+            order.pickup_lng ??
+            order.vendor_lng ??
+            order.restaurant_lng ??
+            order.store_lng ??
+            order.lng
+        );
+
+    }
+
+    return coordinatePair(
+        order.delivery_lat ??
+        order.customer_lat ??
+        order.dropoff_lat ??
+        order.destination_lat,
+
+        order.delivery_lng ??
+        order.customer_lng ??
+        order.dropoff_lng ??
+        order.destination_lng
+    );
+
+}
+
+
+function getDestinationText(order, type) {
+
+    if (type === "pickup") return getPickup(order);
+
+    return getDelivery(order);
+
+}
+
+
+function updateDestinationOnMap(order) {
+
+    if (!order) return;
+
+    initializeLiveMap();
+
+    if (!liveMap || typeof L === "undefined") return;
+
+    let type = "pickup";
+
+    if (
+        ["picked_up", "on_the_way"].includes(order.status)
+    ) {
+
+        type = "delivery";
+
+    }
+
+    const coords =
+        getOrderCoordinates(order, type);
+
+    if (destinationMapMarker) {
+
+        liveMap.removeLayer(destinationMapMarker);
+
+        destinationMapMarker = null;
+
+    }
+
+    if (coords) {
+
+        destinationMapMarker =
+            L.marker([
+                coords.lat,
+                coords.lng
+            ])
+            .addTo(liveMap)
+            .bindPopup(
+                type === "pickup"
+                    ? "Pickup location"
+                    : "Customer delivery location"
+            );
+
+        if (riderPosition) {
+
+            const bounds = L.latLngBounds([
+                [riderPosition.lat, riderPosition.lng],
+                [coords.lat, coords.lng]
+            ]);
+
+            liveMap.fitBounds(bounds, {
+                padding: [25, 25],
+                maxZoom: 15
+            });
+
+        } else {
+
+            liveMap.setView([
+                coords.lat,
+                coords.lng
+            ], 14);
+
+        }
+
+    }
+
+}
+
+
+async function navigateToOrderLocation(type) {
+
+    if (!currentOrder) {
+
+        showToast("There is no active order to navigate to.");
+
+        return;
+
+    }
+
+    let coords =
+        getOrderCoordinates(currentOrder, type);
+
+    // Pickup coordinates may be stored on the vendor record.
+    if (
+        !coords &&
+        type === "pickup" &&
+        currentOrder.vendor_id &&
+        supabaseClient &&
+        currentRider?.id !== "demo-rider"
+    ) {
+
+        try {
+
+            const {
+                data,
+                error
+            } = await supabaseClient
+                .from("vendors")
+                .select("lat,lng,address,store_name")
+                .eq("id", currentOrder.vendor_id)
+                .maybeSingle();
+
+            if (!error && data) {
+
+                coords =
+                    coordinatePair(data.lat, data.lng);
+
+                if (
+                    !getPickup(currentOrder) ||
+                    getPickup(currentOrder) === "Pickup location"
+                ) {
+
+                    currentOrder.vendor_address = data.address;
+
+                }
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Could not load vendor coordinates",
+                error
+            );
+
+        }
+
+    }
+
+    const destination = coords
+        ? coords.lat + "," + coords.lng
+        : getDestinationText(currentOrder, type);
+
+    if (
+        !destination ||
+        /^(pickup location|delivery location)$/i.test(
+            destination.trim()
+        )
+    ) {
+
+        showToast(
+            "This order has no saved destination address yet."
+        );
+
+        return;
+
+    }
+
+    const origin = riderPosition
+        ? riderPosition.lat + "," + riderPosition.lng
+        : "";
+
+    const url =
+        "https://www.google.com/maps/dir/?api=1" +
+        (origin
+            ? "&origin=" + encodeURIComponent(origin)
+            : "") +
+        "&destination=" + encodeURIComponent(destination) +
+        "&travelmode=driving";
+
+    window.open(url, "_blank", "noopener,noreferrer");
+
+}
+
+
 /* ============================================================
    ONLINE / OFFLINE
 ============================================================ */
 
-function toggleOnline(){
+function toggleOnline() {
 
     unlockAudio();
 
@@ -2215,13 +2635,13 @@ function toggleOnline(){
 
     updateOnlineUI();
 
-    if(isOnline){
+    if (isOnline) {
 
         showToast("Scanner online");
 
         startScanner();
 
-    }else{
+    } else {
 
         stopScanner();
 
@@ -2231,7 +2651,8 @@ function toggleOnline(){
 
 }
 
-function updateOnlineUI(){
+
+function updateOnlineUI() {
 
     const button =
         document.getElementById("onlineBtn");
@@ -2248,7 +2669,7 @@ function updateOnlineUI(){
     const scannerStatus =
         document.getElementById("scannerStatus");
 
-    if(isOnline){
+    if (isOnline) {
 
         button.classList.remove("offline");
 
@@ -2262,7 +2683,7 @@ function updateOnlineUI(){
         scannerStatus.textContent =
             "SYSTEM ACTIVE • SIGNAL SEARCH";
 
-    }else{
+    } else {
 
         button.classList.add("offline");
 
@@ -2280,43 +2701,40 @@ function updateOnlineUI(){
 
 }
 
+
 /* ============================================================
    SCANNER START / STOP
 ============================================================ */
 
-function startScanner(){
+function startScanner() {
 
-    if(!supabaseClient) return;
+    if (!supabaseClient) return;
 
-    if(!isOnline) return;
+    if (!isOnline) return;
 
-    if(scannerTimer) return;
+    if (scannerTimer) return;
 
     scannerInitialized = false;
 
     updateOnlineUI();
 
-    /*
-     * First scan is silent.
-     * This prevents existing orders from producing an alert
-     * when the rider first opens the app.
-     */
+    // First scan is silent to avoid alerts for existing orders.
     scanForNewOrders(true);
 
-    scannerTimer =
-        setInterval(() => {
+    scannerTimer = setInterval(() => {
 
-            scanForNewOrders(false);
+        scanForNewOrders(false);
 
-        },7000);
+    }, 7000);
 
     listenForOrders();
 
 }
 
-function stopScanner(){
 
-    if(scannerTimer){
+function stopScanner() {
+
+    if (scannerTimer) {
 
         clearInterval(scannerTimer);
 
@@ -2324,11 +2742,11 @@ function stopScanner(){
 
     }
 
-    if(realtimeChannel){
+    if (realtimeChannel) {
 
         supabaseClient
             .removeChannel(realtimeChannel)
-            .catch(()=>{});
+            .catch(() => {});
 
         realtimeChannel = null;
 
@@ -2336,49 +2754,45 @@ function stopScanner(){
 
 }
 
+
 /* ============================================================
    AUTOMATIC ORDER SCAN
 ============================================================ */
 
-async function scanForNewOrders(initialScan = false){
+async function scanForNewOrders(initialScan = false) {
 
-    if(!supabaseClient) return;
+    if (!supabaseClient) return;
 
-    if(!isOnline) return;
+    if (!isOnline) return;
 
-    if(scannerBusy) return;
+    if (scannerBusy) return;
 
     scannerBusy = true;
 
-    try{
+    try {
 
         const {
             data,
             error
-        } =
-            await supabaseClient
-                .from("orders")
-                .select("*")
-                .eq("status","ready_for_pickup")
-                .is("rider_id",null)
-                .order("created_at",{
-                    ascending:false
-                })
-                .limit(30);
+        } = await supabaseClient
+            .from("orders")
+            .select("*")
+            .eq("status", "ready_for_pickup")
+            .is("rider_id", null)
+            .order("created_at", {
+                ascending: false
+            })
+            .limit(30);
 
-        if(error) throw error;
+        if (error) throw error;
 
         const orders = data || [];
 
-        /*
-         * First scan:
-         * remember all current orders without alerting.
-         */
-        if(!scannerInitialized || initialScan){
+        if (!scannerInitialized || initialScan) {
 
             orders.forEach(order => {
 
-                if(order?.id){
+                if (order?.id) {
 
                     seenOrderIds.add(order.id);
 
@@ -2388,37 +2802,26 @@ async function scanForNewOrders(initialScan = false){
 
             scannerInitialized = true;
 
-            /*
-             * If there is no active delivery,
-             * silently display the newest available order.
-             */
-            if(
+            if (
                 orders.length &&
                 !hasActiveAssignedDelivery() &&
                 !currentOrder
-            ){
+            ) {
 
-                showOrder(
-                    orders[0],
-                    false
-                );
+                showOrder(orders[0], false);
 
             }
 
-        }else{
+        } else {
 
-            /*
-             * Look for a genuinely new order.
-             */
-            const newOrder =
-                orders.find(order =>
-                    order?.id &&
-                    !seenOrderIds.has(order.id)
-                );
+            const newOrder = orders.find(order =>
+                order?.id &&
+                !seenOrderIds.has(order.id)
+            );
 
             orders.forEach(order => {
 
-                if(order?.id){
+                if (order?.id) {
 
                     seenOrderIds.add(order.id);
 
@@ -2426,7 +2829,7 @@ async function scanForNewOrders(initialScan = false){
 
             });
 
-            if(newOrder){
+            if (newOrder) {
 
                 showNewOrderDetected(newOrder);
 
@@ -2436,307 +2839,157 @@ async function scanForNewOrders(initialScan = false){
 
         updateAvailableCount(orders.length);
 
-    }catch(error){
+    } catch (error) {
 
-        console.error(
-            "Scanner error:",
-            error
-        );
+        console.error("Scanner error:", error);
 
-        /*
-         * We don't interrupt the rider experience if one
-         * polling request fails. Realtime can still work.
-         */
+        // A failed polling request will not stop the whole app.
 
-    }finally{
+    } finally {
 
         scannerBusy = false;
 
     }
 
 }
-
 /* ============================================================
-   REALTIME
+   REALTIME ORDER LISTENER
 ============================================================ */
 
-function listenForOrders(){
+function listenForOrders() {
+    if (!supabaseClient || realtimeChannel) return;
 
-    if(!supabaseClient) return;
+    realtimeChannel = supabaseClient
+        .channel("rider-orders-" + (currentRider?.id || "demo"))
+        .on("postgres_changes", {
+            event: "*",
+            schema: "public",
+            table: "orders"
+        }, payload => {
+            handleRealtimeOrder(payload);
+        })
+        .subscribe(status => {
+            const el = document.getElementById("scannerStatus");
+            if (!el) return;
 
-    if(realtimeChannel) return;
+            if (status === "SUBSCRIBED") {
+                el.textContent = "SYSTEM ACTIVE • LIVE LINK";
+            }
 
-    realtimeChannel =
-        supabaseClient
-            .channel(
-                "rider-orders-" +
-                (currentRider?.id || "demo")
-            )
-            .on(
-                "postgres_changes",
-                {
-                    event:"*",
-                    schema:"public",
-                    table:"orders"
-                },
-                payload => {
-
-                    handleRealtimeOrder(payload);
-
-                }
-            )
-            .subscribe(status => {
-
-                if(status === "SUBSCRIBED"){
-
-                    console.log(
-                        "Rider realtime connected"
-                    );
-
-                    document
-                        .getElementById("scannerStatus")
-                        .textContent =
-                        "SYSTEM ACTIVE • LIVE LINK";
-
-                }
-
-                if(
-                    status === "CHANNEL_ERROR" ||
-                    status === "TIMED_OUT"
-                ){
-
-                    document
-                        .getElementById("scannerStatus")
-                        .textContent =
-                        "SYSTEM ACTIVE • POLLING FALLBACK";
-
-                }
-
-            });
-
+            if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+                el.textContent = "SYSTEM ACTIVE • POLLING FALLBACK";
+            }
+        });
 }
 
-function handleRealtimeOrder(payload){
+function handleRealtimeOrder(payload) {
+    if (!isOnline) return;
 
-    if(!isOnline) return;
+    const order = payload?.new;
+    if (!order?.id) return;
 
-    const order =
-        payload?.new;
-
-    if(!order?.id) return;
-
-    /*
-     * We care about orders becoming ready_for_pickup.
-     * This catches both INSERT and UPDATE events.
-     */
-    const becameReady =
-        order.status === "ready_for_pickup" &&
-        !order.rider_id;
-
-    if(!becameReady) return;
-
-    /*
-     * Duplicate protection:
-     * Realtime and polling may see the same order.
-     */
-    if(seenOrderIds.has(order.id)) return;
+    if (order.status !== "ready_for_pickup" || order.rider_id) return;
+    if (seenOrderIds.has(order.id)) return;
 
     seenOrderIds.add(order.id);
-
     showNewOrderDetected(order);
 
-    /*
-     * Refresh the available counter shortly after the event.
-     */
-    setTimeout(() => {
-
-        scanForNewOrders(false);
-
-    },500);
-
+    setTimeout(() => scanForNewOrders(false), 500);
 }
 
+
 /* ============================================================
-   DETECT NEW ORDER
+   NEW ORDER ALERT
 ============================================================ */
 
-function showNewOrderDetected(order){
-
-    if(!order?.id) return;
-
-    /*
-     * Extra duplicate protection.
-     */
-    if(lastDetectedOrderId === order.id){
-
-        return;
-
-    }
+function showNewOrderDetected(order) {
+    if (!order?.id) return;
+    if (lastDetectedOrderId === order.id) return;
 
     lastDetectedOrderId = order.id;
-
     pendingDetectedOrder = order;
 
-    /*
-     * Make the scanner itself react.
-     */
-    const flash =
-        document.getElementById("scannerFlash");
+    const flash = document.getElementById("scannerFlash");
+    if (flash) {
+        flash.classList.remove("show");
+        void flash.offsetWidth;
+        flash.classList.add("show");
+    }
 
-    flash.classList.remove("show");
+    const scanner = document.getElementById("scannerPanel");
+    if (scanner) scanner.classList.remove("scanner-paused");
 
-    void flash.offsetWidth;
-
-    flash.classList.add("show");
-
-    const scanner =
-        document.getElementById("scannerPanel");
-
-    scanner.classList.remove("scanner-paused");
-
-    /*
-     * Strong detection sound + vibration.
-     */
     detectionSound();
     vibrateDetection();
 
-    /*
-     * Fill popup.
-     */
-    document.getElementById(
-        "popupOrderNumber"
-    ).textContent =
+    document.getElementById("popupOrderNumber").textContent =
         "Order #" + getOrderNumber(order);
 
-    document.getElementById(
-        "popupRestaurant"
-    ).textContent =
+    document.getElementById("popupRestaurant").textContent =
         getRestaurant(order);
 
-    document.getElementById(
-        "popupPickup"
-    ).textContent =
+    document.getElementById("popupPickup").textContent =
         "📍 " + getPickup(order);
 
-    document.getElementById(
-        "popupFee"
-    ).textContent =
+    document.getElementById("popupFee").textContent =
         money(getDeliveryFee(order));
 
-    const popup =
-        document.getElementById("orderPopup");
-
+    const popup = document.getElementById("orderPopup");
     popup.classList.remove("show");
-
     void popup.offsetWidth;
-
     popup.classList.add("show");
 
-    /*
-     * If the rider already has an active delivery,
-     * don't overwrite the active order card.
-     */
-    if(hasActiveAssignedDelivery()){
-
-        showToast(
-            "New delivery waiting. Finish your current delivery first."
-        );
-
-    }else{
-
-        showToast(
-            "New delivery detected"
-        );
-
+    if (hasActiveAssignedDelivery()) {
+        showToast("New delivery waiting. Finish your current delivery first.");
+    } else {
+        showToast("New delivery detected");
     }
 
-    /*
-     * Auto-hide popup after 8 seconds.
-     */
     clearTimeout(popupTimer);
-
-    popupTimer =
-        setTimeout(() => {
-
-            dismissDetectedOrder();
-
-        },8000);
-
+    popupTimer = setTimeout(dismissDetectedOrder, 8000);
 }
 
-/* ============================================================
-   POPUP ACTIONS
-============================================================ */
-
-function openDetectedOrder(){
-
+function openDetectedOrder() {
     clearTimeout(popupTimer);
 
-    if(!pendingDetectedOrder){
-
+    if (!pendingDetectedOrder) {
         dismissDetectedOrder();
-
         return;
-
     }
 
-    /*
-     * Never replace an active delivery.
-     */
-    if(hasActiveAssignedDelivery()){
-
+    if (hasActiveAssignedDelivery()) {
         hideOrderPopup();
-
-        showToast(
-            "Finish your current delivery first."
-        );
-
+        showToast("Finish your current delivery first.");
         return;
-
     }
 
-    const order =
-        pendingDetectedOrder;
-
+    const order = pendingDetectedOrder;
     hideOrderPopup();
 
-    showOrder(
-        order,
-        true
-    );
+    showOrder(order, true);
 
-    document
-        .getElementById("orderCard")
-        .scrollIntoView({
-            behavior:"smooth",
-            block:"center"
-        });
-
+    document.getElementById("orderCard").scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
 }
 
-function dismissDetectedOrder(){
-
+function dismissDetectedOrder() {
     clearTimeout(popupTimer);
-
     hideOrderPopup();
-
 }
 
-function hideOrderPopup(){
-
-    document
-        .getElementById("orderPopup")
-        .classList.remove("show");
-
+function hideOrderPopup() {
+    document.getElementById("orderPopup").classList.remove("show");
 }
+
 
 /* ============================================================
    ACTIVE DELIVERY CHECK
 ============================================================ */
 
-function hasActiveAssignedDelivery(){
-
-    if(!currentOrder) return false;
+function hasActiveAssignedDelivery() {
+    if (!currentOrder) return false;
 
     const activeStatuses = [
         "rider_accepted",
@@ -2745,558 +2998,322 @@ function hasActiveAssignedDelivery(){
         "on_the_way"
     ];
 
-    return (
-        !!currentOrder.rider_id &&
-        activeStatuses.includes(
-            currentOrder.status
-        )
-    );
-
+    return !!currentOrder.rider_id &&
+        activeStatuses.includes(currentOrder.status);
 }
 
+
 /* ============================================================
-   SHOW ORDER
+   DISPLAY ORDER
 ============================================================ */
 
-function showOrder(order, animate = false){
-
-    if(!order) return;
+function showOrder(order, animate = false) {
+    if (!order) return;
 
     currentOrder = order;
 
-    const card =
-        document.getElementById("orderCard");
+    const card = document.getElementById("orderCard");
 
-    document
-        .getElementById("emptyOrder")
-        .classList.add("hidden");
-
+    document.getElementById("emptyOrder").classList.add("hidden");
     card.classList.remove("hidden");
 
-    /*
-     * Reset action controls every time.
-     * This prevents a previous completed order from
-     * leaving the next accepted order without a button.
-     */
-    document
-        .getElementById("acceptBtn")
-        .style.display = "block";
+    document.getElementById("acceptBtn").style.display = "block";
+    document.getElementById("statusBtn").classList.add("hidden");
+    document.getElementById("deliveryDetails").classList.add("hidden");
 
-    document
-        .getElementById("statusBtn")
-        .classList.add("hidden");
-
-    document
-        .getElementById("deliveryDetails")
-        .classList.add("hidden");
-
-    if(animate){
-
+    if (animate) {
         card.classList.remove("detected");
-
         void card.offsetWidth;
-
         card.classList.add("detected");
-
     }
 
-    document.getElementById(
-        "orderNumber"
-    ).textContent =
+    document.getElementById("orderNumber").textContent =
         "Order #" + getOrderNumber(order);
 
-    document.getElementById(
-        "orderRestaurant"
-    ).textContent =
+    document.getElementById("orderRestaurant").textContent =
         getRestaurant(order);
 
-    document.getElementById(
-        "pickupAddress"
-    ).textContent =
+    document.getElementById("pickupAddress").textContent =
         getPickup(order);
 
-    document.getElementById(
-        "deliveryAddress"
-    ).textContent =
+    document.getElementById("deliveryAddress").textContent =
         getDelivery(order);
 
-    document.getElementById(
-        "customerName"
-    ).textContent =
+    document.getElementById("customerName").textContent =
         getCustomer(order);
 
-    document.getElementById(
-        "customerPhone"
-    ).textContent =
+    document.getElementById("customerPhone").textContent =
         getPhone(order);
 
-    document.getElementById(
-        "deliveryFee"
-    ).textContent =
+    document.getElementById("deliveryFee").textContent =
         money(getDeliveryFee(order));
 
-    document.getElementById(
-        "orderTotal"
-    ).textContent =
-        "Order total: " +
-        money(getOrderTotal(order));
+    document.getElementById("orderTotal").textContent =
+        "Order total: " + money(getOrderTotal(order));
 
-    document.getElementById(
-        "orderStatus"
-    ).textContent =
+    document.getElementById("orderStatus").textContent =
         formatStatus(order.status);
 
-    if(order.rider_id){
+    updateDestinationOnMap(order);
 
-        document
-            .getElementById("acceptBtn")
-            .style.display = "none";
-
+    if (order.rider_id) {
+        document.getElementById("acceptBtn").style.display = "none";
         showAccepted(order);
-
-    }else{
-
-        document
-            .getElementById("acceptBtn")
-            .style.display = "block";
-
+    } else {
+        document.getElementById("acceptBtn").style.display = "block";
     }
-
 }
+
 
 /* ============================================================
    ACCEPT DELIVERY
 ============================================================ */
 
-async function acceptCurrentOrder(){
-
-    if(!currentOrder){
-
+async function acceptCurrentOrder() {
+    if (!currentOrder) {
         showToast("No delivery selected.");
-
         return;
-
     }
 
-    if(
-        !currentRider?.id ||
-        currentRider.id === "demo-rider"
-    ){
-
-        /*
-         * Demo mode.
-         */
-        currentOrder.rider_id =
-            currentRider?.id || "demo-rider";
-
-        currentOrder.status =
-            "rider_accepted";
+    if (!currentRider?.id || currentRider.id === "demo-rider") {
+        currentOrder.rider_id = currentRider?.id || "demo-rider";
+        currentOrder.status = "rider_accepted";
 
         showAccepted(currentOrder);
-
-        showToast(
-            "Demo delivery accepted"
-        );
-
+        showToast("Demo delivery accepted");
         refreshStats();
-
         return;
-
     }
 
-    const button =
-        document.getElementById("acceptBtn");
-
+    const button = document.getElementById("acceptBtn");
     button.disabled = true;
+    button.textContent = "ACCEPTING...";
 
-    button.textContent =
-        "ACCEPTING...";
+    try {
+        const { data, error } = await supabaseClient.rpc(
+            "accept_delivery",
+            {
+                p_order_id: currentOrder.id,
+                p_rider_id: currentRider.id
+            }
+        );
 
-    try{
+        if (error) throw error;
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient.rpc(
-                "accept_delivery",
-                {
-                    p_order_id:currentOrder.id,
-                    p_rider_id:currentRider.id
-                }
-            );
+        const accepted = Array.isArray(data) ? data[0] : data;
 
-        if(error) throw error;
-
-        const accepted =
-            Array.isArray(data)
-                ? data[0]
-                : data;
-
-        if(!accepted){
-
-            throw new Error(
-                "This delivery is no longer available."
-            );
-
+        if (!accepted) {
+            throw new Error("This delivery is no longer available.");
         }
 
-        currentOrder =
-            accepted;
-
-        showAccepted(
-            accepted
-        );
-
-        showToast(
-            "Delivery accepted!"
-        );
+        currentOrder = accepted;
+        showAccepted(accepted);
+        showToast("Delivery accepted!");
 
         await refreshStats();
 
-    }catch(error){
-
+    } catch (error) {
         console.error(error);
 
         button.disabled = false;
+        button.textContent = "ACCEPT DELIVERY";
 
-        button.textContent =
-            "ACCEPT DELIVERY";
-
-        /*
-         * Another rider may have accepted it.
-         */
-        showToast(
-            error.message ||
-            "Delivery could not be accepted."
-        );
+        showToast(error.message || "Delivery could not be accepted.");
 
         await scanForNewOrders(false);
-
     }
-
 }
+
 
 /* ============================================================
    ACCEPTED DELIVERY
 ============================================================ */
 
-function showAccepted(order){
+function showAccepted(order) {
+    document.getElementById("acceptBtn").style.display = "none";
+    document.getElementById("statusBtn").classList.remove("hidden");
+    document.getElementById("deliveryDetails").classList.remove("hidden");
 
-    document
-        .getElementById("acceptBtn")
-        .style.display = "none";
-
-    document
-        .getElementById("statusBtn")
-        .classList.remove("hidden");
-
-    document
-        .getElementById("deliveryDetails")
-        .classList.remove("hidden");
-
-    updateStatusScreen(
-        order.status
-    );
-
+    updateStatusScreen(order.status);
 }
 
+
 /* ============================================================
-   STATUS FLOW
+   DELIVERY STATUS FLOW
 ============================================================ */
 
-function getNextStatus(status){
-
+function getNextStatus(status) {
     const flow = {
-        rider_accepted:"arrived_pickup",
-        arrived_pickup:"picked_up",
-        picked_up:"on_the_way",
-        on_the_way:"delivered"
+        rider_accepted: "arrived_pickup",
+        arrived_pickup: "picked_up",
+        picked_up: "on_the_way",
+        on_the_way: "delivered"
     };
 
     return flow[status] || null;
-
 }
 
-function getStatusButtonText(status){
-
+function getStatusButtonText(status) {
     const text = {
-        rider_accepted:"ARRIVED AT PICKUP",
-        arrived_pickup:"CONFIRM PICKUP",
-        picked_up:"START DELIVERY",
-        on_the_way:"MARK DELIVERED"
+        rider_accepted: "ARRIVED AT PICKUP",
+        arrived_pickup: "CONFIRM PICKUP",
+        picked_up: "START DELIVERY",
+        on_the_way: "MARK DELIVERED"
     };
 
     return text[status] || "UPDATE STATUS";
-
 }
 
-function updateStatusScreen(status){
-
-    document.getElementById(
-        "orderStatus"
-    ).textContent =
+function updateStatusScreen(status) {
+    document.getElementById("orderStatus").textContent =
         formatStatus(status);
 
-    document.getElementById(
-        "currentStatusText"
-    ).textContent =
+    document.getElementById("currentStatusText").textContent =
         formatStatus(status);
 
-    const button =
-        document.getElementById("statusBtn");
+    updateDestinationOnMap(currentOrder);
 
-    const next =
-        getNextStatus(status);
+    const button = document.getElementById("statusBtn");
+    const next = getNextStatus(status);
 
-    if(!next){
-
+    if (!next) {
         button.style.display = "none";
-
         return;
-
     }
 
     button.style.display = "block";
-
-    button.textContent =
-        getStatusButtonText(status);
-
+    button.textContent = getStatusButtonText(status);
 }
 
-async function advanceStatus(){
+async function advanceStatus() {
+    if (!currentOrder) return;
 
-    if(!currentOrder) return;
+    const nextStatus = getNextStatus(currentOrder.status);
+    if (!nextStatus) return;
 
-    const currentStatus =
-        currentOrder.status;
-
-    const nextStatus =
-        getNextStatus(currentStatus);
-
-    if(!nextStatus){
-
-        return;
-
-    }
-
-    const button =
-        document.getElementById("statusBtn");
-
+    const button = document.getElementById("statusBtn");
     button.disabled = true;
+    button.textContent = "UPDATING...";
 
-    button.textContent =
-        "UPDATING...";
+    try {
+        if (currentRider?.id === "demo-rider") {
+            currentOrder.status = nextStatus;
 
-    try{
+            updateStatusScreen(nextStatus);
 
-        /*
-         * Demo mode.
-         */
-        if(
-            currentRider?.id === "demo-rider"
-        ){
-
-            currentOrder.status =
-                nextStatus;
-
-            updateStatusScreen(
-                nextStatus
-            );
-
-            if(nextStatus === "delivered"){
-
+            if (nextStatus === "delivered") {
                 await deliveryCompleted();
-
             }
 
             button.disabled = false;
-
             return;
-
         }
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient.rpc(
-                "update_delivery_status",
-                {
-                    p_order_id:currentOrder.id,
-                    p_status:nextStatus
-                }
-            );
-
-        if(error) throw error;
-
-        const updated =
-            Array.isArray(data)
-                ? data[0]
-                : data;
-
-        if(!updated){
-
-            throw new Error(
-                "Unable to update delivery."
-            );
-
-        }
-
-        currentOrder =
-            updated;
-
-        updateStatusScreen(
-            updated.status
+        const { data, error } = await supabaseClient.rpc(
+            "update_delivery_status",
+            {
+                p_order_id: currentOrder.id,
+                p_status: nextStatus
+            }
         );
 
-        if(updated.status === "delivered"){
+        if (error) throw error;
 
+        const updated = Array.isArray(data) ? data[0] : data;
+
+        if (!updated) {
+            throw new Error("Unable to update delivery.");
+        }
+
+        currentOrder = updated;
+        updateStatusScreen(updated.status);
+
+        if (updated.status === "delivered") {
             await deliveryCompleted();
-
         }
 
         button.disabled = false;
 
-    }catch(error){
-
+    } catch (error) {
         console.error(error);
 
         button.disabled = false;
+        button.textContent = getStatusButtonText(currentOrder.status);
 
-        button.textContent =
-            getStatusButtonText(
-                currentOrder.status
-            );
-
-        showToast(
-            error.message ||
-            "Status update failed."
-        );
-
+        showToast(error.message || "Status update failed.");
     }
-
 }
+
 
 /* ============================================================
-   DELIVERY COMPLETE
+   DELIVERY COMPLETED
 ============================================================ */
 
-async function deliveryCompleted(){
+async function deliveryCompleted() {
+    const fee = getDeliveryFee(currentOrder);
 
-    const fee =
-        getDeliveryFee(currentOrder);
-
-    document.getElementById(
-        "successTitle"
-    ).textContent =
+    document.getElementById("successTitle").textContent =
         "Delivery Complete";
 
-    document.getElementById(
-        "successMessage"
-    ).textContent =
-        "Great job! You earned " +
-        money(fee) +
-        " from this delivery.";
+    document.getElementById("successMessage").textContent =
+        "Great job! You earned " + money(fee) + " from this delivery.";
 
-    document
-        .getElementById("successOverlay")
-        .classList.add("show");
+    document.getElementById("successOverlay").classList.add("show");
 
     await refreshStats();
-
 }
 
-function closeSuccess(){
-
-    document
-        .getElementById("successOverlay")
-        .classList.remove("show");
+function closeSuccess() {
+    document.getElementById("successOverlay").classList.remove("show");
 
     currentOrder = null;
 
-    document
-        .getElementById("orderCard")
-        .classList.add("hidden");
+    document.getElementById("orderCard").classList.add("hidden");
+    document.getElementById("emptyOrder").classList.remove("hidden");
 
-    document
-        .getElementById("emptyOrder")
-        .classList.remove("hidden");
+    document.getElementById("statusBtn").style.display = "block";
+    document.getElementById("statusBtn").classList.add("hidden");
 
-    document
-        .getElementById("statusBtn")
-        .style.display = "block";
-
-    document
-        .getElementById("statusBtn")
-        .classList.add("hidden");
-
-    document
-        .getElementById("deliveryDetails")
-        .classList.add("hidden");
+    document.getElementById("deliveryDetails").classList.add("hidden");
 
     scanForNewOrders(false);
-
 }
 
+
 /* ============================================================
-   STATUS FORMAT
+   STATUS FORMATTING
 ============================================================ */
 
-function formatStatus(status){
+function formatStatus(status) {
+    if (!status) return "READY";
 
-    if(!status) return "READY";
-
-    return status
-        .replaceAll("_"," ")
-        .toUpperCase();
-
+    return status.replaceAll("_", " ").toUpperCase();
 }
 
+
 /* ============================================================
-   STATS
+   DASHBOARD STATISTICS
 ============================================================ */
 
-async function refreshStats(){
+async function refreshStats() {
+    if (!supabaseClient) return;
 
-    if(!supabaseClient) return;
-
-    if(
-        !currentRider?.id ||
-        currentRider.id === "demo-rider"
-    ){
-
-        document.getElementById(
-            "availableCount"
-        ).textContent = "0";
-
-        document.getElementById(
-            "activeCount"
-        ).textContent =
+    if (!currentRider?.id || currentRider.id === "demo-rider") {
+        document.getElementById("availableCount").textContent = "0";
+        document.getElementById("activeCount").textContent =
             currentOrder ? "1" : "0";
-
         return;
-
     }
 
-    try{
+    try {
+        const { data, error } = await supabaseClient
+            .from("orders")
+            .select("*")
+            .eq("rider_id", currentRider.id);
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .from("orders")
-                .select("*")
-                .eq(
-                    "rider_id",
-                    currentRider.id
-                );
+        if (error) throw error;
 
-        if(error) throw error;
-
-        const orders =
-            data || [];
+        const orders = data || [];
 
         const activeStatuses = [
             "rider_accepted",
@@ -3305,393 +3322,249 @@ async function refreshStats(){
             "on_the_way"
         ];
 
-        const active =
-            orders.filter(order =>
-                activeStatuses.includes(
-                    order.status
-                )
-            );
-
-        const completed =
-            orders.filter(order =>
-                order.status === "delivered"
-            );
-
-        const today =
-            new Date();
-
-        const todayStart =
-            new Date(
-                today.getFullYear(),
-                today.getMonth(),
-                today.getDate()
-            );
-
-        const todayCompleted =
-            completed.filter(order => {
-
-                const date =
-                    new Date(
-                        order.delivered_at ||
-                        order.updated_at ||
-                        order.created_at
-                    );
-
-                return date >= todayStart;
-
-            });
-
-        const todayMoney =
-            todayCompleted.reduce(
-                (sum,order) =>
-                    sum + getDeliveryFee(order),
-                0
-            );
-
-        const totalMoney =
-            completed.reduce(
-                (sum,order) =>
-                    sum + getDeliveryFee(order),
-                0
-            );
-
-        document.getElementById(
-            "activeCount"
-        ).textContent =
-            active.length;
-
-        document.getElementById(
-            "completedCount"
-        ).textContent =
-            completed.length;
-
-        document.getElementById(
-            "todayEarnings"
-        ).textContent =
-            money(todayMoney);
-
-        document.getElementById(
-            "totalEarnings"
-        ).textContent =
-            money(totalMoney);
-
-        completedOrders =
-            completed;
-
-    }catch(error){
-
-        console.error(
-            "Stats error:",
-            error
+        const active = orders.filter(order =>
+            activeStatuses.includes(order.status)
         );
 
+        const completed = orders.filter(order =>
+            order.status === "delivered"
+        );
+
+        const today = new Date();
+
+        const todayStart = new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            today.getDate()
+        );
+
+        const todayCompleted = completed.filter(order => {
+            const date = new Date(
+                order.delivered_at ||
+                order.updated_at ||
+                order.created_at
+            );
+
+            return date >= todayStart;
+        });
+
+        const todayMoney = todayCompleted.reduce(
+            (sum, order) => sum + getDeliveryFee(order),
+            0
+        );
+
+        const totalMoney = completed.reduce(
+            (sum, order) => sum + getDeliveryFee(order),
+            0
+        );
+
+        document.getElementById("activeCount").textContent =
+            active.length;
+
+        document.getElementById("completedCount").textContent =
+            completed.length;
+
+        document.getElementById("todayEarnings").textContent =
+            money(todayMoney);
+
+        document.getElementById("totalEarnings").textContent =
+            money(totalMoney);
+
+        completedOrders = completed;
+
+    } catch (error) {
+        console.error("Stats error:", error);
     }
-
 }
 
-function updateAvailableCount(count){
-
-    document.getElementById(
-        "availableCount"
-    ).textContent =
+function updateAvailableCount(count) {
+    document.getElementById("availableCount").textContent =
         count || 0;
-
 }
+
 
 /* ============================================================
    EARNINGS
 ============================================================ */
 
-async function loadCompletedOrders(){
-
-    if(
+async function loadCompletedOrders() {
+    if (
         !supabaseClient ||
         !currentRider?.id ||
         currentRider.id === "demo-rider"
-    ){
-
+    ) {
         renderEarnings();
-
         return;
-
     }
 
-    try{
+    try {
+        const { data, error } = await supabaseClient
+            .from("orders")
+            .select("*")
+            .eq("rider_id", currentRider.id)
+            .eq("status", "delivered")
+            .order("delivered_at", { ascending: false })
+            .limit(50);
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .from("orders")
-                .select("*")
-                .eq(
-                    "rider_id",
-                    currentRider.id
-                )
-                .eq(
-                    "status",
-                    "delivered"
-                )
-                .order(
-                    "delivered_at",
-                    {
-                        ascending:false
-                    }
-                )
-                .limit(50);
+        if (error) throw error;
 
-        if(error) throw error;
-
-        completedOrders =
-            data || [];
-
+        completedOrders = data || [];
         renderEarnings();
 
-    }catch(error){
-
+    } catch (error) {
         console.error(error);
-
     }
-
 }
 
-function renderEarnings(){
+function renderEarnings() {
+    const list = document.getElementById("earningsList");
 
-    const list =
-        document.getElementById(
-            "earningsList"
-        );
-
-    if(!completedOrders.length){
-
+    if (!completedOrders.length) {
         list.innerHTML = `
             <div class="empty-order">
                 No completed deliveries yet.
             </div>
         `;
-
         return;
-
     }
 
-    list.innerHTML =
-        completedOrders
-            .map(order => {
+    list.innerHTML = completedOrders.map(order => {
+        const date =
+            order.delivered_at ||
+            order.updated_at ||
+            order.created_at;
 
-                const date =
-                    order.delivered_at ||
-                    order.updated_at ||
-                    order.created_at;
+        return `
+            <div class="earning-item">
+                <div>
+                    <strong>
+                        Order #${escapeHtml(getOrderNumber(order))}
+                    </strong>
+                    <br>
+                    <small>${escapeHtml(getRestaurant(order))}</small>
+                    <br>
+                    <small>
+                        ${date ? new Date(date).toLocaleDateString("en-NG") : ""}
+                    </small>
+                </div>
 
-                return `
-                    <div class="earning-item">
-                        <div>
-                            <strong>
-                                Order #${escapeHtml(
-                                    getOrderNumber(order)
-                                )}
-                            </strong>
-                            <br>
-                            <small>
-                                ${escapeHtml(
-                                    getRestaurant(order)
-                                )}
-                            </small>
-                            <br>
-                            <small>
-                                ${date
-                                    ? new Date(date)
-                                        .toLocaleDateString("en-NG")
-                                    : ""}
-                            </small>
-                        </div>
-
-                        <strong>
-                            ${money(
-                                getDeliveryFee(order)
-                            )}
-                        </strong>
-                    </div>
-                `;
-
-            })
-            .join("");
-
+                <strong>${money(getDeliveryFee(order))}</strong>
+            </div>
+        `;
+    }).join("");
 }
+
 
 /* ============================================================
    LOGOUT
 ============================================================ */
 
-async function logoutRider(){
-
+async function logoutRider() {
     stopScanner();
+    stopLiveGPS();
 
     currentOrder = null;
     currentRider = null;
     currentUser = null;
 
     seenOrderIds.clear();
-
     lastDetectedOrderId = null;
-
     pendingDetectedOrder = null;
-
     scannerInitialized = false;
 
     hideOrderPopup();
 
-    if(supabaseClient){
-
-        try{
-
+    if (supabaseClient) {
+        try {
             await supabaseClient.auth.signOut();
-
-        }catch(error){
-
+        } catch (error) {
             console.error(error);
-
         }
-
     }
 
-    document
-        .getElementById("app")
-        .classList.add("hidden");
+    document.getElementById("app").classList.add("hidden");
+    document.getElementById("loginPage").classList.remove("hidden");
 
-    document
-        .getElementById("loginPage")
-        .classList.remove("hidden");
-
-    document.getElementById(
-        "emailInput"
-    ).value = "";
-
-    document.getElementById(
-        "passwordInput"
-    ).value = "";
-
+    document.getElementById("emailInput").value = "";
+    document.getElementById("passwordInput").value = "";
 }
 
+
 /* ============================================================
-   TOAST
+   TOAST NOTIFICATIONS
 ============================================================ */
 
 let toastTimer = null;
 
-function showToast(message){
+function showToast(message) {
+    const toast = document.getElementById("toast");
 
-    const toast =
-        document.getElementById("toast");
-
-    toast.textContent =
-        message;
-
+    toast.textContent = message;
     toast.classList.add("show");
 
     clearTimeout(toastTimer);
 
-    toastTimer =
-        setTimeout(() => {
-
-            toast.classList.remove("show");
-
-        },2800);
-
+    toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2800);
 }
+
 
 /* ============================================================
-   ESCAPE HTML
+   HTML ESCAPING
 ============================================================ */
 
-function escapeHtml(value){
-
+function escapeHtml(value) {
     return String(value ?? "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 }
+
 
 /* ============================================================
    NETWORK EVENTS
 ============================================================ */
 
-window.addEventListener(
-    "online",
-    () => {
+window.addEventListener("online", () => {
+    if (!isOnline) return;
 
-        if(!isOnline) return;
+    showToast("Internet connection restored");
+    startScanner();
+});
 
-        showToast(
-            "Internet connection restored"
-        );
+window.addEventListener("offline", () => {
+    const scannerStatus =
+        document.getElementById("scannerStatus");
 
-        startScanner();
-
+    if (scannerStatus) {
+        scannerStatus.textContent =
+            "CONNECTION LOST • POLLING PAUSED";
     }
-);
 
-window.addEventListener(
-    "offline",
-    () => {
+    showToast("Internet connection lost");
+});
 
-        /*
-         * Don't change the rider's chosen ONLINE/OFFLINE state.
-         * Simply pause scanning while the browser is offline.
-         */
-        const scannerStatus =
-            document.getElementById(
-                "scannerStatus"
-            );
-
-        if(scannerStatus){
-
-            scannerStatus.textContent =
-                "CONNECTION LOST • POLLING PAUSED";
-
-        }
-
-        showToast(
-            "Internet connection lost"
-        );
-
-    }
-);
 
 /* ============================================================
    CLEANUP
 ============================================================ */
 
-window.addEventListener(
-    "beforeunload",
-    () => {
-
-        if(scannerTimer){
-
-            clearInterval(
-                scannerTimer
-            );
-
-        }
-
-        if(realtimeChannel && supabaseClient){
-
-            supabaseClient
-                .removeChannel(
-                    realtimeChannel
-                )
-                .catch(()=>{});
-
-        }
-
+window.addEventListener("beforeunload", () => {
+    if (scannerTimer) {
+        clearInterval(scannerTimer);
     }
-);
 
+    stopLiveGPS();
+
+    if (realtimeChannel && supabaseClient) {
+        supabaseClient
+            .removeChannel(realtimeChannel)
+            .catch(() => {});
+    }
+});
 </script>
-
 </body>
 </html>
