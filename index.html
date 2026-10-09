@@ -1335,6 +1335,7 @@ html, body {
   #liveMap { height: 145px; min-height: 145px; }
 }
 
+
 /* Final compact layout + support/network status */
 .network-banner{position:sticky;top:0;z-index:1200;padding:10px 14px;background:#fff0d8;color:#7a4100;font-size:13px;font-weight:700;border-bottom:1px solid #f0d5a8}
 .network-banner[hidden]{display:none!important}
@@ -1348,12 +1349,20 @@ html, body {
 .support-feedback{margin-top:9px!important;overflow-wrap:anywhere}
 @media(max-width:480px){.page,.page.active{padding:10px}.welcome{margin-bottom:9px}.scanner-panel{height:104px;min-height:104px;margin-bottom:9px}.stats{gap:8px;margin-bottom:9px}.stat{padding:10px}.map-wrap{margin-bottom:10px}#liveMap{height:155px;min-height:155px}.bottom-nav{padding-bottom:env(safe-area-inset-bottom)}}
 
+
 /* Account creation and login controls */
 .auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;margin:0 0 16px;background:#eef3ef;border-radius:12px}
 .auth-tab{padding:11px 8px;border-radius:9px;background:transparent;color:#59665f;font-weight:800}
 .auth-tab.active{background:#078747;color:#fff;box-shadow:0 2px 8px #07874722}
 .signup-fields{display:grid;gap:10px}
 .signup-fields.hidden{display:none!important}
+.signup-fields .field-label{display:block;margin:2px 0 -5px;font-size:12px;font-weight:800;color:#405047}
+.signup-fields select,.signup-fields input[type=file]{display:block;width:100%;min-height:44px;padding:10px;border:1px solid #d9e2dc;border-radius:11px;background:#fff;color:#17201b;font-size:13px}
+.signup-fields .field-note{font-size:11px;line-height:1.4;color:#64736a;margin-top:-5px}
+.vehicle-docs{display:grid;gap:10px;padding:12px;border:1px solid #dbe6de;border-radius:12px;background:#f8fbf9}
+.vehicle-docs.hidden{display:none!important}
+.vehicle-docs h4{font-size:13px;color:#08733d}
+.doc-required{color:#b42318}
 .login-card input{display:block;width:100%;min-height:46px;margin:0 0 10px;padding:12px 13px;border:1px solid #d9e2dc;border-radius:11px;background:#fff;color:#17201b;font-size:15px;outline-color:#078747}
 .primary-btn,.demo-btn{width:100%;min-height:46px;margin-top:8px;border-radius:11px;font-weight:800}
 .text-btn{display:block;width:100%;padding:12px 8px;background:transparent;color:#078747;font-weight:700}
@@ -1375,8 +1384,36 @@ html, body {
           <button id="signupTab" class="auth-tab" type="button" onclick="setAuthMode('signup')">Create account</button>
         </div>
         <div id="signupFields" class="signup-fields hidden">
-          <input id="riderNameInput" type="text" autocomplete="name" maxlength="80" placeholder="Full name">
-          <input id="riderPhoneInput" type="tel" autocomplete="tel" maxlength="24" placeholder="Phone number">
+          <input id="riderNameInput" type="text" autocomplete="name" maxlength="80" placeholder="Full name" required>
+          <input id="riderPhoneInput" type="tel" autocomplete="tel" maxlength="24" placeholder="Phone number" required>
+          <label class="field-label" for="vehicleTypeInput">Vehicle type <span class="doc-required">*</span></label>
+          <select id="vehicleTypeInput" required onchange="updateVehicleDocumentFields()">
+            <option value="">Choose your delivery vehicle</option>
+            <option value="bicycle">Bicycle</option>
+            <option value="motorbike">Motorbike</option>
+          </select>
+          <div class="field-label">Required documents <span class="doc-required">*</span></div>
+          <div class="field-note">Accepted files: JPG, PNG, or PDF. Maximum 5 MB per file. Use clear photos. Documents are submitted privately for admin review.</div>
+          <label class="field-label" for="riderIdDocument">Government-issued ID</label>
+          <input id="riderIdDocument" type="file" accept="image/jpeg,image/png,application/pdf" required>
+          <label class="field-label" for="riderProfilePhoto">Profile photo</label>
+          <input id="riderProfilePhoto" type="file" accept="image/jpeg,image/png" required>
+          <div id="bicycleDocuments" class="vehicle-docs hidden">
+            <h4>Bicycle documents</h4>
+            <label class="field-label" for="bicyclePhoto">Photo of your bicycle</label>
+            <input id="bicyclePhoto" type="file" accept="image/jpeg,image/png">
+          </div>
+          <div id="motorbikeDocuments" class="vehicle-docs hidden">
+            <h4>Motorbike documents</h4>
+            <label class="field-label" for="motorbikeLicence">Valid motorcycle driving licence</label>
+            <input id="motorbikeLicence" type="file" accept="image/jpeg,image/png,application/pdf">
+            <label class="field-label" for="motorbikePhoto">Photo of your motorbike</label>
+            <input id="motorbikePhoto" type="file" accept="image/jpeg,image/png">
+            <label class="field-label" for="motorbikeRegistration">Motorbike registration document</label>
+            <input id="motorbikeRegistration" type="file" accept="image/jpeg,image/png,application/pdf">
+            <label class="field-label" for="motorbikeInsurance">Motorbike insurance document</label>
+            <input id="motorbikeInsurance" type="file" accept="image/jpeg,image/png,application/pdf">
+          </div>
         </div>
         <input id="emailInput" type="email" autocomplete="email" placeholder="Email address">
         <input id="passwordInput" type="password" autocomplete="current-password" minlength="8" placeholder="Password (at least 8 characters)">
@@ -1989,69 +2026,135 @@ function setAuthMode(mode) {
     document.getElementById("loginError").textContent = "";
 }
 
+function updateVehicleDocumentFields() {
+    const vehicle = document.getElementById("vehicleTypeInput")?.value || "";
+    document.getElementById("bicycleDocuments")?.classList.toggle("hidden", vehicle !== "bicycle");
+    document.getElementById("motorbikeDocuments")?.classList.toggle("hidden", vehicle !== "motorbike");
+    const bicycle = document.getElementById("bicyclePhoto");
+    if (bicycle) bicycle.required = vehicle === "bicycle";
+    ["motorbikeLicence", "motorbikePhoto", "motorbikeRegistration", "motorbikeInsurance"].forEach(id => {
+        const field = document.getElementById(id);
+        if (field) field.required = vehicle === "motorbike";
+    });
+}
+
+function validateRiderDocument(file, label) {
+    if (!file) throw new Error("Please upload: " + label + ".");
+    const allowed = ["image/jpeg", "image/png", "application/pdf"];
+    if (!allowed.includes(file.type)) throw new Error(label + ": use a JPG, PNG, or PDF file.");
+    if (file.size > 5 * 1024 * 1024) throw new Error(label + ": file must be 5 MB or smaller.");
+}
+
+async function uploadRiderDocuments(userId, vehicleType) {
+    const required = [
+        ["government_id", "riderIdDocument", "Government-issued ID"],
+        ["profile_photo", "riderProfilePhoto", "Profile photo"]
+    ];
+    if (vehicleType === "bicycle") required.push(["bicycle_photo", "bicyclePhoto", "Bicycle photo"]);
+    if (vehicleType === "motorbike") required.push(
+        ["motorbike_licence", "motorbikeLicence", "Motorcycle driving licence"],
+        ["motorbike_photo", "motorbikePhoto", "Motorbike photo"],
+        ["motorbike_registration", "motorbikeRegistration", "Motorbike registration"],
+        ["motorbike_insurance", "motorbikeInsurance", "Motorbike insurance"]
+    );
+    const uploads = [];
+    for (const [documentType, inputId, label] of required) {
+        const file = document.getElementById(inputId)?.files?.[0];
+        validateRiderDocument(file, label);
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const path = `${userId}/${documentType}-${Date.now()}-${safeName}`;
+        const { error: uploadError } = await supabaseClient.storage.from("rider-documents").upload(path, file, {
+            cacheControl: "3600", upsert: false, contentType: file.type
+        });
+        if (uploadError) throw new Error("Could not upload " + label + ": " + uploadError.message + ". Check the rider-documents storage bucket and policies.");
+        uploads.push({ user_id: userId, document_type: documentType, storage_path: path, review_status: "pending" });
+    }
+    const { error: rowsError } = await supabaseClient.from("rider_documents").insert(uploads);
+    if (rowsError) throw new Error("Files were uploaded, but document records could not be saved: " + rowsError.message + ". Ask the administrator to apply the rider document SQL setup.");
+}
+
 async function createRiderAccount() {
     const name = document.getElementById("riderNameInput").value.trim();
     const phone = document.getElementById("riderPhoneInput").value.trim();
+    const vehicleType = document.getElementById("vehicleTypeInput").value;
     const email = document.getElementById("emailInput").value.trim();
     const password = document.getElementById("passwordInput").value;
     const feedback = document.getElementById("loginError");
     feedback.textContent = "";
 
-    if (!supabaseClient) {
-        feedback.textContent = "Connection is not ready. Check your internet and reload.";
-        return;
-    }
+    if (!supabaseClient) { feedback.textContent = "Connection is not ready. Check your internet and reload."; return; }
     if (name.length < 2) { feedback.textContent = "Enter your full name."; return; }
     if (phone.replace(/\D/g, "").length < 7) { feedback.textContent = "Enter a valid phone number."; return; }
+    if (!["bicycle", "motorbike"].includes(vehicleType)) { feedback.textContent = "Choose bicycle or motorbike."; return; }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { feedback.textContent = "Enter a valid email address."; return; }
     if (password.length < 8) { feedback.textContent = "Use a password with at least 8 characters."; return; }
+    try {
+        validateRiderDocument(document.getElementById("riderIdDocument").files[0], "Government-issued ID");
+        validateRiderDocument(document.getElementById("riderProfilePhoto").files[0], "Profile photo");
+        if (vehicleType === "bicycle") validateRiderDocument(document.getElementById("bicyclePhoto").files[0], "Bicycle photo");
+        if (vehicleType === "motorbike") {
+            validateRiderDocument(document.getElementById("motorbikeLicence").files[0], "Motorcycle driving licence");
+            validateRiderDocument(document.getElementById("motorbikePhoto").files[0], "Motorbike photo");
+            validateRiderDocument(document.getElementById("motorbikeRegistration").files[0], "Motorbike registration");
+            validateRiderDocument(document.getElementById("motorbikeInsurance").files[0], "Motorbike insurance");
+        }
+    } catch (validationError) { feedback.textContent = validationError.message; return; }
 
     const button = document.getElementById("authSubmitBtn");
     button.disabled = true;
     button.textContent = "CREATING ACCOUNT…";
     try {
         const { data, error } = await supabaseClient.auth.signUp({
-            email,
-            password,
-            options: { data: { full_name: name, phone, account_type: "rider" } }
+            email, password,
+            options: { data: { full_name: name, phone, account_type: "rider", vehicle_type: vehicleType } }
         });
         if (error) throw error;
         if (data.session && data.user) {
             currentUser = data.user;
-            await createOrLoadRiderProfile(name, phone);
+            await createOrLoadRiderProfile(name, phone, vehicleType);
+            await uploadRiderDocuments(data.user.id, vehicleType);
+            feedback.textContent = "Application submitted. Your documents are awaiting admin review. You cannot accept deliveries until approved.";
             return;
         }
-        feedback.textContent = "Account created. Check your email to confirm the address, then log in. If profile creation is blocked, the Supabase rider-profile policy/table must be configured by the app administrator.";
+        feedback.textContent = "Account created, but email confirmation is enabled. Confirm your email and log in, then reselect your documents to submit them. Your application will remain pending until documents are submitted and reviewed.";
         setAuthMode("login");
     } catch (error) {
         console.error("Rider signup error:", error);
-        feedback.textContent = error.message || "Unable to create account. Check your Supabase Auth settings and rider table permissions.";
+        feedback.textContent = error.message || "Unable to create account. Check Supabase Auth, database, and private storage setup.";
     } finally {
         button.disabled = false;
         button.textContent = riderAuthMode === "signup" ? "CREATE RIDER ACCOUNT" : "LOGIN";
     }
 }
 
-async function createOrLoadRiderProfile(name, phone) {
+async function createOrLoadRiderProfile(name, phone, vehicleType) {
     const feedback = document.getElementById("loginError");
     try {
         const { data: existing, error: readError } = await supabaseClient
             .from("riders").select("*").eq("owner_id", currentUser.id).maybeSingle();
         if (readError) throw readError;
-        if (existing) { currentRider = existing; enterApp(); return; }
-
+        if (existing) {
+            const { data: updated, error: updateError } = await supabaseClient.from("riders")
+                .update({ vehicle_type: vehicleType || existing.vehicle_type || currentUser.user_metadata?.vehicle_type || "bicycle" })
+                .eq("owner_id", currentUser.id).select("*").single();
+            if (updateError) throw updateError;
+            currentRider = updated;
+            return;
+        }
         const profile = {
             owner_id: currentUser.id,
             rider_name: name || currentUser.user_metadata?.full_name || "Rider",
-            phone: phone || currentUser.user_metadata?.phone || ""
+            phone: phone || currentUser.user_metadata?.phone || "",
+            vehicle_type: vehicleType || currentUser.user_metadata?.vehicle_type || "bicycle",
+            approval_status: "pending"
         };
         const { data, error } = await supabaseClient.from("riders").insert(profile).select("*").single();
         if (error) throw error;
         currentRider = data;
-        enterApp();
     } catch (error) {
         console.error("Rider profile setup error:", error);
-        feedback.textContent = "Your login account exists, but the rider profile could not be created. Ask the Supabase administrator to allow authenticated users to create their own riders row (owner_id = auth.uid()) and confirm the riders table columns. Details: " + (error.message || "profile setup failed");
+        feedback.textContent = "Your login account exists, but the rider profile could not be saved. Apply the SQL setup and check the riders table policies. Details: " + (error.message || "profile setup failed");
+        throw error;
     }
 }
 
@@ -3338,6 +3441,11 @@ async function acceptCurrentOrder() {
         return;
     }
 
+    if (currentRider?.id !== "demo-rider" && currentRider?.approval_status !== "approved") {
+        showToast("Your rider account is awaiting admin approval. You cannot accept deliveries yet.");
+        return;
+    }
+
     if (!currentRider?.id || currentRider.id === "demo-rider") {
         currentOrder.rider_id = currentRider?.id || "demo-rider";
         currentOrder.status = "rider_accepted";
@@ -3845,4 +3953,4 @@ window.addEventListener("beforeunload", () => {
 });
 </script>
 </body>
-</html> 
+</html>
