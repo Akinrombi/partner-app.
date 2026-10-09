@@ -1348,6 +1348,17 @@ html, body {
 .support-feedback{margin-top:9px!important;overflow-wrap:anywhere}
 @media(max-width:480px){.page,.page.active{padding:10px}.welcome{margin-bottom:9px}.scanner-panel{height:104px;min-height:104px;margin-bottom:9px}.stats{gap:8px;margin-bottom:9px}.stat{padding:10px}.map-wrap{margin-bottom:10px}#liveMap{height:155px;min-height:155px}.bottom-nav{padding-bottom:env(safe-area-inset-bottom)}}
 
+/* Account creation and login controls */
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;margin:0 0 16px;background:#eef3ef;border-radius:12px}
+.auth-tab{padding:11px 8px;border-radius:9px;background:transparent;color:#59665f;font-weight:800}
+.auth-tab.active{background:#078747;color:#fff;box-shadow:0 2px 8px #07874722}
+.signup-fields{display:grid;gap:10px}
+.signup-fields.hidden{display:none!important}
+.login-card input{display:block;width:100%;min-height:46px;margin:0 0 10px;padding:12px 13px;border:1px solid #d9e2dc;border-radius:11px;background:#fff;color:#17201b;font-size:15px;outline-color:#078747}
+.primary-btn,.demo-btn{width:100%;min-height:46px;margin-top:8px;border-radius:11px;font-weight:800}
+.text-btn{display:block;width:100%;padding:12px 8px;background:transparent;color:#078747;font-weight:700}
+.login-error{white-space:pre-wrap;line-height:1.45;margin-top:10px}
+
 </style>
 </head>
 
@@ -1359,13 +1370,20 @@ html, body {
         <div class="logo">QuickEats</div>
         <div class="login-subtitle">Rider Delivery Portal</div>
 
-        <input id="emailInput" type="email" placeholder="Email address">
-        <input id="passwordInput" type="password" placeholder="Password">
-
-        <button class="primary-btn" onclick="loginRider()">LOGIN</button>
-        <button class="demo-btn" onclick="demoLogin()">DEMO RIDER</button>
-
-        <div id="loginError" class="login-error"></div>
+        <div class="auth-tabs" role="tablist" aria-label="Account options">
+          <button id="loginTab" class="auth-tab active" type="button" onclick="setAuthMode('login')">Log in</button>
+          <button id="signupTab" class="auth-tab" type="button" onclick="setAuthMode('signup')">Create account</button>
+        </div>
+        <div id="signupFields" class="signup-fields hidden">
+          <input id="riderNameInput" type="text" autocomplete="name" maxlength="80" placeholder="Full name">
+          <input id="riderPhoneInput" type="tel" autocomplete="tel" maxlength="24" placeholder="Phone number">
+        </div>
+        <input id="emailInput" type="email" autocomplete="email" placeholder="Email address">
+        <input id="passwordInput" type="password" autocomplete="current-password" minlength="8" placeholder="Password (at least 8 characters)">
+        <button id="authSubmitBtn" class="primary-btn" onclick="loginRider()">LOGIN</button>
+        <button class="text-btn" type="button" onclick="resetRiderPassword()">Forgot password?</button>
+        <button class="demo-btn" onclick="demoLogin()">DEMO RIDER (PREVIEW ONLY)</button>
+        <div id="loginError" class="login-error" role="status" aria-live="polite"></div>
     </div>
 </div>
 
@@ -1957,6 +1975,102 @@ function vibrateDetection() {
    LOGIN
 ============================================================ */
 
+let riderAuthMode = "login";
+
+function setAuthMode(mode) {
+    riderAuthMode = mode === "signup" ? "signup" : "login";
+    const signup = riderAuthMode === "signup";
+    document.getElementById("signupFields").classList.toggle("hidden", !signup);
+    document.getElementById("loginTab").classList.toggle("active", !signup);
+    document.getElementById("signupTab").classList.toggle("active", signup);
+    document.getElementById("authSubmitBtn").textContent = signup ? "CREATE RIDER ACCOUNT" : "LOGIN";
+    document.getElementById("authSubmitBtn").onclick = signup ? createRiderAccount : loginRider;
+    document.getElementById("passwordInput").autocomplete = signup ? "new-password" : "current-password";
+    document.getElementById("loginError").textContent = "";
+}
+
+async function createRiderAccount() {
+    const name = document.getElementById("riderNameInput").value.trim();
+    const phone = document.getElementById("riderPhoneInput").value.trim();
+    const email = document.getElementById("emailInput").value.trim();
+    const password = document.getElementById("passwordInput").value;
+    const feedback = document.getElementById("loginError");
+    feedback.textContent = "";
+
+    if (!supabaseClient) {
+        feedback.textContent = "Connection is not ready. Check your internet and reload.";
+        return;
+    }
+    if (name.length < 2) { feedback.textContent = "Enter your full name."; return; }
+    if (phone.replace(/\D/g, "").length < 7) { feedback.textContent = "Enter a valid phone number."; return; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { feedback.textContent = "Enter a valid email address."; return; }
+    if (password.length < 8) { feedback.textContent = "Use a password with at least 8 characters."; return; }
+
+    const button = document.getElementById("authSubmitBtn");
+    button.disabled = true;
+    button.textContent = "CREATING ACCOUNT…";
+    try {
+        const { data, error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: name, phone, account_type: "rider" } }
+        });
+        if (error) throw error;
+        if (data.session && data.user) {
+            currentUser = data.user;
+            await createOrLoadRiderProfile(name, phone);
+            return;
+        }
+        feedback.textContent = "Account created. Check your email to confirm the address, then log in. If profile creation is blocked, the Supabase rider-profile policy/table must be configured by the app administrator.";
+        setAuthMode("login");
+    } catch (error) {
+        console.error("Rider signup error:", error);
+        feedback.textContent = error.message || "Unable to create account. Check your Supabase Auth settings and rider table permissions.";
+    } finally {
+        button.disabled = false;
+        button.textContent = riderAuthMode === "signup" ? "CREATE RIDER ACCOUNT" : "LOGIN";
+    }
+}
+
+async function createOrLoadRiderProfile(name, phone) {
+    const feedback = document.getElementById("loginError");
+    try {
+        const { data: existing, error: readError } = await supabaseClient
+            .from("riders").select("*").eq("owner_id", currentUser.id).maybeSingle();
+        if (readError) throw readError;
+        if (existing) { currentRider = existing; enterApp(); return; }
+
+        const profile = {
+            owner_id: currentUser.id,
+            rider_name: name || currentUser.user_metadata?.full_name || "Rider",
+            phone: phone || currentUser.user_metadata?.phone || ""
+        };
+        const { data, error } = await supabaseClient.from("riders").insert(profile).select("*").single();
+        if (error) throw error;
+        currentRider = data;
+        enterApp();
+    } catch (error) {
+        console.error("Rider profile setup error:", error);
+        feedback.textContent = "Your login account exists, but the rider profile could not be created. Ask the Supabase administrator to allow authenticated users to create their own riders row (owner_id = auth.uid()) and confirm the riders table columns. Details: " + (error.message || "profile setup failed");
+    }
+}
+
+async function resetRiderPassword() {
+    const email = document.getElementById("emailInput").value.trim();
+    const feedback = document.getElementById("loginError");
+    feedback.textContent = "";
+    if (!email) { feedback.textContent = "Enter your email address first."; return; }
+    try {
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.href.split("#")[0]
+        });
+        if (error) throw error;
+        feedback.textContent = "If password recovery is enabled, a reset link has been sent to your email.";
+    } catch (error) {
+        feedback.textContent = error.message || "Unable to request a password reset.";
+    }
+}
+
 async function loginRider() {
 
     const email =
@@ -2055,14 +2169,22 @@ async function loadRider() {
         if (error) throw error;
 
         if (!data) {
-
-            throw new Error(
-                "No rider profile was found for this account."
-            );
-
+            const metadata = currentUser.user_metadata || {};
+            const fullName = String(metadata.full_name || "").trim();
+            const phone = String(metadata.phone || "").trim();
+            if (!fullName || !phone) {
+                throw new Error("Your account is signed in, but no rider profile exists. Sign up with your name and phone number, or ask the administrator to create your rider profile.");
+            }
+            const { data: created, error: createError } = await supabaseClient
+                .from("riders")
+                .insert({ owner_id: currentUser.id, rider_name: fullName, phone })
+                .select("*")
+                .single();
+            if (createError) throw createError;
+            currentRider = created;
+        } else {
+            currentRider = data;
         }
-
-        currentRider = data;
 
         enterApp();
 
@@ -3723,4 +3845,4 @@ window.addEventListener("beforeunload", () => {
 });
 </script>
 </body>
-</html>
+</html> 
