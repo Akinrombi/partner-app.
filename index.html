@@ -1555,36 +1555,77 @@ input:focus,textarea:focus,select:focus{outline:none!important;border-color:#12a
 
 </style>
 
-<style id="quickeats-color-proof">
-/* QUICKEATS-COLOR-PROOF-2026-10-11: intentionally bold temporary palette to verify the live CSS */
+
+<style id="quickeats-vibe-upgrade">
+/* QuickEats Rider — restore the core green brand, with stronger visual personality */
 :root {
-  --qe-proof-purple: #6d28d9 !important;
-  --qe-proof-violet: #8b5cf6 !important;
-  --qe-proof-orange: #ff8a00 !important;
-  --qe-proof-cream: #fff7e8 !important;
+  --qe-green-deep: #063f35;
+  --qe-green: #087f5b;
+  --qe-lime: #c8f169;
+  --qe-ink: #102b25;
+  --qe-muted: #6c7d77;
+  --qe-surface: #ffffff;
+  --qe-canvas: #f4f8f3;
+  --qe-line: #e1ebe3;
 }
-html body { background: #fff7e8 !important; }
-body, body * { --primary-color: #6d28d9; }
-header, .header, .topbar, .top-bar, .navbar, nav.top-nav, .welcome-banner,
-.welcome-card, .hero, .dashboard-header, .app-header {
-  background: linear-gradient(120deg,#4c1d95 0%,#7c3aed 58%,#a855f7 100%) !important;
+html body { background: var(--qe-canvas) !important; color: var(--qe-ink); }
+body {
+  background-image: radial-gradient(ellipse at 8% 0%, rgba(200,241,105,.22), transparent 32%),
+                    radial-gradient(ellipse at 100% 22%, rgba(8,127,91,.08), transparent 30%) !important;
+}
+header, .header, .topbar, .top-bar, .navbar, .welcome-banner, .welcome-card,
+.hero, .dashboard-header, .app-header {
+  background: linear-gradient(128deg, #063f35 0%, #087f5b 65%, #11a477 100%) !important;
   color: #fff !important;
+  border-radius: 0 0 28px 28px;
 }
-button, .btn, .button, input[type="submit"], .primary-btn, .btn-primary,
-.bottom-nav a.active, .bottom-nav button.active, .nav-item.active {
-  background: #ff8a00 !important;
-  border-color: #ff8a00 !important;
-  color: #241044 !important;
+.welcome-banner h1, .welcome-banner h2, .welcome-card h1, .welcome-card h2,
+.hero h1, .hero h2, .dashboard-header h1, .dashboard-header h2 { color:#fff !important; letter-spacing:-.035em; }
+button, .btn, .button, input[type="submit"], .primary-btn, .btn-primary {
+  background: linear-gradient(135deg,#087f5b,#0c9a6b) !important;
+  color:#fff !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 7px 16px rgba(8,127,91,.18);
+  font-weight: 750;
 }
 .card, .stat-card, .order-card, .earnings-card, .profile-card, .support-card,
-.dashboard-card, .panel, .modal-content, .content-card {
-  border-color: #e9d5ff !important;
-  box-shadow: 0 8px 24px rgba(109,40,217,.14) !important;
+.dashboard-card, .panel, .content-card {
+  background: rgba(255,255,255,.96) !important;
+  border: 1px solid var(--qe-line) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 28px rgba(6,63,53,.065) !important;
 }
-a { color: #6d28d9; }
+.stat-card, .earnings-card { position:relative; overflow:hidden; }
+.stat-card::before, .earnings-card::before {
+  content:""; position:absolute; left:0; top:14px; bottom:14px; width:4px;
+  background:var(--qe-lime); border-radius:0 6px 6px 0;
+}
+.bottom-nav {
+  background:rgba(255,255,255,.92) !important;
+  border:1px solid rgba(8,127,91,.10) !important;
+  box-shadow:0 12px 34px rgba(6,63,53,.16) !important;
+  backdrop-filter:blur(18px);
+  border-radius:24px !important;
+}
+.bottom-nav a.active, .bottom-nav button.active, .nav-item.active {
+  background:rgba(200,241,105,.30) !important;
+  color:#063f35 !important;
+  border-radius:14px !important;
+}
+a { color:#087f5b; }
 input:focus, select:focus, textarea:focus {
-  border-color: #8b5cf6 !important;
-  box-shadow: 0 0 0 3px rgba(139,92,246,.2) !important;
+  border-color:#0c9a6b !important;
+  box-shadow:0 0 0 3px rgba(12,154,107,.14) !important;
+}
+@media (prefers-reduced-motion:no-preference) {
+  button, .btn, .card, .stat-card, .order-card, .nav-item {
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  button:active, .btn:active { transform:scale(.98); }
+  .card:hover, .stat-card:hover, .order-card:hover {
+    box-shadow:0 14px 32px rgba(6,63,53,.10) !important;
+  }
 }
 </style>
 
