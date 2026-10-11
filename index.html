@@ -1788,6 +1788,7 @@ let completedOrders = [];
 
 // Live GPS and Leaflet map state.
 let gpsWatchId = null;
+let lastGpsDbUpdate = 0;
 let riderPosition = null;
 let liveMap = null;
 let riderMapMarker = null;
@@ -2625,6 +2626,19 @@ function startLiveGPS(showMessage = true) {
                 updatedAt: position.timestamp
             };
 
+            // Refresh the server-side location timestamp at most every 20 seconds.
+            if (supabaseClient && currentRider?.id && currentRider.id !== "demo-rider" &&
+                Date.now() - lastGpsDbUpdate >= 20000) {
+                lastGpsDbUpdate = Date.now();
+                supabaseClient.from("riders").update({
+                    lat: riderPosition.lat,
+                    lng: riderPosition.lng,
+                    location_updated_at: new Date().toISOString()
+                }).eq("id", currentRider.id).then(({ error }) => {
+                    if (error) console.warn("Could not update dispatch GPS:", error.message);
+                });
+            }
+
             initializeLiveMap();
 
             if (liveMap && typeof L !== "undefined") {
@@ -3165,12 +3179,12 @@ async function scanForNewOrders(initialScan = false) {
         } = await supabaseClient
             .from("orders")
             .select("*")
-            .eq("status", "ready_for_pickup")
-            .is("rider_id", null)
+            .eq("rider_id", currentRider.id)
+            .in("status", ["accepted", "arrived_at_vendor", "picked_up", "arrived_at_customer"])
             .order("created_at", {
                 ascending: false
             })
-            .limit(30);
+            .limit(10);
 
         if (error) throw error;
 
@@ -3276,7 +3290,8 @@ function handleRealtimeOrder(payload) {
     const order = payload?.new;
     if (!order?.id) return;
 
-    if (order.status !== "ready_for_pickup" || order.rider_id) return;
+    if (order.rider_id !== currentRider?.id) return;
+    if (!["accepted", "arrived_at_vendor", "picked_up", "arrived_at_customer"].includes(order.status)) return;
     if (seenOrderIds.has(order.id)) return;
 
     seenOrderIds.add(order.id);
