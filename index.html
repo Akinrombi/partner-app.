@@ -3101,27 +3101,22 @@ function updateOnlineUI() {
 
 function startScanner() {
 
-    if (!supabaseClient) return;
-
-    if (!isOnline) return;
-
-    if (scannerTimer) return;
-
-    scannerInitialized = false;
+    if (!supabaseClient || !isOnline || !navigator.onLine) return;
+    if (currentOrder || pendingDetectedOrder || scannerTimer) return;
 
     updateOnlineUI();
 
-    // First scan is silent to avoid alerts for existing orders.
-    scanForNewOrders(true);
+    // Re-check immediately whenever scanning starts or resumes.
+    scanForNewOrders(!scannerInitialized);
 
     scannerTimer = setInterval(() => {
-
-        scanForNewOrders(false);
-
+        // Keep polling resilient; individual request failures are handled inside scanForNewOrders.
+        if (document.visibilityState === "visible" && navigator.onLine && isOnline) {
+            scanForNewOrders(false);
+        }
     }, 7000);
 
     listenForOrders();
-
 }
 
 
@@ -3301,6 +3296,9 @@ function showNewOrderDetected(order) {
 
     lastDetectedOrderId = order.id;
     pendingDetectedOrder = order;
+
+    // Stop scanning only after an order has actually been detected.
+    stopScanner();
 
     const flash = document.getElementById("scannerFlash");
     if (flash) {
@@ -3941,6 +3939,18 @@ window.addEventListener("online", () => {
     showToast("Internet connection restored");
     if (typeof startScanner === "function") startScanner();
 });
+
+function resumeRiderScanner() {
+    if (document.visibilityState !== "visible") return;
+    updateNetworkBanner();
+    if (navigator.onLine && isOnline && !currentOrder && !pendingDetectedOrder) {
+        startScanner();
+    }
+}
+
+document.addEventListener("visibilitychange", resumeRiderScanner);
+window.addEventListener("pageshow", resumeRiderScanner);
+window.addEventListener("focus", resumeRiderScanner);
 
 window.addEventListener("offline", () => {
     updateNetworkBanner();
