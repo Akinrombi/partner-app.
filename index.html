@@ -3405,6 +3405,15 @@ function showNewOrderDetected(order) {
     if (!order?.id) return;
     if (lastDetectedOrderId === order.id) return;
 
+    // A rider must handle one delivery at a time. Do not interrupt an active
+    // delivery with a second popup; keep the order marked as seen and recover
+    // the active delivery through the normal scan after completion.
+    if (hasActiveAssignedDelivery() || (currentOrder && currentOrder.id !== order.id)) {
+        seenOrderIds.add(order.id);
+        console.warn("Ignoring extra assigned order alert while another delivery is active:", order.id);
+        return;
+    }
+
     lastDetectedOrderId = order.id;
     pendingDetectedOrder = order;
 
@@ -4078,7 +4087,16 @@ window.addEventListener("online", () => {
 function resumeRiderScanner() {
     if (document.visibilityState !== "visible") return;
     updateNetworkBanner();
-    if (navigator.onLine && isOnline && !currentOrder && !pendingDetectedOrder) {
+
+    if (!navigator.onLine || !isOnline) return;
+
+    // Re-fetch the rider's assigned delivery when returning to the app.
+    // This recovers status changes that happened while the app was backgrounded.
+    if (currentRider?.id && currentRider.id !== "demo-rider" && !scannerBusy) {
+        scanForNewOrders(!scannerInitialized);
+    }
+
+    if (!currentOrder && !pendingDetectedOrder) {
         startScanner();
     }
 }
