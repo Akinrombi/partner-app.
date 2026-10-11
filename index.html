@@ -1647,9 +1647,33 @@ input:focus, select:focus, textarea:focus {
 .offline-order-note{padding:12px 14px;margin:10px 0;border-radius:14px;background:#fff8df;border:1px solid #f2df9b;color:#72530b;font-size:12px;line-height:1.45}
 </style>
 
+
+<style id="qe-startup-splash-styles">
+#qeStartupSplash{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:24px;background:radial-gradient(circle at 50% 35%,#126b4d 0%,#063f35 48%,#031e19 100%);color:#fff;opacity:1;visibility:visible;transition:opacity .35s ease,visibility .35s ease}
+#qeStartupSplash.qe-splash-hidden{opacity:0;visibility:hidden;pointer-events:none}
+.qe-splash-lockup{display:flex;align-items:center;justify-content:center;gap:12px}
+.qe-splash-symbol{width:66px;height:66px;border-radius:22px 22px 22px 7px;display:grid;place-items:center;background:linear-gradient(145deg,#d9ff83,#70e59d);color:#063f35;font-size:40px;line-height:1;font-weight:1000;letter-spacing:-3px;box-shadow:0 12px 35px rgba(0,0,0,.22)}
+.qe-splash-name{font-size:clamp(32px,9vw,42px);font-weight:950;letter-spacing:-2px;line-height:1.02}
+.qe-splash-name span{color:#c8f169}
+.qe-splash-tag{margin-top:7px;font-size:10px;font-weight:900;letter-spacing:5px;color:#d9f5e6}
+.qe-splash-loading{margin-top:22px;width:118px;height:3px;border-radius:10px;background:rgba(255,255,255,.16);overflow:hidden}
+.qe-splash-loading:after{content:"";display:block;width:40%;height:100%;border-radius:10px;background:#c8f169;animation:qeSplashLoad 1.15s ease-in-out infinite}
+@keyframes qeSplashLoad{from{transform:translateX(-120%)}to{transform:translateX(300%)}}
+@media(prefers-reduced-motion:reduce){#qeStartupSplash{transition:none}.qe-splash-loading:after{animation:none;width:100%}}
+</style>
+
 </head>
 
 <body>
+
+<div id="qeStartupSplash" role="status" aria-label="QuickEats Rider loading">
+  <div class="qe-splash-lockup">
+    <div class="qe-splash-symbol" aria-hidden="true">Q</div>
+    <div><div class="qe-splash-name">Quick<span>Eats</span></div><div class="qe-splash-tag">RIDER</div></div>
+  </div>
+  <div class="qe-splash-loading" aria-hidden="true"></div>
+</div>
+
 
 <!-- LOGIN -->
 <div id="loginPage" class="login-page">
@@ -4388,6 +4412,23 @@ window.addEventListener("beforeunload", () => {
             .catch(() => {});
     }
 });
+</script>
+<script>
+
+/* Hide the branded startup screen after the page has had a moment to initialize. */
+(function showQuickEatsStartupSplash(){
+  const splash = document.getElementById("qeStartupSplash");
+  if (!splash) return;
+  const dismiss = () => {
+    splash.classList.add("qe-splash-hidden");
+    window.setTimeout(() => splash.remove(), 450);
+  };
+  if (document.readyState === "complete") window.setTimeout(dismiss, 1100);
+  else window.addEventListener("load", () => window.setTimeout(dismiss, 650), {once:true});
+  // Fallback so a slow third-party script never leaves the splash covering the page.
+  window.setTimeout(dismiss, 4500);
+})();
+
 </script>
 </body>
 </html>
