@@ -3195,9 +3195,9 @@ async function scanForNewOrders(initialScan = false) {
                 !hasActiveAssignedDelivery() &&
                 !currentOrder
             ) {
-
+                // An available order was found: stop scanning until the rider handles it.
+                stopScanner();
                 showOrder(orders[0], false);
-
             }
 
         } else {
