@@ -1641,6 +1641,13 @@ html, body {
             <div id="profileName" class="profile-name">Rider</div>
             <div id="profileEmail" class="profile-email">---</div>
 
+            <section class="support-card" aria-labelledby="riderSafetyTitle" style="margin-bottom:16px;border:1px solid #f2c9c9;">
+                <h3 id="riderSafetyTitle">Rider safety check-in</h3>
+                <p>Share your current location and delivery details with someone you trust. This opens your phone's share options; it does not contact emergency services automatically.</p>
+                <button class="support-submit" type="button" style="background:#b42318;" onclick="shareRiderSafetyCheckIn()">🛡️ Share safety check-in</button>
+                <p id="safetyFeedback" class="support-feedback" role="status"></p>
+            </section>
+
             <section class="support-card" aria-labelledby="supportTitle">
                 <h3 id="supportTitle">Rider Support</h3>
                 <p>Report a delivery, payment, restaurant, or app problem.</p>
@@ -3921,6 +3928,37 @@ function escapeHtml(value) {
 }
 
 
+
+/* Rider safety check-in: share only after an explicit tap; no location is sent automatically. */
+async function shareRiderSafetyCheckIn() {
+  const feedback = document.getElementById("safetyFeedback");
+  const orderRef = currentOrder?.id ? "\nActive order: " + currentOrder.id : "\nNo active order shown in the app";
+  let locationLine = "Current location: unavailable. Open the app and enable GPS first.";
+  if (riderPosition && Number.isFinite(riderPosition.lat) && Number.isFinite(riderPosition.lng)) {
+    const mapsUrl = "https://maps.google.com/?q=" + encodeURIComponent(riderPosition.lat + "," + riderPosition.lng);
+    locationLine = "My current location: " + mapsUrl + "\nGPS accuracy: approximately " + Math.round(riderPosition.accuracy || 0) + " metres";
+  }
+  const message = "QUICKEATS RIDER SAFETY CHECK-IN\nPlease check on me.\nRider: " +
+    (currentRider?.email || currentRider?.id || "Not signed in") + orderRef + "\n" + locationLine +
+    "\nTime: " + new Date().toLocaleString();
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: "QuickEats rider safety check-in", text: message });
+      if (feedback) feedback.textContent = "Share sheet opened. Choose a trusted contact to send this check-in.";
+    } else if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(message);
+      if (feedback) feedback.textContent = "Check-in copied. Paste it into a message to someone you trust.";
+      showToast("Safety check-in copied");
+    } else {
+      window.prompt("Copy this safety check-in and send it to someone you trust:", message);
+      if (feedback) feedback.textContent = "Copy the message and send it to a trusted contact.";
+    }
+  } catch (error) {
+    if (error?.name === "AbortError") return;
+    console.error("Safety check-in share failed:", error);
+    if (feedback) feedback.textContent = "Could not open sharing. Try again or open your map and share your location manually.";
+  }
+}
 
 /* Rider support report. This prepares a report for the device email app; it does not claim the report was sent to a backend. */
 function submitRiderSupport(){
