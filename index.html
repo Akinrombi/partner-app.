@@ -2333,7 +2333,7 @@ async function enterApp() {
     document.getElementById("avatar").textContent =
         name.charAt(0).toUpperCase();
 
-    isOnline = currentRider?.approval_status === "approved";
+    isOnline = currentRider?.approval_status === "approved" && currentRider?.is_online === true;
 
     updateOnlineUI();
     updateRiderApplicationUI();
@@ -3028,34 +3028,42 @@ async function navigateToOrderLocation(type) {
    ONLINE / OFFLINE
 ============================================================ */
 
-function toggleOnline() {
-
+async function toggleOnline() {
     if (currentRider?.id !== "demo-rider" && currentRider?.approval_status !== "approved") {
         showToast("Complete rider verification and wait for approval first.");
         updateRiderApplicationUI();
         return;
     }
-
     unlockAudio();
-
-    isOnline = !isOnline;
-
-    updateOnlineUI();
-
-    if (isOnline) {
-
-        showToast("Scanner online");
-
-        startScanner();
-
-    } else {
-
-        stopScanner();
-
-        showToast("Scanner paused");
-
+    const nextOnline = !isOnline;
+    if (nextOnline && currentRider?.id !== "demo-rider" && !riderPosition) {
+        startLiveGPS(false);
     }
-
+    if (currentRider?.id !== "demo-rider" && currentRider?.id) {
+        try {
+            const update = { is_online: nextOnline };
+            if (nextOnline && riderPosition) {
+                update.lat = riderPosition.lat;
+                update.lng = riderPosition.lng;
+                update.location_updated_at = new Date().toISOString();
+            }
+            const { error } = await supabaseClient.from("riders").update(update).eq("id", currentRider.id);
+            if (error) throw error;
+        } catch (error) {
+            console.error("Could not update rider availability:", error);
+            showToast("Could not update online status. Check connection and permissions.");
+            return;
+        }
+    }
+    isOnline = nextOnline;
+    updateOnlineUI();
+    if (isOnline) {
+        showToast("You're online and ready for deliveries.");
+        startScanner();
+    } else {
+        stopScanner();
+        showToast("You're offline. New orders are paused.");
+    }
 }
 
 
@@ -3396,16 +3404,11 @@ function hideOrderPopup() {
 
 function hasActiveAssignedDelivery() {
     if (!currentOrder) return false;
-
     const activeStatuses = [
-        "rider_accepted",
-        "arrived_pickup",
-        "picked_up",
-        "on_the_way"
+        "accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup",
+        "picked_up", "on_the_way", "arrived_at_customer"
     ];
-
-    return !!currentOrder.rider_id &&
-        activeStatuses.includes(currentOrder.status);
+    return !!currentOrder.rider_id && activeStatuses.includes(currentOrder.status);
 }
 
 
@@ -3712,10 +3715,8 @@ async function refreshStats() {
         const orders = data || [];
 
         const activeStatuses = [
-            "rider_accepted",
-            "arrived_pickup",
-            "picked_up",
-            "on_the_way"
+            "accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup",
+            "picked_up", "on_the_way", "arrived_at_customer"
         ];
 
         const active = orders.filter(order =>
