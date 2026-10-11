@@ -1554,6 +1554,40 @@ input:focus,textarea:focus,select:focus{outline:none!important;border-color:#12a
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 
 </style>
+
+<style id="quickeats-color-proof">
+/* QUICKEATS-COLOR-PROOF-2026-10-11: intentionally bold temporary palette to verify the live CSS */
+:root {
+  --qe-proof-purple: #6d28d9 !important;
+  --qe-proof-violet: #8b5cf6 !important;
+  --qe-proof-orange: #ff8a00 !important;
+  --qe-proof-cream: #fff7e8 !important;
+}
+html body { background: #fff7e8 !important; }
+body, body * { --primary-color: #6d28d9; }
+header, .header, .topbar, .top-bar, .navbar, nav.top-nav, .welcome-banner,
+.welcome-card, .hero, .dashboard-header, .app-header {
+  background: linear-gradient(120deg,#4c1d95 0%,#7c3aed 58%,#a855f7 100%) !important;
+  color: #fff !important;
+}
+button, .btn, .button, input[type="submit"], .primary-btn, .btn-primary,
+.bottom-nav a.active, .bottom-nav button.active, .nav-item.active {
+  background: #ff8a00 !important;
+  border-color: #ff8a00 !important;
+  color: #241044 !important;
+}
+.card, .stat-card, .order-card, .earnings-card, .profile-card, .support-card,
+.dashboard-card, .panel, .modal-content, .content-card {
+  border-color: #e9d5ff !important;
+  box-shadow: 0 8px 24px rgba(109,40,217,.14) !important;
+}
+a { color: #6d28d9; }
+input:focus, select:focus, textarea:focus {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 3px rgba(139,92,246,.2) !important;
+}
+</style>
+
 </head>
 
 <body>
