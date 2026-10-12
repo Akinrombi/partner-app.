@@ -1662,6 +1662,52 @@ input:focus, select:focus, textarea:focus {
 @media(prefers-reduced-motion:reduce){#qeStartupSplash{transition:none}.qe-splash-loading:after{animation:none;width:100%}}
 </style>
 
+
+<style id="shopmate-inspired-rider-polish">
+/* ShopMate-inspired visual language adapted for the rider workflow */
+:root{
+  --qe-mint:#e9f8f1;--qe-mint-strong:#c9f0df;--qe-forest:#075b43;
+  --qe-leaf:#0a8a55;--qe-ink:#182923;--qe-muted:#7a8982;
+  --qe-line:#e7eee9;--qe-canvas:#f7faf8;
+}
+html,body{background:var(--qe-canvas)!important;color:var(--qe-ink)!important}
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
+.app{background:transparent!important}
+.welcome,.dashboard-header,.earnings-card,.order-card,.stat,.panel,.section-card,.card{
+  border-radius:22px!important;
+}
+.welcome{
+  background:linear-gradient(135deg,#e8f8f0 0%,#c9f0df 55%,#a7e5ca 100%)!important;
+  color:var(--qe-forest)!important;border:1px solid rgba(10,138,85,.08)!important;
+  box-shadow:0 8px 24px rgba(7,91,67,.06)!important;
+}
+.welcome h1,.welcome h2,.welcome h3{color:var(--qe-forest)!important;letter-spacing:-.035em!important}
+.stat,.order-card,.panel,.section-card,.card{
+  background:#fff!important;border:1px solid var(--qe-line)!important;
+  box-shadow:0 7px 22px rgba(21,52,36,.045)!important;
+}
+.stat-label,.muted,.subtext{color:var(--qe-muted)!important}
+.stat-value{color:var(--qe-forest)!important;letter-spacing:-.035em!important}
+button,.primary-btn,.action-btn,.online-toggle{
+  transition:transform .16s ease,box-shadow .16s ease,background .16s ease!important;
+}
+button:active,.primary-btn:active,.action-btn:active{transform:scale(.98)!important}
+.primary-btn,.action-btn{
+  background:linear-gradient(135deg,#0b925b,#075b43)!important;color:#fff!important;
+  border:0!important;border-radius:16px!important;box-shadow:0 7px 16px rgba(7,91,67,.15)!important;
+}
+input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!important}
+.bottom-nav{
+  background:rgba(255,255,255,.96)!important;border:1px solid #e4eee7!important;
+  box-shadow:0 12px 32px rgba(15,55,35,.14)!important;border-radius:25px!important;
+}
+.nav-btn.active{background:#e5f6ed!important;color:#075b43!important}
+.nav-btn{border-radius:17px!important}
+.logo{color:#075b43!important}
+#qeStartupSplash{background:linear-gradient(160deg,#e9fbf3 0%,#bcebd5 55%,#075b43 100%)!important}
+#qeStartupSplash .qe-splash-brand,#qeStartupSplash .qe-splash-wordmark{color:#075b43!important}
+@media(min-width:700px){.app{max-width:560px!important;margin-inline:auto!important}}
+</style>
 </head>
 
 <body>
