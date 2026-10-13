@@ -1860,6 +1860,17 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
   #homePage #orderCard:not(.hidden){max-height:calc(100dvh - 190px - env(safe-area-inset-bottom,0px))!important;overflow-y:auto!important;overscroll-behavior:contain!important}
 }
 </style>
+
+<style id="section-1-onboarding-polish">
+/* Section 1: make rider application requirements and account details clearer. */
+#riderApplicationPanel .support-card,
+#riderApplicationPanel .application-card{border-radius:18px}
+#riderDocumentFields input[type="file"]{width:100%;box-sizing:border-box;padding:12px;border:1px solid #d7e5dc;border-radius:12px;background:#f8fcf9;margin:6px 0 12px}
+#riderApplicationStatus{line-height:1.55;overflow-wrap:anywhere}
+#riderApplicationFeedback,#profileDetailsFeedback,#payoutFeedback{line-height:1.5;overflow-wrap:anywhere}
+#profilePage .support-card input,#profilePage .support-card select{width:100%;box-sizing:border-box;min-height:48px;margin:6px 0 14px;padding:12px;border-radius:12px}
+#profilePage .support-card button{min-height:48px}
+</style>
 </head>
 
 <body>
@@ -2725,7 +2736,11 @@ async function loadRider() {
 ============================================================ */
 const RIDER_DOCS = {
   bicycle: [["government_id", "Government-issued ID"]],
-  motorbike: [["government_id", "Government-issued ID"]]
+  motorbike: [
+    ["government_id", "Government-issued ID"],
+    ["driver_license", "Valid driver's license"],
+    ["vehicle_registration", "Vehicle registration document"]
+  ]
 };
 
 function renderRiderDocumentFields() {
@@ -2753,8 +2768,8 @@ function updateRiderApplicationUI() {
   });
   const messages = {
     pending: currentRider.documents_submitted_at
-      ? "Your government-issued ID has been submitted. Your account is awaiting administrator verification. Your dashboard will open after approval."
-      : "Upload your government-issued ID to register. Your dashboard will open after administrator verification.",
+      ? "Your required documents have been submitted. Your account is awaiting administrator verification. Your dashboard will open after approval."
+      : "Upload the required documents for your vehicle type. Your dashboard will open after administrator verification.",
     rejected: "Your application was rejected. Review the note from QuickEats support and resubmit your documents.",
     needs_resubmission: "QuickEats needs you to resubmit your documents. Please upload clear, valid files.",
     approved: "Your rider account is approved."
@@ -2811,7 +2826,7 @@ async function submitRiderApplication() {
     const { data: rider, error: riderError } = await supabaseClient.from("riders").select("*").eq("user_id", currentUser.id).single();
     if (riderError) throw riderError;
     currentRider = { ...currentRider, ...rider };
-    feedback.textContent = "Government-issued ID submitted successfully. Your dashboard will appear after administrator approval.";
+    feedback.textContent = "Required documents submitted successfully. Your dashboard will appear after administrator approval.";
     updateRiderApplicationUI();
     showToast("Application submitted for review");
   } catch (error) {
