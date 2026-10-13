@@ -4450,7 +4450,7 @@ function renderEarnings() {
     });
     const total = filtered.reduce((sum, order) => sum + getDeliveryFee(order), 0);
     if (totalNode) totalNode.textContent = money(total);
-    if (summaryNode) summaryNode.textContent = filtered.length + " completed delivery" + (filtered.length === 1 ? "" : "ies") + " in this period.";
+    if (summaryNode) summaryNode.textContent = filtered.length + " completed " + (filtered.length === 1 ? "delivery" : "deliveries") + " in this period.";
     if (!list) return;
     if (!filtered.length) {
         list.innerHTML = '<div class="empty-order">' +
