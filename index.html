@@ -1876,6 +1876,10 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
 .google-map-state{min-height:260px;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:22px;color:#18382a;background:#edf5f0}
 .google-map-state p{font-size:13px;line-height:1.5;max-width:290px;overflow-wrap:anywhere}.google-map-state small{color:#62746a}
 </style>
+
+<style id="earnings-history-filters">
+.earnings-filter-label{display:block;font-size:13px;font-weight:700;color:#365346;margin:12px 0 6px}.earnings-period{width:100%;min-height:44px;padding:10px 12px;border:1px solid #d6e4dc;border-radius:12px;background:#fff;color:#173b29;font:inherit}.earnings-summary{font-size:13px;color:#52685c;margin:10px 0 14px}.earning-item{gap:12px}
+</style>
 </head>
 
 <body>
@@ -2146,8 +2150,15 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
             <div id="totalEarnings" class="balance">₦0</div>
         </section>
 
-        <div class="section-title">Recent Deliveries</div>
-
+        <div class="section-title">Earnings history</div>
+        <label for="earningsPeriod" class="earnings-filter-label">Show deliveries</label>
+        <select id="earningsPeriod" class="earnings-period" onchange="renderEarnings()" aria-label="Filter earnings by date">
+            <option value="all">All time</option>
+            <option value="today">Today</option>
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+        </select>
+        <div id="earningsSummary" class="earnings-summary" role="status"></div>
         <div id="earningsList">
             <div class="empty-order">
                 No completed deliveries yet.
@@ -4422,50 +4433,45 @@ async function loadCompletedOrders() {
 function renderEarnings() {
     const list = document.getElementById("earningsList");
     const totalNode = document.getElementById("totalEarnings");
-    const total = (completedOrders || []).reduce(
-        (sum, order) => sum + getDeliveryFee(order),
-        0
-    );
-
+    const summaryNode = document.getElementById("earningsSummary");
+    const period = document.getElementById("earningsPeriod")?.value || "all";
+    const allOrders = Array.isArray(completedOrders) ? completedOrders : [];
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (period === "7") start.setDate(start.getDate() - 6);
+    if (period === "30") start.setDate(start.getDate() - 29);
+    const filtered = allOrders.filter(order => {
+        if (period === "all") return true;
+        const rawDate = order.delivered_at || order.updated_at || order.created_at;
+        if (!rawDate) return false;
+        const date = new Date(rawDate);
+        if (Number.isNaN(date.getTime())) return false;
+        return date >= start && date <= now;
+    });
+    const total = filtered.reduce((sum, order) => sum + getDeliveryFee(order), 0);
     if (totalNode) totalNode.textContent = money(total);
-
-    if (!completedOrders || !completedOrders.length) {
-        if (list) list.innerHTML = `
-            <div class="empty-order">
-                No completed deliveries yet.
-            </div>
-        `;
+    if (summaryNode) summaryNode.textContent = filtered.length + " completed delivery" + (filtered.length === 1 ? "" : "ies") + " in this period.";
+    if (!list) return;
+    if (!filtered.length) {
+        list.innerHTML = '<div class="empty-order">' +
+            (allOrders.length ? "No completed deliveries in this date range." : "No completed deliveries yet.") +
+            '</div>';
         return;
     }
-
-    if (!list) return;
-
-    list.innerHTML = completedOrders.map(order => {
-        const date =
-            order.delivered_at ||
-            order.updated_at ||
-            order.created_at;
-
-        return `
-            <div class="earning-item">
-                <div>
-                    <strong>
-                        Order #${escapeHtml(getOrderNumber(order))}
-                    </strong>
-                    <br>
-                    <small>${escapeHtml(getRestaurant(order))}</small>
-                    <br>
-                    <small>
-                        ${date ? new Date(date).toLocaleDateString("en-NG") : ""}
-                    </small>
-                </div>
-
-                <strong>${money(getDeliveryFee(order))}</strong>
-            </div>
-        `;
+    list.innerHTML = filtered.slice().sort((a,b) =>
+        new Date(b.delivered_at || b.updated_at || b.created_at || 0) -
+        new Date(a.delivered_at || a.updated_at || a.created_at || 0)
+    ).map(order => {
+        const date = order.delivered_at || order.updated_at || order.created_at;
+        const formattedDate = date && !Number.isNaN(new Date(date).getTime())
+            ? new Date(date).toLocaleDateString("en-NG", {day:"numeric",month:"short",year:"numeric"}) : "Date unavailable";
+        return '<div class="earning-item"><div><strong>Order #' +
+            escapeHtml(getOrderNumber(order)) + '</strong><br><small>' +
+            escapeHtml(getRestaurant(order)) + '</small><br><small>' +
+            escapeHtml(formattedDate) + '</small></div><strong>' +
+            money(getDeliveryFee(order)) + '</strong></div>';
     }).join("");
 }
-
 
 /* ============================================================
    LOGOUT
