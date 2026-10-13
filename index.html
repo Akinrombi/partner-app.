@@ -1838,6 +1838,28 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
 @media(max-width:480px){#loginPage{padding:20px 14px!important;align-items:flex-start;overflow-y:auto}#loginPage .login-card{margin:auto 0;padding:28px 20px!important;gap:0}#loginPage .login-subtitle{margin-bottom:20px}}
 </style>
 
+
+<style id="section-2-3-delivery-earnings-layout">
+/* Section 2: keep earnings totals in sync with completed delivery history. */
+/* Section 3: keep the map-first layout usable on small phones and leave room for navigation. */
+@media(max-width:699px){
+  #earningsPage.page.active,#profilePage.page.active{
+    display:block!important;position:fixed!important;inset:0!important;
+    width:100%!important;height:100dvh!important;max-height:100dvh!important;
+    overflow-y:auto!important;overscroll-behavior:contain!important;
+    -webkit-overflow-scrolling:touch!important;
+    padding:calc(env(safe-area-inset-top,0px) + 104px) 16px calc(88px + env(safe-area-inset-bottom,0px))!important;
+    margin:0!important;box-sizing:border-box!important;
+  }
+  #earningsPage .balance-card{margin:12px 0 22px!important}
+  #earningsPage #earningsList{display:flex;flex-direction:column;gap:10px;padding-bottom:10px}
+  #earningsPage .earning-item{gap:12px;align-items:center;min-width:0}
+  #earningsPage .earning-item>div{min-width:0;overflow-wrap:anywhere}
+  #earningsPage .earning-item>strong{white-space:nowrap}
+  .bottom-nav{height:70px!important;padding-bottom:env(safe-area-inset-bottom,0px)!important;box-sizing:content-box!important;z-index:900!important}
+  #homePage #orderCard:not(.hidden){max-height:calc(100dvh - 190px - env(safe-area-inset-bottom,0px))!important;overflow-y:auto!important;overscroll-behavior:contain!important}
+}
+</style>
 </head>
 
 <body>
@@ -4369,15 +4391,24 @@ async function loadCompletedOrders() {
 
 function renderEarnings() {
     const list = document.getElementById("earningsList");
+    const totalNode = document.getElementById("totalEarnings");
+    const total = (completedOrders || []).reduce(
+        (sum, order) => sum + getDeliveryFee(order),
+        0
+    );
 
-    if (!completedOrders.length) {
-        list.innerHTML = `
+    if (totalNode) totalNode.textContent = money(total);
+
+    if (!completedOrders || !completedOrders.length) {
+        if (list) list.innerHTML = `
             <div class="empty-order">
                 No completed deliveries yet.
             </div>
         `;
         return;
     }
+
+    if (!list) return;
 
     list.innerHTML = completedOrders.map(order => {
         const date =
