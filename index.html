@@ -1815,7 +1815,7 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
 }
 </style>
 
-</head>
+<style id="section-one-polish">#profilePage .support-card input,#profilePage .support-card select,#phoneOtpPanel input{display:block;width:100%;box-sizing:border-box;padding:11px;border:1px solid #dce7e0;border-radius:11px;margin:6px 0 12px;background:#fff;color:#182923}#phoneOtpPanel.hidden,#otpCodeRow.hidden,#verifyOtpBtn.hidden{display:none!important}</style></head>
 
 <body>
 
@@ -1846,7 +1846,7 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
         <input id="passwordInput" type="password" autocomplete="current-password" minlength="8" placeholder="Password (at least 8 characters)">
         <button id="authSubmitBtn" class="primary-btn" onclick="loginRider()">LOGIN</button>
         <button class="text-btn" type="button" onclick="resetRiderPassword()">Forgot password?</button>
-        <button class="demo-btn" onclick="demoLogin()">DEMO RIDER (PREVIEW ONLY)</button>
+<button class="text-btn" type="button" onclick="togglePhoneOtpPanel()">Use phone number + OTP</button><section id="phoneOtpPanel" class="support-card hidden"><label for="otpPhoneInput">Phone number with country code</label><input id="otpPhoneInput" type="tel" placeholder="+2348012345678"><div id="otpCodeRow" class="hidden"><label for="otpCodeInput">6-digit verification code</label><input id="otpCodeInput" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div><button id="sendOtpBtn" class="primary-btn" type="button" onclick="sendRiderPhoneOtp()">SEND CODE</button><button id="verifyOtpBtn" class="primary-btn hidden" type="button" onclick="verifyRiderPhoneOtp()">VERIFY &amp; SIGN IN</button><p id="otpFeedback" role="status"></p></section>\n        <button class="demo-btn" onclick="demoLogin()">DEMO RIDER (PREVIEW ONLY)</button>
         <div id="loginError" class="login-error" role="status" aria-live="polite"></div>
     </div>
 </div>
@@ -1879,7 +1879,7 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
         <select id="riderVehicleType" onchange="renderRiderDocumentFields()" style="width:100%;padding:12px;margin:8px 0 14px;border-radius:10px">
           <option value="bicycle">Bicycle</option><option value="motorbike">Motorbike</option>
         </select>
-        <div id="riderDocumentFields"></div>
+<label for="riderVehicleNumber">Vehicle registration / number</label><input id="riderVehicleNumber" maxlength="32" placeholder="Enter your vehicle number" style="width:100%;padding:12px;border:1px solid #d9e2dc;border-radius:10px;margin-bottom:8px">        <div id="riderDocumentFields"></div>
         <button id="submitRiderApplicationBtn" class="support-submit" onclick="submitRiderApplication()">SUBMIT FOR REVIEW</button>
         <p id="riderApplicationFeedback" role="status" class="support-feedback"></p>
       </div>
@@ -2099,7 +2099,7 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
         <div class="section-title">Profile</div>
 
         <section class="profile-card">
-            <div id="avatar" class="avatar">R</div>
+<section class="support-card"><h3>Rider profile details</h3><label for="profilePhotoInput">Profile photo</label><input id="profilePhotoInput" type="file" accept="image/jpeg,image/png,image/webp"><label for="profileVehicleType">Vehicle type</label><select id="profileVehicleType"><option value="bicycle">Bicycle</option><option value="motorbike">Motorbike</option></select><label for="profileVehicleNumber">Vehicle registration / number</label><input id="profileVehicleNumber" maxlength="32" placeholder="Vehicle number"><button class="support-submit" type="button" onclick="saveRiderProfileDetails()">Save profile details</button><p id="profileDetailsFeedback" role="status"></p></section><section class="support-card"><h3>Bank / payout details</h3><p>Saving details does not initiate a payout.</p><label for="payoutBankName">Bank name</label><input id="payoutBankName" maxlength="80" placeholder="Bank name"><label for="payoutAccountName">Account name</label><input id="payoutAccountName" maxlength="100" placeholder="Name on bank account"><label for="payoutAccountNumber">Account number</label><input id="payoutAccountNumber" inputmode="numeric" maxlength="20" placeholder="Account number"><button class="support-submit" type="button" onclick="saveRiderPayoutDetails()">Save payout details</button><p id="payoutFeedback" role="status"></p></section>            <div id="avatar" class="avatar">R</div>
             <div id="profileName" class="profile-name">Rider</div>
             <div id="profileEmail" class="profile-email">---</div>
 
@@ -2473,6 +2473,13 @@ function vibrateDetection() {
 
 let riderAuthMode = "login";
 
+let pendingOtpPhone="";
+function togglePhoneOtpPanel(){document.getElementById("phoneOtpPanel")?.classList.toggle("hidden");}
+async function sendRiderPhoneOtp(){const phone=document.getElementById("otpPhoneInput").value.trim(),f=document.getElementById("otpFeedback"),b=document.getElementById("sendOtpBtn");f.textContent="";if(!supabaseClient){f.textContent="Connection not ready.";return;}if(!/^\+[1-9]\d{7,14}$/.test(phone)){f.textContent="Enter a valid phone number with country code.";return;}b.disabled=true;try{const {error}=await supabaseClient.auth.signInWithOtp({phone,options:{shouldCreateUser:false}});if(error)throw error;pendingOtpPhone=phone;document.getElementById("otpCodeRow").classList.remove("hidden");document.getElementById("verifyOtpBtn").classList.remove("hidden");f.textContent="Code sent. Check SMS.";}catch(e){f.textContent=e.message||"Could not send code. Configure Supabase phone authentication and an SMS provider.";}finally{b.disabled=false;b.textContent="RESEND CODE";}}
+async function verifyRiderPhoneOtp(){const token=document.getElementById("otpCodeInput").value.trim(),f=document.getElementById("otpFeedback"),b=document.getElementById("verifyOtpBtn");if(!pendingOtpPhone){f.textContent="Request a code first.";return;}if(!/^\d{6}$/.test(token)){f.textContent="Enter the 6-digit code.";return;}b.disabled=true;try{const {data,error}=await supabaseClient.auth.verifyOtp({phone:pendingOtpPhone,token,type:"sms"});if(error)throw error;currentUser=data.user;await loadRider();}catch(e){f.textContent=e.message||"Code verification failed.";}finally{b.disabled=false;}}
+async function saveRiderProfileDetails(){const f=document.getElementById("profileDetailsFeedback");f.textContent="";if(!supabaseClient||!currentRider?.id||currentRider.id==="demo-rider"){f.textContent="Sign in with a real rider account to save details.";return;}const vehicle_type=document.getElementById("profileVehicleType").value,vehicle_number=document.getElementById("profileVehicleNumber").value.trim(),photo=document.getElementById("profilePhotoInput").files?.[0];if(vehicle_number.length<2){f.textContent="Enter a valid vehicle number.";return;}if(photo&&(!["image/jpeg","image/png","image/webp"].includes(photo.type)||photo.size>5*1024*1024)){f.textContent="Photo must be JPG, PNG, or WebP under 5 MB.";return;}try{let profile_photo_path=currentRider.profile_photo_path||null;if(photo){profile_photo_path=currentUser.id+"/profile_"+Date.now()+"."+photo.name.split(".").pop().toLowerCase();const {error}=await supabaseClient.storage.from("rider-documents").upload(profile_photo_path,photo,{upsert:true,contentType:photo.type});if(error)throw error;}const {error}=await supabaseClient.from("riders").update({vehicle_type,vehicle_number,profile_photo_path}).eq("id",currentRider.id);if(error)throw error;currentRider={...currentRider,vehicle_type,vehicle_number,profile_photo_path};f.textContent="Profile details saved.";}catch(e){f.textContent=e.message||"Could not save profile details.";}}
+async function loadRiderPayoutDetails(){if(!supabaseClient||!currentRider?.id||currentRider.id==="demo-rider")return;try{const {data,error}=await supabaseClient.from("rider_payout_details").select("bank_name,account_name,account_number").eq("rider_id",currentRider.id).maybeSingle();if(error)throw error;if(data){payoutBankName.value=data.bank_name||"";payoutAccountName.value=data.account_name||"";payoutAccountNumber.value=data.account_number||"";}}catch(e){payoutFeedback.textContent="Could not load payout details. Check your connection.";}}
+async function saveRiderPayoutDetails(){const f=document.getElementById("payoutFeedback");f.textContent="";if(!supabaseClient||!currentRider?.id||currentRider.id==="demo-rider"){f.textContent="Sign in with a real rider account to save details.";return;}const bank_name=payoutBankName.value.trim(),account_name=payoutAccountName.value.trim(),account_number=payoutAccountNumber.value.replace(/\s/g,"");if(bank_name.length<2||account_name.length<2||!/^\d{8,20}$/.test(account_number)){f.textContent="Enter bank name, account name, and a valid account number.";return;}try{const {error}=await supabaseClient.from("rider_payout_details").upsert({rider_id:currentRider.id,bank_name,account_name,account_number,updated_at:new Date().toISOString()},{onConflict:"rider_id"});if(error)throw error;f.textContent="Payout details saved.";}catch(e){f.textContent=e.message||"Could not save payout details.";}}
 function setAuthMode(mode) {
     riderAuthMode = mode === "signup" ? "signup" : "login";
     const signup = riderAuthMode === "signup";
