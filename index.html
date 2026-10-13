@@ -2114,6 +2114,14 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
                 </div>
             </div>
 
+            <div id="orderInstructionsWrap" class="info-row" style="display:none;align-items:flex-start;">
+                <div class="info-icon">📝</div>
+                <div style="min-width:0;flex:1;">
+                    <div class="info-label">CUSTOMER / ORDER INSTRUCTIONS</div>
+                    <div id="orderInstructions" class="info-value" style="white-space:pre-wrap;overflow-wrap:anywhere;">No special instructions.</div>
+                </div>
+            </div>
+
             <div class="earn-box">
                 <div>
                     <div class="earn-label">YOUR DELIVERY EARNINGS</div>
@@ -2148,6 +2156,7 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
                     <div>
                         <div class="info-label">CUSTOMER PHONE</div>
                         <div id="customerPhone" class="info-value">---</div>
+                    <a id="callCustomerBtn" class="nav-action-btn" href="#" style="display:none;text-decoration:none;" aria-label="Call customer">📞 Call customer</a>
                     </div>
                 </div>
             </div>
@@ -4081,8 +4090,24 @@ function showOrder(order, animate = false) {
     document.getElementById("customerName").textContent =
         getCustomer(order);
 
-    document.getElementById("customerPhone").textContent =
-        getPhone(order);
+    const customerPhone = getPhone(order);
+    document.getElementById("customerPhone").textContent = customerPhone;
+    const callButton = document.getElementById("callCustomerBtn");
+    if (callButton) {
+        const digits = String(customerPhone || "").replace(/[^+\\d]/g, "");
+        callButton.href = digits ? "tel:" + digits : "#";
+        callButton.style.display = digits ? "inline-flex" : "none";
+    }
+    const instructionValue = [
+        order.special_instructions, order.customer_instructions, order.delivery_instructions,
+        order.order_notes, order.notes, order.landmark, order.delivery_landmark
+    ].find(value => typeof value === "string" && value.trim());
+    const instructionWrap = document.getElementById("orderInstructionsWrap");
+    const instructionNode = document.getElementById("orderInstructions");
+    if (instructionWrap && instructionNode) {
+        instructionWrap.style.display = instructionValue ? "flex" : "none";
+        instructionNode.textContent = instructionValue ? instructionValue.trim() : "";
+    }
 
     document.getElementById("deliveryFee").textContent =
         money(getDeliveryFee(order));
