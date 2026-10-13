@@ -1815,7 +1815,30 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
 }
 </style>
 
-<style id="section-one-polish">#profilePage .support-card input,#profilePage .support-card select,#phoneOtpPanel input{display:block;width:100%;box-sizing:border-box;padding:11px;border:1px solid #dce7e0;border-radius:11px;margin:6px 0 12px;background:#fff;color:#182923}#phoneOtpPanel.hidden,#otpCodeRow.hidden,#verifyOtpBtn.hidden{display:none!important}</style></head>
+<style id="section-one-polish">#profilePage .support-card input,#profilePage .support-card select,#phoneOtpPanel input{display:block;width:100%;box-sizing:border-box;padding:11px;border:1px solid #dce7e0;border-radius:11px;margin:6px 0 12px;background:#fff;color:#182923}#phoneOtpPanel.hidden,#otpCodeRow.hidden,#verifyOtpBtn.hidden{display:none!important}</style>
+<style id="login-signup-spacing-fix">
+/* Give the login and create-account screen clear breathing room on mobile. */
+#loginPage .login-card{display:flex;flex-direction:column;gap:0;padding:32px 24px!important}
+#loginPage .logo{margin-bottom:12px}
+#loginPage .login-subtitle{margin-bottom:22px}
+#loginPage .auth-tabs{margin:0 0 22px!important;gap:10px;padding:6px}
+#loginPage .signup-fields{display:grid;gap:14px;margin-bottom:2px}
+#loginPage .signup-fields.hidden{display:none!important}
+#loginPage input{margin:0 0 16px!important;min-height:50px;height:auto;padding:13px 14px!important;box-sizing:border-box;font-size:16px!important}
+#loginPage #authSubmitBtn{margin:8px 0 14px!important;min-height:52px;height:auto}
+#loginPage .text-btn{min-height:44px;padding:12px 10px!important;margin:3px 0!important;line-height:1.45}
+#loginPage #phoneOtpPanel{padding:16px!important;margin:8px 0 14px!important;border-radius:16px;display:flex;flex-direction:column;gap:10px}
+#loginPage #phoneOtpPanel.hidden{display:none!important}
+#loginPage #phoneOtpPanel label{display:block;margin:4px 0 6px;font-weight:650}
+#loginPage #phoneOtpPanel input{margin:0!important}
+#loginPage #phoneOtpPanel button{margin:4px 0!important;min-height:48px}
+#loginPage #phoneOtpPanel p{margin:4px 0 0;line-height:1.5;overflow-wrap:anywhere}
+#loginPage .demo-btn{margin:14px 0 0!important;min-height:48px;height:auto}
+#loginPage .login-error{margin-top:14px;line-height:1.5}
+@media(max-width:480px){#loginPage{padding:20px 14px!important;align-items:flex-start;overflow-y:auto}#loginPage .login-card{margin:auto 0;padding:28px 20px!important;gap:0}#loginPage .login-subtitle{margin-bottom:20px}}
+</style>
+
+</head>
 
 <body>
 
