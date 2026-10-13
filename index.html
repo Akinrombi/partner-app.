@@ -1880,6 +1880,10 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
 <style id="earnings-history-filters">
 .earnings-filter-label{display:block;font-size:13px;font-weight:700;color:#365346;margin:12px 0 6px}.earnings-period{width:100%;min-height:44px;padding:10px 12px;border:1px solid #d6e4dc;border-radius:12px;background:#fff;color:#173b29;font:inherit}.earnings-summary{font-size:13px;color:#52685c;margin:10px 0 14px}.earning-item{gap:12px}
 </style>
+
+<style id="rider-shift-controls">
+.shift-panel{margin:14px 0;padding:16px;border:1px solid #dcebe2;border-radius:18px;background:#fff}.shift-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.shift-panel-head h3{font-size:16px;color:#153d2a}.shift-panel-head p{font-size:12px;color:#65776c;margin-top:4px}.shift-panel-head strong{font-size:20px;color:#087f43;font-variant-numeric:tabular-nums}.shift-panel-actions{display:flex;gap:8px;margin-top:14px}.shift-panel-actions button{flex:1;min-width:0}.shift-secondary{background:#e8f4ed!important;color:#17603b!important}
+</style>
 </head>
 
 <body>
@@ -1956,6 +1960,15 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
         <section class="welcome">
             <h2>Ready for your next delivery?</h2>
             <p id="welcomeText">Your scanner is monitoring for new orders.</p>
+        </section>
+        <section class="support-card shift-panel" aria-labelledby="shiftTitle">
+            <div class="shift-panel-head"><div><h3 id="shiftTitle">My shift</h3><p id="shiftStatusText">Shift not started</p></div><strong id="shiftElapsed">00:00</strong></div>
+            <div class="shift-panel-actions">
+                <button id="shiftStartButton" type="button" class="support-submit" onclick="startRiderShift()">Start shift</button>
+                <button id="shiftEndButton" type="button" class="support-submit shift-secondary hidden" onclick="endRiderShift()">End shift</button>
+                <button id="breakToggleButton" type="button" class="support-submit shift-secondary hidden" onclick="toggleRiderBreak()">Take a break</button>
+            </div>
+            <p id="shiftFeedback" class="support-feedback" role="status">Shift time is tracked on this device.</p>
         </section>
 
         <!-- CINEMATIC SCANNER -->
@@ -4472,6 +4485,75 @@ function renderEarnings() {
             money(getDeliveryFee(order)) + '</strong></div>';
     }).join("");
 }
+
+/* ============================================================
+   SHIFT TRACKING AND BREAK MODE
+   This records a local shift timer; it does not claim payroll or
+   server-side timesheets are being submitted.
+============================================================ */
+let riderShiftState = { startedAt: null, endedAt: null, onBreak: false };
+let riderShiftTick = null;
+function loadRiderShift() {
+    try {
+        const saved = JSON.parse(localStorage.getItem("quickeats_rider_shift") || "null");
+        if (saved && typeof saved === "object") riderShiftState = {
+            startedAt: Number(saved.startedAt) || null,
+            endedAt: Number(saved.endedAt) || null,
+            onBreak: Boolean(saved.onBreak)
+        };
+    } catch (e) { console.warn("Could not restore shift timer", e); }
+    renderRiderShift();
+    if (riderShiftState.startedAt && !riderShiftState.endedAt) {
+        riderShiftTick = setInterval(renderRiderShift, 15000);
+    }
+}
+function persistRiderShift() {
+    try { localStorage.setItem("quickeats_rider_shift", JSON.stringify(riderShiftState)); }
+    catch (e) { console.warn("Could not save shift timer", e); }
+}
+function renderRiderShift() {
+    const elapsed = document.getElementById("shiftElapsed");
+    const status = document.getElementById("shiftStatusText");
+    const start = document.getElementById("shiftStartButton");
+    const end = document.getElementById("shiftEndButton");
+    const pause = document.getElementById("breakToggleButton");
+    const feedback = document.getElementById("shiftFeedback");
+    if (!elapsed || !status || !start || !end || !pause) return;
+    const active = Boolean(riderShiftState.startedAt && !riderShiftState.endedAt);
+    const seconds = riderShiftState.startedAt
+        ? Math.max(0, Math.floor(((riderShiftState.endedAt || Date.now()) - riderShiftState.startedAt) / 1000)) : 0;
+    elapsed.textContent = String(Math.floor(seconds / 3600)).padStart(2,"0") + ":" +
+        String(Math.floor((seconds % 3600) / 60)).padStart(2,"0");
+    status.textContent = !riderShiftState.startedAt ? "Shift not started" :
+        riderShiftState.endedAt ? "Last shift ended " + new Date(riderShiftState.endedAt).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}) :
+        riderShiftState.onBreak ? "On break" : "Shift in progress";
+    start.classList.toggle("hidden", active);
+    end.classList.toggle("hidden", !active);
+    pause.classList.toggle("hidden", !active);
+    pause.textContent = riderShiftState.onBreak ? "Resume shift" : "Take a break";
+    if (feedback) feedback.textContent = riderShiftState.onBreak
+        ? "Break mode is active on this device. Orders are not automatically paused by this timer."
+        : "Shift time is tracked on this device and is not yet a payroll timesheet.";
+}
+function startRiderShift() {
+    riderShiftState = { startedAt: Date.now(), endedAt: null, onBreak: false };
+    persistRiderShift(); renderRiderShift();
+    if (riderShiftTick) clearInterval(riderShiftTick);
+    riderShiftTick = setInterval(renderRiderShift, 15000);
+}
+function endRiderShift() {
+    if (!riderShiftState.startedAt || riderShiftState.endedAt) return;
+    riderShiftState.endedAt = Date.now(); riderShiftState.onBreak = false;
+    persistRiderShift(); renderRiderShift();
+    if (riderShiftTick) clearInterval(riderShiftTick);
+    riderShiftTick = null;
+}
+function toggleRiderBreak() {
+    if (!riderShiftState.startedAt || riderShiftState.endedAt) return;
+    riderShiftState.onBreak = !riderShiftState.onBreak;
+    persistRiderShift(); renderRiderShift();
+}
+document.addEventListener("DOMContentLoaded", loadRiderShift);
 
 /* ============================================================
    LOGOUT
