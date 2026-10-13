@@ -6,8 +6,7 @@
 <meta name="theme-color" content="#07110d">
 <title>QuickEats Rider</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="./config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -1871,6 +1870,12 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
 #profilePage .support-card input,#profilePage .support-card select{width:100%;box-sizing:border-box;min-height:48px;margin:6px 0 14px;padding:12px;border-radius:12px}
 #profilePage .support-card button{min-height:48px}
 </style>
+
+<style id="google-maps-rider-states">
+#liveMap{width:100%;height:clamp(260px,38vh,440px);min-height:260px;background:#e8f1ec;border-radius:18px;overflow:hidden}
+.google-map-state{min-height:260px;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:22px;color:#18382a;background:#edf5f0}
+.google-map-state p{font-size:13px;line-height:1.5;max-width:290px;overflow-wrap:anywhere}.google-map-state small{color:#62746a}
+</style>
 </head>
 
 <body>
@@ -3068,35 +3073,105 @@ function showPage(page) {
    LIVE GPS + GOOGLE MAPS NAVIGATION
 ============================================================ */
 
-function initializeLiveMap() {
+let googleMapsLoadPromise = null;
+let riderAccuracyCircle = null;
+let destinationRouteLine = null;
 
-    if (liveMap || typeof L === "undefined") return;
-
-    const mapElement =
-        document.getElementById("liveMap");
-
-    if (!mapElement) return;
-
-    // Default map view only; no fake rider position is displayed.
-    liveMap = L.map(mapElement, {
-        zoomControl: true
-    }).setView([6.5244, 3.3792], 11);
-
-    L.tileLayer(
-        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-            maxZoom: 19,
-            attribution:
-                '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
-        }
-    ).addTo(liveMap);
-
-    setTimeout(() => {
-        if (liveMap) liveMap.invalidateSize();
-    }, 250);
-
+function loadGoogleMaps() {
+    if (window.google?.maps) return Promise.resolve(window.google.maps);
+    if (googleMapsLoadPromise) return googleMapsLoadPromise;
+    const key = String(window.GOOGLE_MAPS_API_KEY || "").trim();
+    if (!key) return Promise.reject(new Error("Google Maps API key is not configured. Add a restricted browser key in config.js."));
+    googleMapsLoadPromise = new Promise((resolve, reject) => {
+        const callbackName = "__quickEatsGoogleMapsReady";
+        const script = document.createElement("script");
+        window[callbackName] = () => {
+            delete window[callbackName];
+            resolve(window.google.maps);
+        };
+        script.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(key) + "&callback=" + callbackName + "&v=weekly";
+        script.async = true;
+        script.onerror = () => {
+            googleMapsLoadPromise = null;
+            delete window[callbackName];
+            reject(new Error("Google Maps could not load. Check the API key, billing, allowed website, and Maps JavaScript API."));
+        };
+        document.head.appendChild(script);
+    });
+    return googleMapsLoadPromise;
 }
 
+async function initializeLiveMap() {
+    if (liveMap) return liveMap;
+    const mapElement = document.getElementById("liveMap");
+    if (!mapElement) return null;
+    mapElement.setAttribute("role", "application");
+    mapElement.setAttribute("aria-label", "Google Map showing rider location and delivery destination");
+    mapElement.style.minHeight = mapElement.style.minHeight || "260px";
+    try {
+        const maps = await loadGoogleMaps();
+        liveMap = new maps.Map(mapElement, {
+            center: { lat: 6.5244, lng: 3.3792 },
+            zoom: 12,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: true,
+            clickableIcons: false,
+            gestureHandling: "greedy",
+            zoomControl: true
+        });
+        if (riderPosition) updateGoogleRiderMarker();
+        if (currentOrder) updateDestinationOnMap(currentOrder);
+        return liveMap;
+    } catch (error) {
+        console.warn("Google Maps initialization:", error.message);
+        mapElement.innerHTML = '<div class="google-map-state" role="status"><strong>Google Maps is not ready</strong><p>' +
+            escapeHtml(error.message) + '</p><small>After setting up the key, reload this page.</small></div>';
+        setGPSMessage("Map unavailable", "Set up a restricted Google Maps JavaScript API key to enable the live map.");
+        return null;
+    }
+}
+
+function updateGoogleRiderMarker() {
+    if (!liveMap || !window.google?.maps || !riderPosition) return;
+    const maps = window.google.maps;
+    const point = { lat: riderPosition.lat, lng: riderPosition.lng };
+    if (!riderMapMarker) {
+        riderMapMarker = new maps.Marker({
+            map: liveMap,
+            position: point,
+            title: "Your live rider location",
+            icon: {
+                path: maps.SymbolPath.CIRCLE,
+                scale: 9,
+                fillColor: "#0ba957",
+                fillOpacity: 1,
+                strokeColor: "#ffffff",
+                strokeWeight: 3
+            },
+            zIndex: 100
+        });
+    } else {
+        riderMapMarker.setPosition(point);
+    }
+    if (!riderAccuracyCircle) {
+        riderAccuracyCircle = new maps.Circle({
+            map: liveMap,
+            center: point,
+            radius: Math.max(5, Number(riderPosition.accuracy) || 0),
+            fillColor: "#0ba957",
+            fillOpacity: 0.12,
+            strokeColor: "#0ba957",
+            strokeOpacity: 0.45,
+            strokeWeight: 1
+        });
+    } else {
+        riderAccuracyCircle.setCenter(point);
+        riderAccuracyCircle.setRadius(Math.max(5, Number(riderPosition.accuracy) || 0));
+    }
+    if (liveMap.getZoom() < 14) liveMap.setZoom(15);
+    liveMap.panTo(point);
+}
 
 function setGPSMessage(message, coordsText) {
 
@@ -3177,47 +3252,7 @@ function startLiveGPS(showMessage = true) {
                 });
             }
 
-            initializeLiveMap();
-
-            if (liveMap && typeof L !== "undefined") {
-
-                const point = [
-                    riderPosition.lat,
-                    riderPosition.lng
-                ];
-
-                if (!riderMapMarker) {
-
-                    riderMapMarker =
-                        L.circleMarker(point, {
-                            radius: 8,
-                            color: "#ffffff",
-                            weight: 3,
-                            fillColor: "#0ba957",
-                            fillOpacity: 1
-                        })
-                        .addTo(liveMap)
-                        .bindPopup("Your live rider location");
-
-                } else {
-
-                    riderMapMarker.setLatLng(point);
-
-                }
-
-                if (liveMap.getZoom() < 14) {
-
-                    liveMap.setView(point, 15);
-
-                } else {
-
-                    liveMap.panTo(point, {
-                        animate: true
-                    });
-
-                }
-
-            }
+            initializeLiveMap().then(() => updateGoogleRiderMarker()).catch(() => {});
 
             const accuracy =
                 Math.round(riderPosition.accuracy || 0);
@@ -3397,72 +3432,52 @@ function getDestinationText(order, type) {
 }
 
 
-function updateDestinationOnMap(order) {
-
+async function updateDestinationOnMap(order) {
     if (!order) return;
-
-    initializeLiveMap();
-
-    if (!liveMap || typeof L === "undefined") return;
-
-    let type = "pickup";
-
-    if (
-        ["picked_up", "on_the_way"].includes(order.status)
-    ) {
-
-        type = "delivery";
-
-    }
-
-    const coords =
-        getOrderCoordinates(order, type);
-
-    if (destinationMapMarker) {
-
-        liveMap.removeLayer(destinationMapMarker);
-
-        destinationMapMarker = null;
-
-    }
-
-    if (coords) {
-
-        destinationMapMarker =
-            L.marker([
-                coords.lat,
-                coords.lng
-            ])
-            .addTo(liveMap)
-            .bindPopup(
-                type === "pickup"
-                    ? "Pickup location"
-                    : "Customer delivery location"
-            );
-
-        if (riderPosition) {
-
-            const bounds = L.latLngBounds([
-                [riderPosition.lat, riderPosition.lng],
-                [coords.lat, coords.lng]
-            ]);
-
-            liveMap.fitBounds(bounds, {
-                padding: [25, 25],
-                maxZoom: 15
-            });
-
-        } else {
-
-            liveMap.setView([
-                coords.lat,
-                coords.lng
-            ], 14);
-
+    const map = await initializeLiveMap();
+    if (!map || !window.google?.maps) return;
+    const maps = window.google.maps;
+    const type = ["picked_up", "on_the_way"].includes(order.status) ? "delivery" : "pickup";
+    const coords = getOrderCoordinates(order, type);
+    if (destinationMapMarker) destinationMapMarker.setMap(null);
+    if (destinationRouteLine) destinationRouteLine.setMap(null);
+    destinationMapMarker = null;
+    destinationRouteLine = null;
+    if (!coords) return;
+    const destination = { lat: coords.lat, lng: coords.lng };
+    destinationMapMarker = new maps.Marker({
+        map,
+        position: destination,
+        title: type === "pickup" ? "Pickup location" : "Customer delivery location",
+        label: { text: type === "pickup" ? "P" : "D", color: "#ffffff" },
+        icon: {
+            path: maps.SymbolPath.CIRCLE,
+            scale: 10,
+            fillColor: "#087f43",
+            fillOpacity: 1,
+            strokeColor: "#ffffff",
+            strokeWeight: 3
         }
-
+    });
+    const bounds = new maps.LatLngBounds();
+    bounds.extend(destination);
+    if (riderPosition) {
+        const rider = { lat: riderPosition.lat, lng: riderPosition.lng };
+        bounds.extend(rider);
+        destinationRouteLine = new maps.Polyline({
+            map,
+            path: [rider, destination],
+            geodesic: true,
+            strokeColor: "#0ba957",
+            strokeOpacity: 0.9,
+            strokeWeight: 5
+        });
+        map.fitBounds(bounds, 55);
+        if (map.getZoom() > 16) map.setZoom(16);
+    } else {
+        map.setCenter(destination);
+        map.setZoom(14);
     }
-
 }
 
 
