@@ -1552,6 +1552,10 @@ input:focus,textarea:focus,select:focus{outline:none!important;border-color:#12a
 @media(max-width:390px){.welcome{padding:22px 19px!important}.stat{padding:13px 11px!important}.stat-value{font-size:19px!important}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 
+
+/* demo-account-visibility-fix */
+.demo-btn{display:block!important;width:100%;min-height:58px;margin-top:16px;padding:16px 18px;border:2px solid #087f43!important;border-radius:16px;background:#e8f8ef!important;color:#075b35!important;font-weight:800!important;letter-spacing:.02em;opacity:1!important;box-shadow:0 5px 16px rgba(8,127,67,.12);}
+.demo-btn:focus-visible{outline:3px solid #84e1bc;outline-offset:3px;}
 </style>
 
 
@@ -1915,7 +1919,8 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
         <input id="passwordInput" type="password" autocomplete="current-password" minlength="8" placeholder="Password (at least 8 characters)">
         <button id="authSubmitBtn" class="primary-btn" onclick="loginRider()">LOGIN</button>
         <button class="text-btn" type="button" onclick="resetRiderPassword()">Forgot password?</button>
-<button class="text-btn" type="button" onclick="togglePhoneOtpPanel()">Use phone number + OTP</button><section id="phoneOtpPanel" class="support-card hidden"><label for="otpPhoneInput">Phone number with country code</label><input id="otpPhoneInput" type="tel" placeholder="+2348012345678"><div id="otpCodeRow" class="hidden"><label for="otpCodeInput">6-digit verification code</label><input id="otpCodeInput" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div><button id="sendOtpBtn" class="primary-btn" type="button" onclick="sendRiderPhoneOtp()">SEND CODE</button><button id="verifyOtpBtn" class="primary-btn hidden" type="button" onclick="verifyRiderPhoneOtp()">VERIFY &amp; SIGN IN</button><p id="otpFeedback" role="status"></p></section>\n        <button class="demo-btn" onclick="demoLogin()">DEMO RIDER (PREVIEW ONLY)</button>
+<button class="text-btn" type="button" onclick="togglePhoneOtpPanel()">Use phone number + OTP</button><section id="phoneOtpPanel" class="support-card hidden"><label for="otpPhoneInput">Phone number with country code</label><input id="otpPhoneInput" type="tel" placeholder="+2348012345678"><div id="otpCodeRow" class="hidden"><label for="otpCodeInput">6-digit verification code</label><input id="otpCodeInput" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div><button id="sendOtpBtn" class="primary-btn" type="button" onclick="sendRiderPhoneOtp()">SEND CODE</button><button id="verifyOtpBtn" class="primary-btn hidden" type="button" onclick="verifyRiderPhoneOtp()">VERIFY &amp; SIGN IN</button><p id="otpFeedback" role="status"></p></section>
+        <button class="demo-btn" onclick="demoLogin()">DEMO RIDER (PREVIEW ONLY)</button>
         <div id="loginError" class="login-error" role="status" aria-live="polite"></div>
     </div>
 </div>
