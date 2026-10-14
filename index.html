@@ -3305,14 +3305,11 @@ function startLiveGPS(showMessage = true) {
             let message = "Could not get location.";
 
             if (error.code === 1) {
-                message =
-                    "Location permission denied. Allow location in browser settings.";
+                message = "Location permission is blocked. In Android Settings, allow location for your browser, then reload and tap Find my location.";
             } else if (error.code === 2) {
-                message =
-                    "GPS signal unavailable. Check device location settings.";
+                message = "Your phone could not get a GPS fix. Turn on Location, enable Google Location Accuracy, and try outdoors.";
             } else if (error.code === 3) {
-                message =
-                    "GPS request timed out. Try again in an open area.";
+                message = "GPS timed out. Keep Location on, allow the browser permission, and tap Find my location again.";
             }
 
             setGPSMessage("GPS unavailable", message);
@@ -4633,6 +4630,29 @@ window.addEventListener("beforeunload", () => {
             .catch(() => {});
     }
 });
+
+/* Reliable mobile controls: bind the main actions directly as well as keeping
+   the inline fallbacks used by older cached versions of the page. */
+document.addEventListener("DOMContentLoaded", () => {
+  const bind = (selector, handler) => {
+    const el = document.querySelector(selector);
+    if (el) el.onclick = handler;
+  };
+  bind("#authSubmitBtn", () => loginRider());
+  bind(".demo-btn", () => demoLogin());
+  const locate = document.querySelector('button[onclick="startLiveGPS(true)"]');
+  if (locate) locate.onclick = () => startLiveGPS(true);
+  const openMap = document.querySelector('button[onclick="openCurrentLocationInMaps()"]');
+  if (openMap) openMap.onclick = () => openCurrentLocationInMaps();
+  const online = document.getElementById("onlineBtn");
+  if (online) online.onclick = () => toggleOnline();
+});
+
+/* Keep the startup artwork click-through, so it never blocks login controls. */
+const qeSplashStyles = document.getElementById("qe-startup-splash-styles");
+if (qeSplashStyles && !qeSplashStyles.textContent.includes("qe-splash-clickthrough-fix")) {
+  qeSplashStyles.textContent += "\n/* qe-splash-clickthrough-fix */ #qeStartupSplash{pointer-events:none!important;touch-action:none!important}\n";
+}
 </script>
 <script>
 
