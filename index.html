@@ -962,15 +962,19 @@ button{
     position:fixed;
     left:15px;
     right:15px;
-    bottom:88px;
-    z-index:550;
+    bottom:calc(92px + env(safe-area-inset-bottom, 0px));
+    z-index:999;
     display:none;
+    pointer-events:none;
 }
 
 .order-popup.show{
     display:block;
+    pointer-events:auto;
     animation:popupIn .45s cubic-bezier(.2,.9,.25,1.15);
 }
+.order-popup .popup-card,.order-popup button{pointer-events:auto;touch-action:manipulation;}
+.order-popup button{position:relative;z-index:5;min-height:46px;}
 
 @keyframes popupIn{
     from{opacity:0;transform:translateY(110%) scale(.96)}
@@ -2296,7 +2300,7 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
             <button class="popup-view" onclick="openDetectedOrder()">
                 VIEW DELIVERY
             </button>
-            <button class="popup-dismiss" onclick="dismissOrderPopup()">
+            <button class="popup-dismiss" onclick="dismissDetectedOrder()">
                 DISMISS
             </button>
         </div>
@@ -3851,7 +3855,7 @@ function showNewOrderDetected(order) {
     }
 
     clearTimeout(popupTimer);
-    popupTimer = setTimeout(dismissDetectedOrder, 8000);
+    popupTimer = setTimeout(dismissDetectedOrder, 18000);
 }
 
 function openDetectedOrder() {
