@@ -2741,9 +2741,11 @@ function demoLogin() {
         id: "demo-rider",
         owner_id: "demo-user",
         name: "Demo Rider",
-        phone: "08000000000"
+        phone: "08000000000",
+        approval_status: "approved",
+        is_online: true
     };
-
+    isOnline = true;
     enterApp();
 
 }
@@ -3140,7 +3142,7 @@ function loadLeaflet() {
     return window.quickEatsLeafletPromise;
 }
 
-async async function initializeLiveMap() {
+async function initializeLiveMap() {
     if (liveMap) return liveMap;
     const el = document.getElementById("liveMap");
     if (!el) return null;
@@ -3448,7 +3450,7 @@ function getDestinationText(order, type) {
 }
 
 
-async function updateDestinationOnMap(order) {
+async async function updateDestinationOnMap(order) {
     if (!order) return;
     const map = await initializeLiveMap();
     if (!map || !window.L) return;
@@ -3655,7 +3657,7 @@ function stopScanner() {
    AUTOMATIC ORDER SCAN
 ============================================================ */
 
-async function scanForNewOrders(initialScan = false) {
+async async function scanForNewOrders(initialScan = false) {
 
     if (!supabaseClient) return;
 
@@ -4160,7 +4162,7 @@ async function advanceStatus() {
    DELIVERY COMPLETED
 ============================================================ */
 
-async function deliveryCompleted() {
+async async function deliveryCompleted() {
     const fee = getDeliveryFee(currentOrder);
 
     document.getElementById("successTitle").textContent =
@@ -4629,7 +4631,7 @@ window.addEventListener("beforeunload", () => {
 </script>
 <script>
 
-/* Hide the branded startup screen after the page has had a moment to initialize. */
+/* Keep the branded startup screen visible for 10 seconds after page load. */
 (function showQuickEatsStartupSplash(){
   const splash = document.getElementById("qeStartupSplash");
   if (!splash) return;
@@ -4637,10 +4639,10 @@ window.addEventListener("beforeunload", () => {
     splash.classList.add("qe-splash-hidden");
     window.setTimeout(() => splash.remove(), 450);
   };
-  if (document.readyState === "complete") window.setTimeout(dismiss, 1100);
-  else window.addEventListener("load", () => window.setTimeout(dismiss, 650), {once:true});
-  // Fallback so a slow third-party script never leaves the splash covering the page.
-  window.setTimeout(dismiss, 4500);
+  if (document.readyState === "complete") window.setTimeout(dismiss, 10000);
+  else window.addEventListener("load", () => window.setTimeout(dismiss, 10000), {once:true});
+  // Safety fallback: the branded startup screen never blocks the app indefinitely.
+  window.setTimeout(dismiss, 12000);
 })();
 
 </script>
