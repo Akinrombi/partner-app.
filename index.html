@@ -3673,8 +3673,8 @@ async function scanForNewOrders(initialScan = false) {
         } = await supabaseClient
             .from("orders")
             .select("*")
-            .or("rider_id.eq." + currentRider.id + ",and(rider_id.is.null,status.eq.ready_for_rider)")
-            .in("status", ["ready_for_rider", "accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup", "picked_up", "on_the_way", "arrived_at_customer"])
+            .or("rider_id.eq." + currentRider.id + ",and(rider_id.is.null,status.in.(ready_for_rider,ready_for_pickup))")
+            .in("status", ["ready_for_rider", "ready_for_pickup", "accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup", "picked_up", "on_the_way", "arrived_at_customer"])
             .order("created_at", {
                 ascending: false
             })
@@ -3782,7 +3782,7 @@ function handleRealtimeOrder(payload) {
     if (!order?.id) return;
 
     if (order.rider_id && order.rider_id !== currentRider?.id) return;
-    if (!order.rider_id && order.status !== "ready_for_rider") return;
+    if (!order.rider_id && !["ready_for_rider", "ready_for_pickup"].includes(order.status)) return;
     if (!["ready_for_rider", "accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup", "picked_up", "on_the_way", "arrived_at_customer"].includes(order.status)) return;
     if (seenOrderIds.has(order.id)) return;
 
