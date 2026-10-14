@@ -3657,7 +3657,7 @@ function stopScanner() {
    AUTOMATIC ORDER SCAN
 ============================================================ */
 
-async async function scanForNewOrders(initialScan = false) {
+async function scanForNewOrders(initialScan = false) {
 
     if (!supabaseClient) return;
 
@@ -4162,7 +4162,7 @@ async function advanceStatus() {
    DELIVERY COMPLETED
 ============================================================ */
 
-async async function deliveryCompleted() {
+async function deliveryCompleted() {
     const fee = getDeliveryFee(currentOrder);
 
     document.getElementById("successTitle").textContent =
