@@ -3140,7 +3140,7 @@ function loadLeaflet() {
     return window.quickEatsLeafletPromise;
 }
 
-async async function initializeLiveMap() {
+async function initializeLiveMap() {
     if (liveMap) return liveMap;
     const el = document.getElementById("liveMap");
     if (!el) return null;
