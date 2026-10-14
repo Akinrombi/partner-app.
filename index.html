@@ -1656,7 +1656,7 @@ input:focus, select:focus, textarea:focus {
 
 
 <style id="qe-startup-splash-styles">
-#qeStartupSplash{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:24px;background:radial-gradient(circle at 50% 35%,#126b4d 0%,#063f35 48%,#031e19 100%);color:#fff;opacity:1;visibility:visible;transition:opacity .35s ease,visibility .35s ease}
+#qeStartupSplash{position:fixed;inset:0;z-index:99999;pointer-events:none;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:24px;background:radial-gradient(circle at 50% 35%,#126b4d 0%,#063f35 48%,#031e19 100%);color:#fff;opacity:1;visibility:visible;transition:opacity .35s ease,visibility .35s ease}
 #qeStartupSplash.qe-splash-hidden{opacity:0;visibility:hidden;pointer-events:none}
 .qe-splash-lockup{display:flex;align-items:center;justify-content:center;gap:12px}
 .qe-splash-symbol{width:66px;height:66px;border-radius:22px 22px 22px 7px;display:grid;place-items:center;background:linear-gradient(145deg,#d9ff83,#70e59d);color:#063f35;font-size:40px;line-height:1;font-weight:1000;letter-spacing:-3px;box-shadow:0 12px 35px rgba(0,0,0,.22)}
@@ -3153,7 +3153,7 @@ async function initializeLiveMap() {
         if (liveMap) return liveMap;
         el.innerHTML = "";
         liveMap = L.map(el, { zoomControl: true, attributionControl: true }).setView([6.5244, 3.3792], 12);
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(liveMap);
@@ -3211,6 +3211,11 @@ function setGPSMessage(message, coordsText) {
 function startLiveGPS(showMessage = true) {
 
     initializeLiveMap();
+    if (!window.isSecureContext && location.hostname !== "localhost") {
+        setGPSMessage("Secure connection required", "Open the rider app using its HTTPS Render link to use live GPS.");
+        if (showMessage) showToast("Live GPS needs the secure HTTPS rider link.");
+        return;
+    }
 
     if (!navigator.geolocation) {
 
@@ -3675,8 +3680,8 @@ async function scanForNewOrders(initialScan = false) {
         } = await supabaseClient
             .from("orders")
             .select("*")
-            .or("rider_id.eq." + currentRider.id + ",and(rider_id.is.null,status.in.(ready_for_rider,ready_for_pickup))")
-            .in("status", ["ready_for_rider", "ready_for_pickup", "accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup", "picked_up", "on_the_way", "arrived_at_customer"])
+            .or("rider_id.eq." + currentRider.id + ",and(rider_id.is.null,status.in.(vendor_accepted,ready_for_rider,ready_for_pickup))")
+            .in("status", ["vendor_accepted", "ready_for_rider", "ready_for_pickup", "accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup", "picked_up", "on_the_way", "arrived_at_customer"])
             .order("created_at", {
                 ascending: false
             })
@@ -4641,8 +4646,8 @@ window.addEventListener("beforeunload", () => {
   };
   if (document.readyState === "complete") window.setTimeout(dismiss, 10000);
   else window.addEventListener("load", () => window.setTimeout(dismiss, 10000), {once:true});
-  // Safety fallback: the branded startup screen never blocks the app indefinitely.
-  window.setTimeout(dismiss, 12000);
+  // Keep startup visible for 10 seconds, but allow buttons underneath to remain usable.
+  window.setTimeout(dismiss, 11000);
 })();
 
 </script>
