@@ -3115,100 +3115,74 @@ let googleMapsLoadPromise = null;
 let riderAccuracyCircle = null;
 let destinationRouteLine = null;
 
-function loadGoogleMaps() {
-    if (window.google?.maps) return Promise.resolve(window.google.maps);
-    if (googleMapsLoadPromise) return googleMapsLoadPromise;
-    const key = String(window.GOOGLE_MAPS_API_KEY || "").trim();
-    if (!key) return Promise.reject(new Error("Google Maps API key is not configured. Add a restricted browser key in config.js."));
-    googleMapsLoadPromise = new Promise((resolve, reject) => {
-        const callbackName = "__quickEatsGoogleMapsReady";
+function loadLeaflet() {
+    if (window.L) return Promise.resolve(window.L);
+    if (window.quickEatsLeafletPromise) return window.quickEatsLeafletPromise;
+    window.quickEatsLeafletPromise = new Promise((resolve, reject) => {
+        if (!document.querySelector('link[data-quickeats-leaflet]')) {
+            const css = document.createElement("link");
+            css.rel = "stylesheet";
+            css.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+            css.dataset.quickeatsLeaflet = "1";
+            document.head.appendChild(css);
+        }
         const script = document.createElement("script");
-        window[callbackName] = () => {
-            delete window[callbackName];
-            resolve(window.google.maps);
-        };
-        script.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(key) + "&callback=" + callbackName + "&v=weekly";
+        script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
         script.async = true;
-        script.onerror = () => {
-            googleMapsLoadPromise = null;
-            delete window[callbackName];
-            reject(new Error("Google Maps could not load. Check the API key, billing, allowed website, and Maps JavaScript API."));
-        };
+        script.onload = () => window.L ? resolve(window.L) : reject(new Error("Leaflet did not initialise"));
+        script.onerror = () => reject(new Error("Map library could not load. Check your internet connection."));
         document.head.appendChild(script);
     });
-    return googleMapsLoadPromise;
+    return window.quickEatsLeafletPromise;
 }
 
 async function initializeLiveMap() {
     if (liveMap) return liveMap;
-    const mapElement = document.getElementById("liveMap");
-    if (!mapElement) return null;
-    mapElement.setAttribute("role", "application");
-    mapElement.setAttribute("aria-label", "Google Map showing rider location and delivery destination");
-    mapElement.style.minHeight = mapElement.style.minHeight || "260px";
+    const el = document.getElementById("liveMap");
+    if (!el) return null;
+    el.style.minHeight = "260px";
+    el.setAttribute("aria-label", "Live rider and delivery map");
     try {
-        const maps = await loadGoogleMaps();
-        liveMap = new maps.Map(mapElement, {
-            center: { lat: 6.5244, lng: 3.3792 },
-            zoom: 12,
-            mapTypeControl: false,
-            streetViewControl: false,
-            fullscreenControl: true,
-            clickableIcons: false,
-            gestureHandling: "greedy",
-            zoomControl: true
-        });
+        const L = await loadLeaflet();
+        if (liveMap) return liveMap;
+        el.innerHTML = "";
+        liveMap = L.map(el, { zoomControl: true, attributionControl: true }).setView([6.5244, 3.3792], 12);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(liveMap);
+        setTimeout(() => liveMap && liveMap.invalidateSize(), 100);
         if (riderPosition) updateGoogleRiderMarker();
         if (currentOrder) updateDestinationOnMap(currentOrder);
         return liveMap;
     } catch (error) {
-        console.warn("Google Maps initialization:", error.message);
-        mapElement.innerHTML = '<div class="google-map-state" role="status"><strong>Google Maps is not ready</strong><p>' +
-            escapeHtml(error.message) + '</p><small>After setting up the key, reload this page.</small></div>';
-        setGPSMessage("Map unavailable", "Set up a restricted Google Maps JavaScript API key to enable the live map.");
+        console.warn("Leaflet map initialization:", error);
+        el.innerHTML = '<div class="google-map-state" role="status"><strong>Map could not load</strong><p>Check your internet connection and reload.</p><small>OpenStreetMap map tiles require internet access.</small></div>';
+        setGPSMessage("Map unavailable", "Check your internet connection and try again.");
         return null;
     }
 }
 
 function updateGoogleRiderMarker() {
-    if (!liveMap || !window.google?.maps || !riderPosition) return;
-    const maps = window.google.maps;
-    const point = { lat: riderPosition.lat, lng: riderPosition.lng };
+    if (!liveMap || !window.L || !riderPosition) return;
+    const L = window.L;
+    const point = [riderPosition.lat, riderPosition.lng];
     if (!riderMapMarker) {
-        riderMapMarker = new maps.Marker({
-            map: liveMap,
-            position: point,
-            title: "Your live rider location",
-            icon: {
-                path: maps.SymbolPath.CIRCLE,
-                scale: 9,
-                fillColor: "#0ba957",
-                fillOpacity: 1,
-                strokeColor: "#ffffff",
-                strokeWeight: 3
-            },
-            zIndex: 100
-        });
+        riderMapMarker = L.circleMarker(point, {
+            radius: 9, color: "#ffffff", weight: 3, fillColor: "#0ba957", fillOpacity: 1
+        }).addTo(liveMap).bindPopup("Your live location");
+    } else riderMapMarker.setLatLng(point);
+    if (!window.riderAccuracyCircle) {
+        window.riderAccuracyCircle = L.circle(point, {
+            radius: Math.max(10, Number(riderPosition.accuracy) || 0),
+            color: "#0ba957", weight: 1, fillColor: "#0ba957", fillOpacity: 0.1
+        }).addTo(liveMap);
     } else {
-        riderMapMarker.setPosition(point);
+        window.riderAccuracyCircle.setLatLng(point);
+        window.riderAccuracyCircle.setRadius(Math.max(10, Number(riderPosition.accuracy) || 0));
     }
-    if (!riderAccuracyCircle) {
-        riderAccuracyCircle = new maps.Circle({
-            map: liveMap,
-            center: point,
-            radius: Math.max(5, Number(riderPosition.accuracy) || 0),
-            fillColor: "#0ba957",
-            fillOpacity: 0.12,
-            strokeColor: "#0ba957",
-            strokeOpacity: 0.45,
-            strokeWeight: 1
-        });
-    } else {
-        riderAccuracyCircle.setCenter(point);
-        riderAccuracyCircle.setRadius(Math.max(5, Number(riderPosition.accuracy) || 0));
-    }
-    if (liveMap.getZoom() < 14) liveMap.setZoom(15);
-    liveMap.panTo(point);
+    if (!currentOrder) liveMap.setView(point, Math.max(liveMap.getZoom(), 15));
+    else updateDestinationOnMap(currentOrder);
 }
 
 function setGPSMessage(message, coordsText) {
@@ -3470,158 +3444,32 @@ function getDestinationText(order, type) {
 }
 
 
-async function updateDestinationOnMap(order) {
+async async function updateDestinationOnMap(order) {
     if (!order) return;
     const map = await initializeLiveMap();
-    if (!map || !window.google?.maps) return;
-    const maps = window.google.maps;
-    const type = ["picked_up", "on_the_way"].includes(order.status) ? "delivery" : "pickup";
+    if (!map || !window.L) return;
+    const L = window.L;
+    const type = ["picked_up", "on_the_way", "arrived_at_customer"].includes(order.status) ? "delivery" : "pickup";
     const coords = getOrderCoordinates(order, type);
-    if (destinationMapMarker) destinationMapMarker.setMap(null);
-    if (destinationRouteLine) destinationRouteLine.setMap(null);
-    destinationMapMarker = null;
-    destinationRouteLine = null;
-    if (!coords) return;
-    const destination = { lat: coords.lat, lng: coords.lng };
-    destinationMapMarker = new maps.Marker({
-        map,
-        position: destination,
-        title: type === "pickup" ? "Pickup location" : "Customer delivery location",
-        label: { text: type === "pickup" ? "P" : "D", color: "#ffffff" },
-        icon: {
-            path: maps.SymbolPath.CIRCLE,
-            scale: 10,
-            fillColor: "#087f43",
-            fillOpacity: 1,
-            strokeColor: "#ffffff",
-            strokeWeight: 3
-        }
-    });
-    const bounds = new maps.LatLngBounds();
-    bounds.extend(destination);
+    if (destinationMapMarker) { map.removeLayer(destinationMapMarker); destinationMapMarker = null; }
+    if (window.destinationRouteLine) { map.removeLayer(window.destinationRouteLine); window.destinationRouteLine = null; }
+    if (!coords) {
+        if (riderPosition) map.setView([riderPosition.lat, riderPosition.lng], Math.max(map.getZoom(), 14));
+        return;
+    }
+    const destPoint = [coords.lat, coords.lng];
+    destinationMapMarker = L.marker(destPoint).addTo(map).bindPopup(type === "pickup" ? "Vendor pickup" : "Customer drop-off");
+    const bounds = [destPoint];
     if (riderPosition) {
-        const rider = { lat: riderPosition.lat, lng: riderPosition.lng };
-        bounds.extend(rider);
-        destinationRouteLine = new maps.Polyline({
-            map,
-            path: [rider, destination],
-            geodesic: true,
-            strokeColor: "#0ba957",
-            strokeOpacity: 0.9,
-            strokeWeight: 5
-        });
-        map.fitBounds(bounds, 55);
-        if (map.getZoom() > 16) map.setZoom(16);
+        const riderPoint = [riderPosition.lat, riderPosition.lng];
+        bounds.push(riderPoint);
+        window.destinationRouteLine = L.polyline([riderPoint, destPoint], { color: "#0ba957", weight: 5, opacity: 0.85 }).addTo(map);
+        map.fitBounds(L.latLngBounds(bounds), { padding: [28, 28], maxZoom: 16 });
     } else {
-        map.setCenter(destination);
-        map.setZoom(14);
+        map.setView(destPoint, 14);
     }
 }
 
-
-async function navigateToOrderLocation(type) {
-
-    if (!currentOrder) {
-
-        showToast("There is no active order to navigate to.");
-
-        return;
-
-    }
-
-    let coords =
-        getOrderCoordinates(currentOrder, type);
-
-    // Pickup coordinates may be stored on the vendor record.
-    if (
-        !coords &&
-        type === "pickup" &&
-        currentOrder.vendor_id &&
-        supabaseClient &&
-        currentRider?.id !== "demo-rider"
-    ) {
-
-        try {
-
-            const {
-                data,
-                error
-            } = await supabaseClient
-                .from("vendors")
-                .select("lat,lng,address,store_name")
-                .eq("id", currentOrder.vendor_id)
-                .maybeSingle();
-
-            if (!error && data) {
-
-                coords =
-                    coordinatePair(data.lat, data.lng);
-
-                if (
-                    !getPickup(currentOrder) ||
-                    getPickup(currentOrder) === "Pickup location"
-                ) {
-
-                    currentOrder.vendor_address = data.address;
-
-                }
-
-            }
-
-        } catch (error) {
-
-            console.warn(
-                "Could not load vendor coordinates",
-                error
-            );
-
-        }
-
-    }
-
-    const destination = coords
-        ? coords.lat + "," + coords.lng
-        : getDestinationText(currentOrder, type);
-
-    if (
-        !destination ||
-        /^(pickup location|delivery location)$/i.test(
-            destination.trim()
-        )
-    ) {
-
-        showToast(
-            "This order has no saved destination address yet."
-        );
-
-        return;
-
-    }
-
-    const origin = riderPosition
-        ? riderPosition.lat + "," + riderPosition.lng
-        : "";
-
-    const url =
-        "https://www.google.com/maps/dir/?api=1" +
-        (origin
-            ? "&origin=" + encodeURIComponent(origin)
-            : "") +
-        "&destination=" + encodeURIComponent(destination) +
-        "&travelmode=driving";
-
-    window.open(url, "_blank", "noopener,noreferrer");
-
-}
-
-
-/* ============================================================
-   ONLINE / OFFLINE
-============================================================ */
-
-
-/* Persist last-online activity and the latest assigned delivery on this device.
-   Server orders remain authoritative; cached data is only a reconnect fallback. */
 function riderStorageKey(suffix) {
     const id = currentRider?.id || "guest";
     return "quickeats_rider_" + id + "_" + suffix;
