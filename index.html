@@ -1891,6 +1891,44 @@ input,textarea,select{background:#f8fbf9!important;border-color:#e0eae3!importan
 
 <style id="rider-shift-controls">
 .shift-panel{margin:14px 0;padding:16px;border:1px solid #dcebe2;border-radius:18px;background:#fff}.shift-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.shift-panel-head h3{font-size:16px;color:#153d2a}.shift-panel-head p{font-size:12px;color:#65776c;margin-top:4px}.shift-panel-head strong{font-size:20px;color:#087f43;font-variant-numeric:tabular-nums}.shift-panel-actions{display:flex;gap:8px;margin-top:14px}.shift-panel-actions button{flex:1;min-width:0}.shift-secondary{background:#e8f4ed!important;color:#17603b!important}
+
+
+/* QuickEats polished visual refresh — preserves existing app logic and Supabase wiring */
+:root{--qe-green:#00a859;--qe-deep:#087a43;--qe-ink:#17251d;--qe-muted:#6b7a70;--qe-line:#e5eee8;--qe-soft:#eef8f1}
+html,body{background:#f4f8f5;color:var(--qe-ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.login-page{background:radial-gradient(circle at 18% 12%,rgba(0,168,89,.24),transparent 32%),radial-gradient(circle at 86% 88%,rgba(0,168,89,.17),transparent 30%),#07150e;padding:22px}
+.login-card{border:1px solid rgba(255,255,255,.75);border-radius:28px;box-shadow:0 24px 70px rgba(0,0,0,.32);padding:32px 24px}
+.logo{letter-spacing:-1.1px;color:var(--qe-green);font-size:34px}
+.login-subtitle{line-height:1.5}
+.login-card input{border-radius:14px;background:#fbfdfb;border-color:#dce8df}
+.primary-btn{background:linear-gradient(135deg,#00b962,#078545);border-radius:14px;box-shadow:0 7px 16px rgba(0,168,89,.2)}
+.demo-btn{border:1px solid #b9e4ca;background:#eff9f2;border-radius:14px}
+.app{background:#f4f8f5}
+.header{background:linear-gradient(135deg,#087a43,#00a859);box-shadow:0 5px 18px rgba(4,95,49,.15);border-radius:0 0 22px 22px}
+.page,.page.active{padding:15px 14px 92px}
+.welcome{background:white;border:1px solid var(--qe-line);border-radius:19px;padding:17px;margin:0 0 14px;box-shadow:0 5px 18px rgba(19,65,37,.045)}
+.welcome h2{font-size:20px;letter-spacing:-.35px}
+.welcome p{color:var(--qe-muted);line-height:1.45}
+.scanner-panel{border-radius:22px;box-shadow:0 10px 25px rgba(0,82,41,.15);overflow:hidden}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
+.stat{border:1px solid var(--qe-line);border-radius:17px;background:#fff;padding:14px;box-shadow:0 4px 14px rgba(20,60,35,.04)}
+.stat.green{background:linear-gradient(145deg,#effaf2,#fff);border-color:#d5efde}
+.stat-label{color:var(--qe-muted);font-size:12px;font-weight:700}
+.stat-value{font-size:22px;font-weight:900;letter-spacing:-.5px}
+.map-wrap,.card,.earnings-card,.order-card,.profile-card{background:#fff;border:1px solid var(--qe-line);border-radius:20px;box-shadow:0 5px 18px rgba(19,65,37,.05);overflow:hidden}
+.map-heading{padding:14px 15px 10px;font-weight:850}
+#liveMap{border-radius:14px;overflow:hidden}
+.map-actions{display:flex;gap:9px;padding:12px}
+.map-action-btn{border-radius:12px;min-height:43px;font-weight:800}
+button{transition:transform .15s ease,filter .15s ease}
+button:active{transform:scale(.98);filter:brightness(.97)}
+.bottom-nav{height:74px;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -7px 22px rgba(20,50,30,.06);border-radius:18px 18px 0 0}
+.nav-btn{font-size:11px}
+.order-popup{left:12px;right:12px;bottom:84px;border-radius:22px;overflow:hidden;box-shadow:0 16px 44px rgba(5,35,17,.24)}
+.order-popup button,.primary-btn,.support-submit{background:linear-gradient(135deg,#00b962,#078545)}
+@media(min-width:600px){.page,.page.active{max-width:520px;margin:0 auto}.header{padding-left:max(16px,calc((100% - 520px)/2));padding-right:max(16px,calc((100% - 520px)/2))}}
+@media(max-width:360px){.page,.page.active{padding:9px 9px 90px}.stat{padding:11px}.stat-value{font-size:19px}.welcome h2{font-size:18px}}
+
 </style>
 </head>
 
