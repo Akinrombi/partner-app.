@@ -1656,14 +1656,14 @@ input:focus, select:focus, textarea:focus {
 
 
 <style id="qe-startup-splash-styles">
-#qeStartupSplash{position:fixed;inset:0;z-index:99999;pointer-events:none;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:24px;background:radial-gradient(circle at 50% 35%,#126b4d 0%,#063f35 48%,#031e19 100%);color:#fff;opacity:1;visibility:visible;transition:opacity .35s ease,visibility .35s ease}
+#qeStartupSplash{position:fixed;inset:0;z-index:99999;pointer-events:none;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;padding:24px;background:radial-gradient(ellipse at 50% 25%,#e4fff0 0%,#b7f0d1 46%,#167d5b 100%);color:#073c2b;opacity:1;visibility:visible;transition:opacity .45s ease,visibility .45s ease;text-shadow:0 1px 0 rgba(255,255,255,.18)}
 #qeStartupSplash.qe-splash-hidden{opacity:0;visibility:hidden;pointer-events:none}
 .qe-splash-lockup{display:flex;align-items:center;justify-content:center;gap:12px}
-.qe-splash-symbol{width:66px;height:66px;border-radius:22px 22px 22px 7px;display:grid;place-items:center;background:linear-gradient(145deg,#d9ff83,#70e59d);color:#063f35;font-size:40px;line-height:1;font-weight:1000;letter-spacing:-3px;box-shadow:0 12px 35px rgba(0,0,0,.22)}
-.qe-splash-name{font-size:clamp(32px,9vw,42px);font-weight:950;letter-spacing:-2px;line-height:1.02}
+.qe-splash-symbol{width:82px;height:82px;flex:0 0 82px;border-radius:25px 25px 25px 8px;display:grid;place-items:center;background:linear-gradient(145deg,#d9ff83,#70e59d);color:#063f35;font-size:50px;line-height:1;font-weight:1000;letter-spacing:-3px;box-shadow:0 14px 32px rgba(3,48,32,.22);border:2px solid rgba(255,255,255,.78)}
+.qe-splash-name{font-size:clamp(32px,9vw,42px);font-weight:950;letter-spacing:-2px;line-height:1.02;color:#073c2b;text-shadow:0 1px 0 rgba(255,255,255,.4)}
 .qe-splash-name span{color:#c8f169}
-.qe-splash-tag{margin-top:7px;font-size:10px;font-weight:900;letter-spacing:5px;color:#d9f5e6}
-.qe-splash-loading{margin-top:22px;width:118px;height:3px;border-radius:10px;background:rgba(255,255,255,.16);overflow:hidden}
+.qe-splash-tag{margin-top:9px;font-size:11px;font-weight:1000;letter-spacing:5px;color:#07583d}
+.qe-splash-loading{margin-top:22px;width:180px;height:5px;border-radius:10px;background:rgba(7,60,43,.18);overflow:hidden}
 .qe-splash-loading:after{content:"";display:block;width:40%;height:100%;border-radius:10px;background:#c8f169;animation:qeSplashLoad 1.15s ease-in-out infinite}
 @keyframes qeSplashLoad{from{transform:translateX(-120%)}to{transform:translateX(300%)}}
 @media(prefers-reduced-motion:reduce){#qeStartupSplash{transition:none}.qe-splash-loading:after{animation:none;width:100%}}
@@ -3452,7 +3452,7 @@ function getDestinationText(order, type) {
 }
 
 
-async function updateDestinationOnMap(order) {
+async async function updateDestinationOnMap(order) {
     if (!order) return;
     const map = await initializeLiveMap();
     if (!map || !window.L) return;
@@ -4666,8 +4666,8 @@ if (qeSplashStyles && !qeSplashStyles.textContent.includes("qe-splash-clickthrou
   };
   if (document.readyState === "complete") window.setTimeout(dismiss, 10000);
   else window.addEventListener("load", () => window.setTimeout(dismiss, 10000), {once:true});
-  // Keep startup visible for 10 seconds, but allow buttons underneath to remain usable.
-  window.setTimeout(dismiss, 11000);
+  // Safety fallback: dismiss after the requested 10-second startup.
+  window.setTimeout(dismiss, 10000);
 })();
 
 </script>
