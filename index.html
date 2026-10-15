@@ -3490,7 +3490,7 @@ function getDestinationText(order, type) {
 }
 
 
-async async function updateDestinationOnMap(order) {
+async function updateDestinationOnMap(order) {
     if (!order) return;
     const map = await initializeLiveMap();
     if (!map || !window.L) return;
