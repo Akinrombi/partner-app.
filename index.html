@@ -2099,6 +2099,12 @@ button:active{transform:scale(.98);filter:brightness(.97)}
                 <button class="map-action-btn" onclick="openCurrentLocationInMaps()">
                     🧭 Open map
                 </button>
+                <button id="demoVendorTestNav" class="map-action-btn" style="display:none;background:#e7f0ff;color:#174ea6" onclick="testDemoNavigation('pickup')">
+                    🧪 Test vendor route
+                </button>
+                <button id="demoCustomerTestNav" class="map-action-btn" style="display:none;background:#fff0e5;color:#9a4300" onclick="testDemoNavigation('delivery')">
+                    🧪 Test customer route
+                </button>
             </div>
         </section>
 
@@ -2769,6 +2775,11 @@ async function loginRider() {
 function demoLogin() {
 
     unlockAudio();
+    // TEMPORARY demo-only route test controls. Remove after testing.
+    const vendorTestButton = document.getElementById("demoVendorTestNav");
+    const customerTestButton = document.getElementById("demoCustomerTestNav");
+    if (vendorTestButton) vendorTestButton.style.display = "block";
+    if (customerTestButton) customerTestButton.style.display = "block";
 
     currentUser = {
         id: "demo-user",
@@ -3386,6 +3397,33 @@ function stopLiveGPS() {
 
 }
 
+
+/* TEMPORARY demo-only navigation testing. Real order coordinates are used when present;
+   otherwise safe sample points in Lagos are used to test the Google Maps handoff. */
+function testDemoNavigation(type) {
+    if (currentRider?.id !== "demo-rider") {
+        showToast("These test routes are only for Demo Rider.");
+        return;
+    }
+    const order = currentOrder || {};
+    let destination = getOrderCoordinates(order, type);
+    if (!destination) {
+        destination = type === "pickup"
+            ? { lat: 6.5244, lng: 3.3792 }   // Sample vendor point: Lagos Island
+            : { lat: 6.6018, lng: 3.3515 };  // Sample customer point: Ikeja
+        showToast("Using a sample Lagos test location; no real order coordinates found.");
+    }
+    const origin = riderPosition && Number.isFinite(riderPosition.lat) && Number.isFinite(riderPosition.lng)
+        ? riderPosition.lat + "," + riderPosition.lng
+        : "";
+    const params = new URLSearchParams({
+        api: "1",
+        destination: destination.lat + "," + destination.lng,
+        travelmode: "driving"
+    });
+    if (origin) params.set("origin", origin);
+    window.open("https://www.google.com/maps/dir/?" + params.toString(), "_blank", "noopener,noreferrer");
+}
 
 function openCurrentLocationInMaps() {
 
