@@ -2099,11 +2099,14 @@ button:active{transform:scale(.98);filter:brightness(.97)}
                 <button class="map-action-btn" onclick="openCurrentLocationInMaps()">
                     🧭 Open map
                 </button>
-                <button id="demoVendorTestNav" class="map-action-btn" style="display:none;background:#e7f0ff;color:#174ea6" onclick="testDemoNavigation('pickup')">
-                    🧪 Test vendor route
+                <button id="startDemoDeliveryBtn" class="map-action-btn" style="display:none;background:#101914;color:#fff" onclick="startDemoDelivery()">
+                    🧪 Start full demo order
                 </button>
-                <button id="demoCustomerTestNav" class="map-action-btn" style="display:none;background:#fff0e5;color:#9a4300" onclick="testDemoNavigation('delivery')">
-                    🧪 Test customer route
+                <button id="demoVendorTestNav" class="map-action-btn" style="display:none;background:#e7f0ff;color:#174ea6" onclick="navigateToOrderLocation('pickup')">
+                    🧭 Navigate to vendor
+                </button>
+                <button id="demoCustomerTestNav" class="map-action-btn" style="display:none;background:#fff0e5;color:#9a4300" onclick="navigateToOrderLocation('delivery')">
+                    🧭 Navigate to customer
                 </button>
             </div>
         </section>
@@ -2775,11 +2778,13 @@ async function loginRider() {
 function demoLogin() {
 
     unlockAudio();
-    // TEMPORARY demo-only route test controls. Remove after testing.
+    // TEMPORARY demo-only full-order testing controls. Remove after testing.
+    const demoStartButton = document.getElementById("startDemoDeliveryBtn");
     const vendorTestButton = document.getElementById("demoVendorTestNav");
     const customerTestButton = document.getElementById("demoCustomerTestNav");
-    if (vendorTestButton) vendorTestButton.style.display = "block";
-    if (customerTestButton) customerTestButton.style.display = "block";
+    if (demoStartButton) demoStartButton.style.display = "block";
+    if (vendorTestButton) vendorTestButton.style.display = "none";
+    if (customerTestButton) customerTestButton.style.display = "none";
 
     currentUser = {
         id: "demo-user",
@@ -3398,31 +3403,69 @@ function stopLiveGPS() {
 }
 
 
-/* TEMPORARY demo-only navigation testing. Real order coordinates are used when present;
-   otherwise safe sample points in Lagos are used to test the Google Maps handoff. */
-function testDemoNavigation(type) {
+/* TEMPORARY end-to-end demo order. This is local test data only and is never saved to Supabase. */
+function startDemoDelivery() {
     if (currentRider?.id !== "demo-rider") {
-        showToast("These test routes are only for Demo Rider.");
+        showToast("Sign in with Continue as Demo Rider to run this test.");
         return;
     }
-    const order = currentOrder || {};
-    let destination = getOrderCoordinates(order, type);
+    const order = {
+        id: "demo-order-" + Date.now(),
+        order_number: "DEMO-" + String(Date.now()).slice(-5),
+        status: "available",
+        restaurant_name: "Tasty Bites Restaurant",
+        vendor_name: "Tasty Bites Restaurant",
+        pickup_address: "Demo Vendor — Lagos Island",
+        delivery_address: "Demo Customer — Ikeja, Lagos",
+        customer_name: "Demo Customer",
+        customer_phone: "08000000000",
+        item_name: "Jollof Rice + Grilled Chicken",
+        total_amount: 6500,
+        delivery_fee: 1200,
+        pickup_lat: 6.5244,
+        pickup_lng: 3.3792,
+        vendor_lat: 6.5244,
+        vendor_lng: 3.3792,
+        delivery_lat: 6.6018,
+        delivery_lng: 3.3515,
+        customer_lat: 6.6018,
+        customer_lng: 3.3515,
+        is_demo_order: true
+    };
+    showOrder(order, true);
+    const startButton = document.getElementById("startDemoDeliveryBtn");
+    const vendorButton = document.getElementById("demoVendorTestNav");
+    const customerButton = document.getElementById("demoCustomerTestNav");
+    if (startButton) startButton.textContent = "🔄 Restart demo order";
+    if (vendorButton) vendorButton.style.display = "block";
+    if (customerButton) customerButton.style.display = "block";
+    showToast("Demo order received. Tap ACCEPT DELIVERY to begin.");
+    document.getElementById("orderCard")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/* Opens turn-by-turn Google Maps navigation for the current order's vendor or customer. */
+function navigateToOrderLocation(type) {
+    if (currentRider?.id !== "demo-rider" || !currentOrder) {
+        showToast("Start a demo order first to test the delivery route.");
+        return;
+    }
+    const destination = getOrderCoordinates(currentOrder, type);
     if (!destination) {
-        destination = type === "pickup"
-            ? { lat: 6.5244, lng: 3.3792 }   // Sample vendor point: Lagos Island
-            : { lat: 6.6018, lng: 3.3515 };  // Sample customer point: Ikeja
-        showToast("Using a sample Lagos test location; no real order coordinates found.");
+        showToast("This order has no saved coordinates for that location.");
+        return;
     }
     const origin = riderPosition && Number.isFinite(riderPosition.lat) && Number.isFinite(riderPosition.lng)
         ? riderPosition.lat + "," + riderPosition.lng
-        : "";
+        : (type === "delivery" ? "6.5244,3.3792" : "6.5000,3.3800");
     const params = new URLSearchParams({
         api: "1",
+        origin,
         destination: destination.lat + "," + destination.lng,
         travelmode: "driving"
     });
-    if (origin) params.set("origin", origin);
-    window.open("https://www.google.com/maps/dir/?" + params.toString(), "_blank", "noopener,noreferrer");
+    const routeUrl = "https://www.google.com/maps/dir/?" + params.toString();
+    window.open(routeUrl, "_blank", "noopener,noreferrer");
+    showToast(type === "pickup" ? "Route to vendor opened. Return here when you arrive." : "Route to customer opened. Return here to complete delivery.");
 }
 
 function openCurrentLocationInMaps() {
@@ -4136,6 +4179,8 @@ function showAccepted(order) {
 function getNextStatus(status) {
     const flow = {
         accepted: "arrived_at_vendor",
+        rider_accepted: "arrived_at_vendor",
+        available: "rider_accepted",
         arrived_at_vendor: "picked_up",
         picked_up: "arrived_at_customer",
         arrived_at_customer: "delivered"
@@ -4147,6 +4192,8 @@ function getNextStatus(status) {
 function getStatusButtonText(status) {
     const text = {
         accepted: "ARRIVED AT PICKUP",
+        rider_accepted: "ARRIVED AT VENDOR",
+        available: "ACCEPT DEMO ORDER",
         arrived_at_vendor: "CONFIRM PICKUP",
         picked_up: "ARRIVED AT CUSTOMER",
         arrived_at_customer: "CONFIRM DELIVERY"
