@@ -3554,26 +3554,30 @@ function startDemoDelivery() {
 
 /* Opens turn-by-turn Google Maps navigation for the current order's vendor or customer. */
 function navigateToOrderLocation(type) {
-    if (currentRider?.id !== "demo-rider" || !currentOrder) {
-        showToast("Start a demo order first to test the delivery route.");
-        return;
-    }
-    const destination = getOrderCoordinates(currentOrder, type);
-    if (!destination) {
-        showToast("This order has no saved coordinates for that location.");
+    if (!currentOrder) { showToast("Open an order first to start navigation."); return; }
+    const coords = getOrderCoordinates(currentOrder, type);
+    const destinationText = String(getDestinationText(currentOrder, type) || "").trim();
+    if (!coords && (!destinationText || destinationText === "---")) {
+        showToast("This order has no destination address or coordinates.");
         return;
     }
     const origin = riderPosition && Number.isFinite(riderPosition.lat) && Number.isFinite(riderPosition.lng)
-        ? riderPosition.lat + "," + riderPosition.lng
-        : (type === "delivery" ? "6.5244,3.3792" : "6.5000,3.3800");
-    const params = new URLSearchParams({
-        api: "1",
-        origin,
-        destination: destination.lat + "," + destination.lng,
-        travelmode: "driving"
-    });
-    const routeUrl = "https://www.google.com/maps/dir/?" + params.toString();
-    window.open(routeUrl, "_blank", "noopener,noreferrer");
+        ? riderPosition.lat + "," + riderPosition.lng : "My Location";
+    const destination = coords ? coords.lat + "," + coords.lng : destinationText;
+    let routeUrl;
+    let preference = "google";
+    try { preference = JSON.parse(localStorage.getItem("quickeats_rider_preferences") || "{}").navigation || "google"; } catch(e) {}
+    if (preference === "apple") {
+        routeUrl = "https://maps.apple.com/?saddr=" + encodeURIComponent(origin) + "&daddr=" + encodeURIComponent(destination) + "&dirflg=d";
+    } else if (preference === "osm" && coords && riderPosition) {
+        routeUrl = "https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=" +
+            encodeURIComponent(riderPosition.lat + "," + riderPosition.lng + ";" + coords.lat + "," + coords.lng);
+    } else {
+        routeUrl = "https://www.google.com/maps/dir/?api=1&origin=" + encodeURIComponent(origin) +
+            "&destination=" + encodeURIComponent(destination) + "&travelmode=driving";
+    }
+    const opened = window.open(routeUrl, "_blank", "noopener,noreferrer");
+    if (!opened) window.location.href = routeUrl;
     showToast(type === "pickup" ? "Route to vendor opened. Return here when you arrive." : "Route to customer opened. Return here to complete delivery.");
 }
 
@@ -3841,7 +3845,7 @@ function updateOnlineUI() {
 
 function startScanner() {
 
-    if (!supabaseClient || !isOnline || !navigator.onLine) return;
+    if (!supabaseClient || !isOnline || !navigator.onLine || riderShiftState?.onBreak) return;
     if (currentOrder || pendingDetectedOrder || scannerTimer) return;
 
     updateOnlineUI();
@@ -3851,7 +3855,7 @@ function startScanner() {
 
     scannerTimer = setInterval(() => {
         // Keep polling resilient; individual request failures are handled inside scanForNewOrders.
-        if (document.visibilityState === "visible" && navigator.onLine && isOnline) {
+        if (document.visibilityState === "visible" && navigator.onLine && isOnline && !riderShiftState?.onBreak) {
             scanForNewOrders(false);
         }
     }, 7000);
@@ -4829,7 +4833,7 @@ function resumeRiderScanner() {
     if (document.visibilityState !== "visible") return;
     updateNetworkBanner();
 
-    if (!navigator.onLine || !isOnline) return;
+    if (!navigator.onLine || !isOnline || riderShiftState?.onBreak) return;
 
     // Re-fetch the rider's assigned delivery when returning to the app.
     // This recovers status changes that happened while the app was backgrounded.
