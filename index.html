@@ -4800,18 +4800,31 @@ async function shareRiderSafetyCheckIn() {
 }
 
 /* Rider support report. This prepares a report for the device email app; it does not claim the report was sent to a backend. */
-function submitRiderSupport(){
-  const category=document.getElementById("supportCategory");
-  const description=document.getElementById("supportDescription");
-  const feedback=document.getElementById("supportFeedback");
+async function submitRiderSupport(){
+  const category=document.getElementById("supportCategory"),description=document.getElementById("supportDescription"),feedback=document.getElementById("supportFeedback");
   if(!category||!description||!feedback)return;
   const detail=description.value.trim();
   if(detail.length<8){feedback.textContent="Please describe the problem in a little more detail.";return;}
-  const orderRef=currentOrder?.id ? "\nOrder ID: "+currentOrder.id : "";
-  const subject=encodeURIComponent("QuickEats Rider Support - "+category.value);
-  const body=encodeURIComponent("Category: "+category.value+orderRef+"\nRider: "+(currentRider?.email||currentRider?.id||"Not signed in")+"\n\nProblem:\n"+detail+"\n\nDevice online: "+navigator.onLine);
-  feedback.textContent="Your report is ready. Choose an email app to send it; it has not been sent automatically.";
-  window.location.href="mailto:support@quickeats.ng?subject="+subject+"&body="+body;
+  if(!currentRider?.id||currentRider.id==="demo-rider"||!supabaseClient){
+    feedback.textContent="This is a demo or disconnected session. Preparing an email draft instead; it has not been sent automatically.";
+    const subject=encodeURIComponent("QuickEats Rider Support - "+category.value);
+    const body=encodeURIComponent("Category: "+category.value+"\nProblem:\n"+detail+"\nDevice online: "+navigator.onLine);
+    window.location.href="mailto:support@quickeats.ng?subject="+subject+"&body="+body;return;
+  }
+  feedback.textContent="Submitting report…";
+  try{
+    const payload={rider_id:currentRider.id,type:category.value,details:detail,lat:riderPosition?.lat??null,lng:riderPosition?.lng??null};
+    const {error}=await supabaseClient.from("issue_reports").insert(payload);
+    if(error)throw error;
+    feedback.textContent="Issue report submitted to QuickEats support.";
+    description.value="";
+  }catch(error){
+    console.error("Support report submission failed:",error);
+    feedback.textContent="Could not save the report to support. Preparing an email draft instead.";
+    const subject=encodeURIComponent("QuickEats Rider Support - "+category.value);
+    const body=encodeURIComponent("Category: "+category.value+"\nOrder ID: "+(currentOrder?.id||"none")+"\nProblem:\n"+detail+"\nDevice online: "+navigator.onLine);
+    window.location.href="mailto:support@quickeats.ng?subject="+subject+"&body="+body;
+  }
 }
 
 function updateNetworkBanner(){
