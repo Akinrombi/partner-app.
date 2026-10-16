@@ -3755,41 +3755,69 @@ function restoreCachedRiderOrder() {
 }
 
 async function toggleOnline() {
-    if (currentRider?.id !== "demo-rider" && currentRider?.approval_status !== "approved") {
-        showToast("Complete rider verification and wait for approval first.");
+    const approvalStatus = String(currentRider?.approval_status || "").trim().toLowerCase();
+    if (currentRider?.id !== "demo-rider" && approvalStatus !== "approved") {
+        showToast("Your account must be approved before you can go online.");
         updateRiderApplicationUI();
         return;
     }
+    if (!navigator.onLine) {
+        showToast("No internet connection. Connect and try again.");
+        return;
+    }
+    const button = document.getElementById("onlineBtn");
+    if (button?.dataset.saving === "true") return;
+    if (button) { button.dataset.saving = "true"; button.disabled = true; button.style.opacity = ".65"; }
     unlockAudio();
     const nextOnline = !isOnline;
-    if (nextOnline && currentRider?.id !== "demo-rider" && !riderPosition) {
-        startLiveGPS(false);
-    }
-    if (currentRider?.id !== "demo-rider" && currentRider?.id) {
-        try {
+    try {
+        if (nextOnline && currentRider?.id !== "demo-rider" && !riderPosition) {
+            startLiveGPS(false);
+        }
+        if (currentRider?.id !== "demo-rider" && currentRider?.id) {
             const update = { is_online: nextOnline };
             if (nextOnline && riderPosition) {
                 update.lat = riderPosition.lat;
                 update.lng = riderPosition.lng;
                 update.location_updated_at = new Date().toISOString();
             }
-            const { error } = await supabaseClient.from("riders").update(update).eq("id", currentRider.id);
+            const { data, error } = await supabaseClient
+                .from("riders")
+                .update(update)
+                .eq("id", currentRider.id)
+                .eq("user_id", currentUser.id)
+                .select("id,is_online,approval_status")
+                .maybeSingle();
             if (error) throw error;
-        } catch (error) {
-            console.error("Could not update rider availability:", error);
-            showToast("Could not update online status. Check connection and permissions.");
-            return;
+            if (!data) throw new Error("Your rider profile could not be updated. Sign out and sign back in, then try again.");
+            const freshApproval = String(data.approval_status || "").trim().toLowerCase();
+            if (freshApproval !== "approved") {
+                currentRider = { ...currentRider, ...data };
+                isOnline = false;
+                updateOnlineUI();
+                updateRiderApplicationUI();
+                showToast("Your account is not marked approved in the rider database yet.");
+                return;
+            }
+            currentRider = { ...currentRider, ...data };
+            isOnline = data.is_online === true;
+        } else {
+            isOnline = nextOnline;
         }
-    }
-    isOnline = nextOnline;
-    saveRiderActivityState();
-    updateOnlineUI();
-    if (isOnline) {
-        showToast("You're online and ready for deliveries.");
-        startScanner();
-    } else {
-        stopScanner();
-        showToast("You're offline. New orders are paused.");
+        saveRiderActivityState();
+        updateOnlineUI();
+        if (isOnline) {
+            showToast("You're online and ready for deliveries.");
+            startScanner();
+        } else {
+            stopScanner();
+            showToast("You're offline. New orders are paused.");
+        }
+    } catch (error) {
+        console.error("Could not update rider availability:", error);
+        showToast("Could not change availability: " + (error.message || "Check internet and permissions."));
+    } finally {
+        if (button) { button.dataset.saving = "false"; button.disabled = false; button.style.opacity = ""; }
     }
 }
 
