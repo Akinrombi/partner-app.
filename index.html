@@ -2679,7 +2679,9 @@ function playTone(frequency, startTime, duration) {
 function detectionSound() {
 
     try {
-
+        let prefs = {};
+        try { prefs = JSON.parse(localStorage.getItem("quickeats_rider_preferences") || "{}"); } catch(e) {}
+        if (prefs.sound === false) return;
         unlockAudio();
 
         if (!audioContext) return;
@@ -2711,7 +2713,9 @@ function detectionSound() {
 function vibrateDetection() {
 
     try {
-
+        let prefs = {};
+        try { prefs = JSON.parse(localStorage.getItem("quickeats_rider_preferences") || "{}"); } catch(e) {}
+        if (prefs.vibration === false) return;
         if ("vibrate" in navigator) {
 
             navigator.vibrate([
