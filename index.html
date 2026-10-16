@@ -2977,10 +2977,11 @@ function updateRiderApplicationUI() {
   if (!panel || !currentRider || currentRider.id === "demo-rider") return;
   const status = currentRider.approval_status || "pending";
   panel.style.display = status === "approved" ? "none" : "block";
-  // Keep the delivery dashboard hidden until an administrator approves this rider.
+  // Keep the header visible for every signed-in rider so the online/offline status is always shown.
+  // Unapproved riders still cannot go online; the button is disabled below until approval.
   const header = document.querySelector("#app > .header");
   const nav = document.querySelector("#app .bottom-nav");
-  if (header) header.style.display = status === "approved" ? "" : "none";
+  if (header) header.style.display = "";
   if (nav) nav.style.display = status === "approved" ? "" : "none";
   document.querySelectorAll("#app .page").forEach(page => {
     page.style.display = status === "approved" ? "" : "none";
