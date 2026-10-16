@@ -2975,7 +2975,7 @@ function renderRiderDocumentFields() {
 function updateRiderApplicationUI() {
   const panel = document.getElementById("riderApplicationPanel");
   if (!panel || !currentRider || currentRider.id === "demo-rider") return;
-  const status = currentRider.approval_status || "pending";
+  const status = String(currentRider.approval_status || "pending").trim().toLowerCase();
   panel.style.display = status === "approved" ? "none" : "block";
   // Keep the header visible for every signed-in rider so the online/offline status is always shown.
   // Unapproved riders still cannot go online; the button is disabled below until approval.
@@ -3089,7 +3089,7 @@ async function enterApp() {
     document.getElementById("avatar").textContent =
         name.charAt(0).toUpperCase();
 
-    isOnline = currentRider?.approval_status === "approved" && currentRider?.is_online === true;
+    isOnline = String(currentRider?.approval_status || "").trim().toLowerCase() === "approved" && currentRider?.is_online === true;
 
     updateOnlineUI();
     renderRiderActivity();
