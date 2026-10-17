@@ -4470,6 +4470,10 @@ async function cancelCurrentOrder() {
             const result = Array.isArray(data) ? data[0] : data;
             if (!result?.success) throw new Error(result?.message || "The order could not be cancelled.");
         }
+        const releasedOrderId = currentOrder.id;
+        seenOrderIds.add(releasedOrderId);
+        pendingDetectedOrder = null;
+        lastDetectedOrderId = null;
         try { localStorage.removeItem(riderStorageKey("last_order")); } catch (e) {}
         currentOrder = null;
         document.getElementById("orderCard").classList.add("hidden");
@@ -4480,9 +4484,9 @@ async function cancelCurrentOrder() {
         document.getElementById("statusBtn").classList.add("hidden");
         document.getElementById("deliveryDetails").classList.add("hidden");
         button?.classList.add("hidden");
-        showToast("Order cancelled.");
+        showToast(currentRider?.id === "demo-rider" ? "Demo order cleared." : "Order released to other online riders.");
         await refreshStats();
-        if (currentRider?.id !== "demo-rider") await scanForNewOrders(false);
+        if (currentRider?.id !== "demo-rider") startScanner();
     } catch (error) {
         console.error("Cancel order failed:", error);
         if (button) { button.disabled = false; button.textContent = "CANCEL ORDER"; }
