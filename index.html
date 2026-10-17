@@ -4033,7 +4033,7 @@ function handleRealtimeOrder(payload) {
     if (!order?.id) return;
 
     if (order.rider_id && order.rider_id !== currentRider?.id) return;
-    if (!order.rider_id && !["ready_for_rider", "ready_for_pickup"].includes(order.status)) return;
+    if (!order.rider_id && !["vendor_accepted", "ready_for_rider", "ready_for_pickup"].includes(order.status)) return;
     if (!["ready_for_rider", "accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup", "picked_up", "on_the_way", "arrived_at_customer"].includes(order.status)) return;
     if (seenOrderIds.has(order.id)) return;
 
