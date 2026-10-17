@@ -2082,21 +2082,6 @@ button:active{transform:scale(.98);filter:brightness(.97)}
         </button>
     </header>
 
-    <!-- RIDER APPLICATION / DOCUMENT VERIFICATION -->
-    <section id="riderApplicationPanel" class="profile-card" style="margin:14px; padding:18px; display:none;">
-      <h2 style="margin-top:0">Rider verification</h2>
-      <p id="riderApplicationStatus" role="status">Complete the required documents before accepting deliveries.</p>
-      <div id="riderApplicationForm">
-        <label for="riderVehicleType">Delivery vehicle</label>
-        <select id="riderVehicleType" onchange="renderRiderDocumentFields()" style="width:100%;padding:12px;margin:8px 0 14px;border-radius:10px">
-          <option value="bicycle">Bicycle</option><option value="motorbike">Motorbike</option>
-        </select>
-<label for="riderVehicleNumber">Vehicle registration / number</label><input id="riderVehicleNumber" maxlength="32" placeholder="Enter your vehicle number" style="width:100%;padding:12px;border:1px solid #d9e2dc;border-radius:10px;margin-bottom:8px">        <div id="riderDocumentFields"></div>
-        <button id="submitRiderApplicationBtn" class="support-submit" onclick="submitRiderApplication()">SUBMIT FOR REVIEW</button>
-        <p id="riderApplicationFeedback" role="status" class="support-feedback"></p>
-      </div>
-    </section>
-
     <!-- HOME -->
     <main id="homePage" class="page active">
 
@@ -2351,6 +2336,22 @@ button:active{transform:scale(.98);filter:brightness(.97)}
     <!-- PROFILE -->
     <main id="profilePage" class="page">
         <div class="section-title">Profile</div>
+
+    <!-- RIDER APPLICATION / DOCUMENT VERIFICATION -->
+    <section id="riderApplicationPanel" class="profile-card" style="margin:0 0 16px; padding:18px; display:none;">
+      <h2 style="margin-top:0">Rider verification</h2>
+      <p id="riderApplicationStatus" role="status">Complete the required documents before accepting deliveries.</p>
+      <div id="riderApplicationForm">
+        <label for="riderVehicleType">Delivery vehicle</label>
+        <select id="riderVehicleType" onchange="renderRiderDocumentFields()" style="width:100%;padding:12px;margin:8px 0 14px;border-radius:10px">
+          <option value="bicycle">Bicycle</option><option value="motorbike">Motorbike</option>
+        </select>
+<label for="riderVehicleNumber">Vehicle registration / number</label><input id="riderVehicleNumber" maxlength="32" placeholder="Enter your vehicle number" style="width:100%;padding:12px;border:1px solid #d9e2dc;border-radius:10px;margin-bottom:8px">        <div id="riderDocumentFields"></div>
+        <button id="submitRiderApplicationBtn" class="support-submit" onclick="submitRiderApplication()">SUBMIT FOR REVIEW</button>
+        <p id="riderApplicationFeedback" role="status" class="support-feedback"></p>
+      </div>
+    </section>
+
 
         <section class="profile-card">
 <section class="support-card"><h3>Rider profile details</h3><label for="profilePhotoInput">Profile photo</label><input id="profilePhotoInput" type="file" accept="image/jpeg,image/png,image/webp"><label for="profileVehicleType">Vehicle type</label><select id="profileVehicleType"><option value="bicycle">Bicycle</option><option value="motorbike">Motorbike</option></select><label for="profileVehicleNumber">Vehicle registration / number</label><input id="profileVehicleNumber" maxlength="32" placeholder="Vehicle number"><button class="support-submit" type="button" onclick="saveRiderProfileDetails()">Save profile details</button><p id="profileDetailsFeedback" role="status"></p></section><section class="support-card"><h3>Bank / payout details</h3><p>Saving details does not initiate a payout.</p><label for="payoutBankName">Bank name</label><input id="payoutBankName" maxlength="80" placeholder="Bank name"><label for="payoutAccountName">Account name</label><input id="payoutAccountName" maxlength="100" placeholder="Name on bank account"><label for="payoutAccountNumber">Account number</label><input id="payoutAccountNumber" inputmode="numeric" maxlength="20" placeholder="Account number"><button class="support-submit" type="button" onclick="saveRiderPayoutDetails()">Save payout details</button><p id="payoutFeedback" role="status"></p></section>            <div id="avatar" class="avatar">R</div>
@@ -2991,10 +2992,15 @@ function updateRiderApplicationUI() {
   const header = document.querySelector("#app > .header");
   const nav = document.querySelector("#app .bottom-nav");
   if (header) header.style.display = "";
-  if (nav) nav.style.display = status === "approved" ? "" : "none";
+  // Keep Profile available to pending riders so they can upload or resubmit documents.
+  if (nav) nav.style.display = "";
   document.querySelectorAll("#app .page").forEach(page => {
-    page.style.display = status === "approved" ? "" : "none";
+    page.style.display = status === "approved" || page.id === "profilePage" ? "" : "none";
   });
+  if (status !== "approved") {
+    document.querySelectorAll("#app .page").forEach(page => page.classList.toggle("active", page.id === "profilePage"));
+    document.querySelectorAll("#app .nav-btn").forEach(button => button.classList.toggle("active", button.id === "navProfile"));
+  }
   const messages = {
     pending: currentRider.documents_submitted_at
       ? "Your required documents have been submitted. Your account is awaiting administrator verification. Your dashboard will open after approval."
@@ -3111,15 +3117,16 @@ async function enterApp() {
     if (currentRider?.id !== "demo-rider" &&
         getEffectiveRiderApprovalStatus(currentRider) !== "approved") {
         const panel = document.getElementById("riderApplicationPanel");
+        // Route pending riders straight to Profile, where verification lives.
+        showPage("profile");
+        const profilePage = document.getElementById("profilePage");
+        if (profilePage) profilePage.style.display = "block";
+        const nav = document.querySelector("#app .bottom-nav");
+        if (nav) nav.style.display = "";
         if (panel) {
             panel.style.display = "block";
             panel.scrollIntoView({ behavior: "auto", block: "start" });
         }
-        document.querySelectorAll("#app .page").forEach(page => {
-            page.style.display = "none";
-        });
-        const nav = document.querySelector("#app .bottom-nav");
-        if (nav) nav.style.display = "none";
         isOnline = false;
         stopScanner();
         updateOnlineUI();
