@@ -2972,10 +2972,19 @@ function renderRiderDocumentFields() {
   `).join("") + '<small>Accepted: JPG, PNG, WebP, or PDF. Maximum 5 MB per file.</small>';
 }
 
+function getEffectiveRiderApprovalStatus(rider = currentRider) {
+  if (!rider || rider.id === "demo-rider") return "approved";
+  const stored = String(rider.approval_status || "pending").trim().toLowerCase();
+  // Never let an account skip verification just because its database row says approved.
+  // A valid application must include a vehicle type and a submitted-document timestamp.
+  if (stored === "approved" && (!rider.vehicle_type || !rider.documents_submitted_at)) return "pending";
+  return stored;
+}
+
 function updateRiderApplicationUI() {
   const panel = document.getElementById("riderApplicationPanel");
   if (!panel || !currentRider || currentRider.id === "demo-rider") return;
-  const status = String(currentRider.approval_status || "pending").trim().toLowerCase();
+  const status = getEffectiveRiderApprovalStatus(currentRider);
   panel.style.display = status === "approved" ? "none" : "block";
   // Keep the header visible for every signed-in rider so the online/offline status is always shown.
   // Unapproved riders still cannot go online; the button is disabled below until approval.
@@ -3089,7 +3098,7 @@ async function enterApp() {
     document.getElementById("avatar").textContent =
         name.charAt(0).toUpperCase();
 
-    isOnline = String(currentRider?.approval_status || "").trim().toLowerCase() === "approved" && currentRider?.is_online === true;
+    isOnline = getEffectiveRiderApprovalStatus(currentRider) === "approved" && currentRider?.is_online === true;
 
     updateOnlineUI();
     renderRiderActivity();
@@ -3755,7 +3764,7 @@ function restoreCachedRiderOrder() {
 }
 
 async function toggleOnline() {
-    const approvalStatus = String(currentRider?.approval_status || "").trim().toLowerCase();
+    const approvalStatus = getEffectiveRiderApprovalStatus(currentRider);
     if (currentRider?.id !== "demo-rider" && approvalStatus !== "approved") {
         showToast("Your account must be approved before you can go online.");
         updateRiderApplicationUI();
