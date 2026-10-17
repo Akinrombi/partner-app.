@@ -2289,6 +2289,7 @@ button:active{transform:scale(.98);filter:brightness(.97)}
                     onclick="advanceStatus()">
                 UPDATE STATUS
             </button>
+            <button id="cancelOrderBtn" class="secondary-btn hidden" onclick="cancelCurrentOrder()" style="background:#fff0f0;color:#bd2424;border:1px solid #ffd6d6;">CANCEL ORDER</button>
 
             <div id="deliveryDetails" class="delivery-details hidden">
                 <div class="delivery-banner">
@@ -4179,8 +4180,14 @@ function showOrder(order, animate = false) {
     document.getElementById("emptyOrder").classList.add("hidden");
     card.classList.remove("hidden");
 
-    document.getElementById("acceptBtn").style.display = "block";
-    document.getElementById("statusBtn").classList.add("hidden");
+    const acceptButton = document.getElementById("acceptBtn");
+    acceptButton.disabled = false;
+    acceptButton.textContent = "ACCEPT DELIVERY";
+    acceptButton.style.display = "block";
+    const statusButton = document.getElementById("statusBtn");
+    statusButton.disabled = false;
+    statusButton.classList.add("hidden");
+    document.getElementById("cancelOrderBtn")?.classList.add("hidden");
     document.getElementById("deliveryDetails").classList.add("hidden");
 
     if (animate) {
@@ -4234,9 +4241,14 @@ function showOrder(order, animate = false) {
 
     updateDestinationOnMap(order);
 
-    if (order.rider_id && order.rider_id !== currentRider?.id) {
+    const activeStatuses = ["accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup", "picked_up", "on_the_way", "arrived_at_customer"];
+    if (order.rider_id && order.rider_id === currentRider?.id && activeStatuses.includes(order.status)) {
         document.getElementById("acceptBtn").style.display = "none";
         showAccepted(order);
+    } else if (order.rider_id && order.rider_id !== currentRider?.id) {
+        document.getElementById("acceptBtn").style.display = "none";
+        document.getElementById("statusBtn").classList.add("hidden");
+        document.getElementById("cancelOrderBtn")?.classList.add("hidden");
     } else {
         document.getElementById("acceptBtn").style.display = "block";
     }
