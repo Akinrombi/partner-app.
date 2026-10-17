@@ -4442,7 +4442,9 @@ function getNextStatus(status) {
         accepted: "arrived_at_vendor",
         rider_accepted: "arrived_at_vendor",
         available: "rider_accepted",
-        arrived_at_vendor: "picked_up",
+        // Vendor verifies the pickup code in the Vendor App; the database moves the order to picked_up.
+        arrived_at_vendor: null,
+        arrived_pickup: null,
         picked_up: "arrived_at_customer",
         arrived_at_customer: "delivered"
     };
@@ -4455,7 +4457,8 @@ function getStatusButtonText(status) {
         accepted: "ARRIVED AT PICKUP",
         rider_accepted: "ARRIVED AT VENDOR",
         available: "ACCEPT DEMO ORDER",
-        arrived_at_vendor: "CONFIRM PICKUP",
+        arrived_at_vendor: "WAITING FOR VENDOR TO VERIFY PICKUP",
+        arrived_pickup: "WAITING FOR VENDOR TO VERIFY PICKUP",
         picked_up: "ARRIVED AT CUSTOMER",
         arrived_at_customer: "CONFIRM DELIVERY"
     };
@@ -4486,7 +4489,11 @@ function updateStatusScreen(status) {
     const button = document.getElementById("statusBtn");
     const next = getNextStatus(status);
 
-    if (!next) {
+    if (["arrived_at_vendor", "arrived_pickup"].includes(String(status || "").toLowerCase())) {
+        button.style.display = "none";
+        button.disabled = true;
+        button.textContent = "WAITING FOR VENDOR TO VERIFY PICKUP";
+    } else if (!next) {
         button.style.display = "none";
     } else {
         button.style.display = "block";
@@ -4674,6 +4681,36 @@ async function advanceStatus() {
     }
 }
 
+
+/* Keep the rider screen in sync when the vendor verifies the pickup code. */
+let riderOrderSyncBusy = false;
+setInterval(async () => {
+    if (riderOrderSyncBusy || !currentOrder?.id || !currentRider?.id || currentRider.id === "demo-rider" || !navigator.onLine) return;
+    if (currentOrder.rider_id !== currentRider.id) return;
+    riderOrderSyncBusy = true;
+    try {
+        const { data, error } = await supabaseClient
+            .from("orders")
+            .select("id,order_number,vendor_id,rider_id,customer_name,customer_phone,delivery_address,items,total,delivery_fee,status,created_at,preparing_at,ready_at,accepted_at,arrived_vendor_at,picked_up_at,arrived_customer_at,delivered_at,cancelled_at,notes,est_prep_mins,cancel_reason,source,wa_pending,commission_rate,commission_amount,vendor_net,payment_status,payment_reference,payment_paid_at,customer_id,updated_at")
+            .eq("id", currentOrder.id)
+            .eq("rider_id", currentRider.id)
+            .maybeSingle();
+        if (error) throw error;
+        if (data && (data.status !== currentOrder.status || data.updated_at !== currentOrder.updated_at)) {
+            const previousStatus = currentOrder.status;
+            currentOrder = data;
+            updateStatusScreen(data.status);
+            if (data.status === "picked_up" && previousStatus !== "picked_up") {
+                showToast("Vendor verified pickup. You can now deliver to the customer.");
+            }
+            if (data.status === "delivered" && previousStatus !== "delivered") await deliveryCompleted();
+        }
+    } catch (error) {
+        console.warn("Rider order sync failed:", error?.message || error);
+    } finally {
+        riderOrderSyncBusy = false;
+    }
+}, 8000);
 
 async function cancelCurrentOrder() {
     if (!currentOrder) { showToast("There is no active order to cancel."); return; }
