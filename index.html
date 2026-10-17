@@ -2227,6 +2227,11 @@ button:active{transform:scale(.98);filter:brightness(.97)}
                 <div style="min-width:0;flex:1">
                     <div class="info-label">1 · PICK UP FROM VENDOR</div>
                     <div id="pickupAddress" class="info-value">---</div>
+                    <div id="pickupCodePanel" style="display:none;margin:10px 0;padding:12px;border:1px solid #bce8cd;background:#effbf3;border-radius:12px;">
+                        <div style="font-size:11px;font-weight:800;letter-spacing:.6px;color:#08783e;">🔐 VENDOR PICKUP CODE</div>
+                        <div id="pickupCodeValue" style="font-size:25px;font-weight:900;letter-spacing:5px;color:#123d28;margin-top:5px;">------</div>
+                        <div id="pickupCodeHelp" style="font-size:11px;color:#52645a;margin-top:4px;">Show this code to the vendor to confirm the pickup.</div>
+                    </div>
                     <button id="pickupNavBtn"
                             class="nav-action-btn"
                             onclick="navigateToOrderLocation('pickup')">
@@ -2501,6 +2506,8 @@ let supabaseClient = null;
 let currentUser = null;
 let currentRider = null;
 let currentOrder = null;
+let pickupCodeLoadedOrderId = null;
+let pickupCodeLoadingOrderId = null;
 
 let isOnline = true;
 
@@ -3922,7 +3929,7 @@ async function scanForNewOrders(initialScan = false) {
             error
         } = await supabaseClient
             .from("orders")
-            .select("*")
+            .select("id,order_number,vendor_id,rider_id,customer_name,customer_phone,delivery_address,items,total,delivery_fee,status,created_at,preparing_at,ready_at,accepted_at,arrived_vendor_at,picked_up_at,arrived_customer_at,delivered_at,cancelled_at,notes,est_prep_mins,cancel_reason,source,wa_pending,commission_rate,commission_amount,vendor_net,payment_status,payment_reference,payment_paid_at,customer_id,updated_at")
             .or("rider_id.eq." + currentRider.id + ",and(rider_id.is.null,status.in.(vendor_accepted,ready_for_rider,ready_for_pickup))")
             .in("status", ["vendor_accepted", "ready_for_rider", "ready_for_pickup", "accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup", "picked_up", "on_the_way", "arrived_at_customer"])
             .order("created_at", {
@@ -4388,7 +4395,7 @@ async function acceptCurrentOrder() {
         if (error) throw error;
         const result = Array.isArray(data) ? data[0] : data;
         if (!result?.success) throw new Error(result?.message || "This delivery is no longer available.");
-        const { data: acceptedOrder, error: orderError } = await supabaseClient.from("orders").select("*").eq("id", currentOrder.id).single();
+        const { data: acceptedOrder, error: orderError } = await supabaseClient.from("orders").select("id,order_number,vendor_id,rider_id,customer_name,customer_phone,delivery_address,items,total,delivery_fee,status,created_at,preparing_at,ready_at,accepted_at,arrived_vendor_at,picked_up_at,arrived_customer_at,delivered_at,cancelled_at,notes,est_prep_mins,cancel_reason,source,wa_pending,commission_rate,commission_amount,vendor_net,payment_status,payment_reference,payment_paid_at,customer_id,updated_at").eq("id", currentOrder.id).single();
         if (orderError) throw orderError;
         currentOrder = acceptedOrder;
         showAccepted(acceptedOrder);
@@ -4457,6 +4464,7 @@ function getStatusButtonText(status) {
 }
 
 function updateStatusScreen(status) {
+    updatePickupCodePanel(status);
     const resendCodeButton = document.getElementById("resendDeliveryCodeBtn");
     const resendCodeFeedback = document.getElementById("resendDeliveryCodeFeedback");
     const canResendDeliveryCode = !!currentOrder && currentRider?.id !== "demo-rider" &&
@@ -4495,6 +4503,65 @@ function updateStatusScreen(status) {
         cancelButton.classList.toggle("hidden", !canCancel);
         cancelButton.disabled = false;
         cancelButton.textContent = "CANCEL ORDER";
+    }
+}
+
+function updatePickupCodePanel(status) {
+    const panel = document.getElementById("pickupCodePanel");
+    const valueNode = document.getElementById("pickupCodeValue");
+    const helpNode = document.getElementById("pickupCodeHelp");
+    const pickupStatuses = ["accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup"];
+    const canShow = !!currentOrder?.id &&
+        !!currentRider?.id &&
+        currentRider.id !== "demo-rider" &&
+        currentOrder.rider_id === currentRider.id &&
+        pickupStatuses.includes(String(status || "").toLowerCase());
+
+    if (!panel || !valueNode) return;
+    if (!canShow) {
+        panel.style.display = "none";
+        valueNode.textContent = "------";
+        if (helpNode) helpNode.textContent = "Show this code to the vendor to confirm the pickup.";
+        pickupCodeLoadedOrderId = null;
+        pickupCodeLoadingOrderId = null;
+        return;
+    }
+
+    panel.style.display = "block";
+    if (pickupCodeLoadedOrderId === currentOrder.id) return;
+    if (pickupCodeLoadingOrderId === currentOrder.id) return;
+
+    valueNode.textContent = "······";
+    if (helpNode) helpNode.textContent = "Loading your secure pickup code…";
+    loadAssignedPickupCode(currentOrder.id);
+}
+
+async function loadAssignedPickupCode(orderId) {
+    if (!supabaseClient || !orderId || !currentRider?.id || currentRider.id === "demo-rider") return;
+    pickupCodeLoadingOrderId = orderId;
+    try {
+        const { data, error } = await supabaseClient.rpc("get_my_order_pickup_code", {
+            p_order_id: orderId
+        });
+        if (error) throw error;
+        if (currentOrder?.id !== orderId || currentOrder?.rider_id !== currentRider?.id) return;
+        const code = String(data || "").trim();
+        if (!/^\\d{6}$/.test(code)) throw new Error("Invalid pickup code returned");
+        const valueNode = document.getElementById("pickupCodeValue");
+        const helpNode = document.getElementById("pickupCodeHelp");
+        if (valueNode) valueNode.textContent = code;
+        if (helpNode) helpNode.textContent = "Show this code to the vendor to confirm the pickup.";
+        pickupCodeLoadedOrderId = orderId;
+    } catch (error) {
+        console.warn("Could not load vendor pickup code:", error?.message || error);
+        if (currentOrder?.id === orderId) {
+            const valueNode = document.getElementById("pickupCodeValue");
+            const helpNode = document.getElementById("pickupCodeHelp");
+            if (valueNode) valueNode.textContent = "------";
+            if (helpNode) helpNode.textContent = "Pickup code unavailable. Refresh the delivery or contact support.";
+        }
+    } finally {
+        if (pickupCodeLoadingOrderId === orderId) pickupCodeLoadingOrderId = null;
     }
 }
 
@@ -4589,7 +4656,7 @@ async function advanceStatus() {
         if (error) throw error;
         const result = Array.isArray(data) ? data[0] : data;
         if (!result?.success) throw new Error(result?.message || "Unable to update delivery.");
-        const { data: updated, error: refreshError } = await supabaseClient.from("orders").select("*").eq("id", currentOrder.id).single();
+        const { data: updated, error: refreshError } = await supabaseClient.from("orders").select("id,order_number,vendor_id,rider_id,customer_name,customer_phone,delivery_address,items,total,delivery_fee,status,created_at,preparing_at,ready_at,accepted_at,arrived_vendor_at,picked_up_at,arrived_customer_at,delivered_at,cancelled_at,notes,est_prep_mins,cancel_reason,source,wa_pending,commission_rate,commission_amount,vendor_net,payment_status,payment_reference,payment_paid_at,customer_id,updated_at").eq("id", currentOrder.id).single();
         if (refreshError) throw refreshError;
         currentOrder = updated;
         updateStatusScreen(updated.status);
@@ -4722,7 +4789,7 @@ async function refreshStats() {
     try {
         const { data, error } = await supabaseClient
             .from("orders")
-            .select("*")
+            .select("id,order_number,vendor_id,rider_id,customer_name,customer_phone,delivery_address,items,total,delivery_fee,status,created_at,preparing_at,ready_at,accepted_at,arrived_vendor_at,picked_up_at,arrived_customer_at,delivered_at,cancelled_at,notes,est_prep_mins,cancel_reason,source,wa_pending,commission_rate,commission_amount,vendor_net,payment_status,payment_reference,payment_paid_at,customer_id,updated_at")
             .eq("rider_id", currentRider.id);
 
         if (error) throw error;
@@ -4812,7 +4879,7 @@ async function loadCompletedOrders() {
     try {
         const { data, error } = await supabaseClient
             .from("orders")
-            .select("*")
+            .select("id,order_number,vendor_id,rider_id,customer_name,customer_phone,delivery_address,items,total,delivery_fee,status,created_at,preparing_at,ready_at,accepted_at,arrived_vendor_at,picked_up_at,arrived_customer_at,delivered_at,cancelled_at,notes,est_prep_mins,cancel_reason,source,wa_pending,commission_rate,commission_amount,vendor_net,payment_status,payment_reference,payment_paid_at,customer_id,updated_at")
             .eq("rider_id", currentRider.id)
             .eq("status", "delivered")
             .order("delivered_at", { ascending: false })
