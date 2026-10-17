@@ -4310,10 +4310,14 @@ async function acceptCurrentOrder() {
 ============================================================ */
 
 function showAccepted(order) {
-    document.getElementById("acceptBtn").style.display = "none";
-    document.getElementById("statusBtn").classList.remove("hidden");
+    const acceptButton = document.getElementById("acceptBtn");
+    acceptButton.disabled = false;
+    acceptButton.textContent = "ACCEPT DELIVERY";
+    acceptButton.style.display = "none";
+    const statusButton = document.getElementById("statusBtn");
+    statusButton.disabled = false;
+    statusButton.classList.remove("hidden");
     document.getElementById("deliveryDetails").classList.remove("hidden");
-
     updateStatusScreen(order.status);
 }
 
@@ -4362,11 +4366,22 @@ function updateStatusScreen(status) {
 
     if (!next) {
         button.style.display = "none";
-        return;
+    } else {
+        button.style.display = "block";
+        button.textContent = getStatusButtonText(status);
+        button.disabled = false;
     }
 
-    button.style.display = "block";
-    button.textContent = getStatusButtonText(status);
+    const cancelButton = document.getElementById("cancelOrderBtn");
+    const cancelableStatuses = ["accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup", "picked_up", "on_the_way"];
+    const belongsToRider = currentRider?.id === "demo-rider" ||
+        (!!currentRider?.id && currentOrder?.rider_id === currentRider.id);
+    if (cancelButton) {
+        const canCancel = belongsToRider && cancelableStatuses.includes(status);
+        cancelButton.classList.toggle("hidden", !canCancel);
+        cancelButton.disabled = false;
+        cancelButton.textContent = "CANCEL ORDER";
+    }
 }
 
 async function advanceStatus() {
@@ -4425,6 +4440,53 @@ async function advanceStatus() {
         button.textContent = getStatusButtonText(currentOrder.status);
 
         showToast(error.message || "Status update failed.");
+    }
+}
+
+
+async function cancelCurrentOrder() {
+    if (!currentOrder) { showToast("There is no active order to cancel."); return; }
+    if (currentOrder.status === "arrived_at_customer") {
+        showToast("You cannot cancel after arriving at the customer.");
+        return;
+    }
+    const allowed = ["accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup", "picked_up", "on_the_way"];
+    if (!allowed.includes(currentOrder.status)) {
+        showToast("This order cannot be cancelled at this step.");
+        return;
+    }
+    if (!window.confirm("Cancel this delivery? The order will be marked as cancelled.")) return;
+
+    const button = document.getElementById("cancelOrderBtn");
+    if (button) { button.disabled = true; button.textContent = "CANCELLING..."; }
+    try {
+        if (currentRider?.id !== "demo-rider") {
+            const { data, error } = await supabaseClient.rpc("update_order_status", {
+                p_order_id: currentOrder.id,
+                p_new_status: "cancelled",
+                p_verification_code: null
+            });
+            if (error) throw error;
+            const result = Array.isArray(data) ? data[0] : data;
+            if (!result?.success) throw new Error(result?.message || "The order could not be cancelled.");
+        }
+        try { localStorage.removeItem(riderStorageKey("last_order")); } catch (e) {}
+        currentOrder = null;
+        document.getElementById("orderCard").classList.add("hidden");
+        document.getElementById("emptyOrder").classList.remove("hidden");
+        document.getElementById("acceptBtn").disabled = false;
+        document.getElementById("acceptBtn").textContent = "ACCEPT DELIVERY";
+        document.getElementById("statusBtn").disabled = false;
+        document.getElementById("statusBtn").classList.add("hidden");
+        document.getElementById("deliveryDetails").classList.add("hidden");
+        button?.classList.add("hidden");
+        showToast("Order cancelled.");
+        await refreshStats();
+        if (currentRider?.id !== "demo-rider") await scanForNewOrders(false);
+    } catch (error) {
+        console.error("Cancel order failed:", error);
+        if (button) { button.disabled = false; button.textContent = "CANCEL ORDER"; }
+        showToast(error.message || "Could not cancel this order. Try again.");
     }
 }
 
@@ -4727,6 +4789,13 @@ document.addEventListener("DOMContentLoaded",loadRiderPreferences);
 async function logoutRider() {
     stopScanner();
     stopLiveGPS();
+
+    const acceptButton = document.getElementById("acceptBtn");
+    if (acceptButton) { acceptButton.disabled = false; acceptButton.textContent = "ACCEPT DELIVERY"; }
+    const statusButton = document.getElementById("statusBtn");
+    if (statusButton) { statusButton.disabled = false; statusButton.textContent = "UPDATE STATUS"; statusButton.classList.add("hidden"); }
+    const cancelButton = document.getElementById("cancelOrderBtn");
+    if (cancelButton) { cancelButton.disabled = false; cancelButton.textContent = "CANCEL ORDER"; cancelButton.classList.add("hidden"); }
 
     currentOrder = null;
     currentRider = null;
