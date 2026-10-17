@@ -3105,6 +3105,27 @@ async function enterApp() {
     restoreCachedRiderOrder();
     updateRiderApplicationUI();
 
+    // Hard gate: unapproved real riders stay on the verification screen.
+    // Do not initialise the delivery dashboard, scanner, map, GPS or order loaders
+    // until the database-backed application is approved.
+    if (currentRider?.id !== "demo-rider" &&
+        getEffectiveRiderApprovalStatus(currentRider) !== "approved") {
+        const panel = document.getElementById("riderApplicationPanel");
+        if (panel) {
+            panel.style.display = "block";
+            panel.scrollIntoView({ behavior: "auto", block: "start" });
+        }
+        document.querySelectorAll("#app .page").forEach(page => {
+            page.style.display = "none";
+        });
+        const nav = document.querySelector("#app .bottom-nav");
+        if (nav) nav.style.display = "none";
+        isOnline = false;
+        stopScanner();
+        updateOnlineUI();
+        return;
+    }
+
     await refreshStats();
 
     await loadCompletedOrders();
