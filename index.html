@@ -2343,7 +2343,7 @@ button:active{transform:scale(.98);filter:brightness(.97)}
       <p id="riderApplicationStatus" role="status">Complete the required documents before accepting deliveries.</p>
       <div id="riderApplicationForm">
         <label for="riderVehicleType">Delivery vehicle</label>
-        <select id="riderVehicleType" onchange="renderRiderDocumentFields()" style="width:100%;padding:12px;margin:8px 0 14px;border-radius:10px">
+        <select id="riderVehicleType" onchange="this.dataset.userSelected='true';renderRiderDocumentFields()" style="width:100%;padding:12px;margin:8px 0 14px;border-radius:10px">
           <option value="bicycle">Bicycle</option><option value="motorbike">Motorbike</option>
         </select>
 <label for="riderVehicleNumber">Vehicle registration / number</label><input id="riderVehicleNumber" maxlength="32" placeholder="Enter your vehicle number" style="width:100%;padding:12px;border:1px solid #d9e2dc;border-radius:10px;margin-bottom:8px">        <div id="riderDocumentFields"></div>
@@ -2354,7 +2354,7 @@ button:active{transform:scale(.98);filter:brightness(.97)}
 
 
         <section class="profile-card">
-<section class="support-card"><h3>Rider profile details</h3><label for="profilePhotoInput">Profile photo</label><input id="profilePhotoInput" type="file" accept="image/jpeg,image/png,image/webp"><label for="profileVehicleType">Vehicle type</label><select id="profileVehicleType"><option value="bicycle">Bicycle</option><option value="motorbike">Motorbike</option></select><label for="profileVehicleNumber">Vehicle registration / number</label><input id="profileVehicleNumber" maxlength="32" placeholder="Vehicle number"><button class="support-submit" type="button" onclick="saveRiderProfileDetails()">Save profile details</button><p id="profileDetailsFeedback" role="status"></p></section><section class="support-card"><h3>Bank / payout details</h3><p>Saving details does not initiate a payout.</p><label for="payoutBankName">Bank name</label><input id="payoutBankName" maxlength="80" placeholder="Bank name"><label for="payoutAccountName">Account name</label><input id="payoutAccountName" maxlength="100" placeholder="Name on bank account"><label for="payoutAccountNumber">Account number</label><input id="payoutAccountNumber" inputmode="numeric" maxlength="20" placeholder="Account number"><button class="support-submit" type="button" onclick="saveRiderPayoutDetails()">Save payout details</button><p id="payoutFeedback" role="status"></p></section>            <div id="avatar" class="avatar">R</div>
+<section class="support-card"><h3>Rider profile details</h3><label for="profilePhotoInput">Profile photo</label><input id="profilePhotoInput" type="file" accept="image/jpeg,image/png,image/webp"><label for="profileVehicleType">Vehicle type</label><select id="profileVehicleType" onchange="syncVerificationVehicleFromProfile()"><option value="bicycle">Bicycle</option><option value="motorbike">Motorbike</option></select><label for="profileVehicleNumber">Vehicle registration / number</label><input id="profileVehicleNumber" maxlength="32" placeholder="Vehicle number"><button class="support-submit" type="button" onclick="saveRiderProfileDetails()">Save profile details</button><p id="profileDetailsFeedback" role="status"></p></section><section class="support-card"><h3>Bank / payout details</h3><p>Saving details does not initiate a payout.</p><label for="payoutBankName">Bank name</label><input id="payoutBankName" maxlength="80" placeholder="Bank name"><label for="payoutAccountName">Account name</label><input id="payoutAccountName" maxlength="100" placeholder="Name on bank account"><label for="payoutAccountNumber">Account number</label><input id="payoutAccountNumber" inputmode="numeric" maxlength="20" placeholder="Account number"><button class="support-submit" type="button" onclick="saveRiderPayoutDetails()">Save payout details</button><p id="payoutFeedback" role="status"></p></section>            <div id="avatar" class="avatar">R</div>
             <div id="profileName" class="profile-name">Rider</div>
             <div id="profileEmail" class="profile-email">---</div>
 
@@ -2963,6 +2963,14 @@ const RIDER_DOCS = {
   ]
 };
 
+function syncVerificationVehicleFromProfile() {
+  const profileVehicle = document.getElementById("profileVehicleType");
+  const verificationVehicle = document.getElementById("riderVehicleType");
+  if (!profileVehicle || !verificationVehicle) return;
+  verificationVehicle.value = profileVehicle.value || "bicycle";
+  renderRiderDocumentFields();
+}
+
 function renderRiderDocumentFields() {
   const vehicle = document.getElementById("riderVehicleType")?.value || "bicycle";
   const holder = document.getElementById("riderDocumentFields");
@@ -2986,6 +2994,19 @@ function updateRiderApplicationUI() {
   const panel = document.getElementById("riderApplicationPanel");
   if (!panel || !currentRider || currentRider.id === "demo-rider") return;
   const status = getEffectiveRiderApprovalStatus(currentRider);
+  // Use the vehicle already saved on the rider record so the required upload fields
+  // match the vehicle type the admin panel will review.
+  const verificationVehicle = document.getElementById("riderVehicleType");
+  const profileVehicle = document.getElementById("profileVehicleType");
+  if (currentRider.vehicle_type && verificationVehicle && !verificationVehicle.dataset.userSelected) {
+    verificationVehicle.value = currentRider.vehicle_type;
+    if (profileVehicle) profileVehicle.value = currentRider.vehicle_type;
+    renderRiderDocumentFields();
+  }
+  const verificationNumber = document.getElementById("riderVehicleNumber");
+  if (verificationNumber && currentRider.vehicle_number && !verificationNumber.value) {
+    verificationNumber.value = currentRider.vehicle_number;
+  }
   panel.style.display = status === "approved" ? "none" : "block";
   // Keep the header visible for every signed-in rider so the online/offline status is always shown.
   // Unapproved riders still cannot go online; the button is disabled below until approval.
