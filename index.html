@@ -4546,7 +4546,7 @@ async function loadAssignedPickupCode(orderId) {
         if (error) throw error;
         if (currentOrder?.id !== orderId || currentOrder?.rider_id !== currentRider?.id) return;
         const code = String(data || "").trim();
-        if (!/^\\d{6}$/.test(code)) throw new Error("Invalid pickup code returned");
+        if (!/^[0-9]{6}$/.test(code)) throw new Error("Invalid pickup code returned");
         const valueNode = document.getElementById("pickupCodeValue");
         const helpNode = document.getElementById("pickupCodeHelp");
         if (valueNode) valueNode.textContent = code;
