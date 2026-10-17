@@ -2303,6 +2303,8 @@ button:active{transform:scale(.98);filter:brightness(.97)}
                         <div class="info-label">CUSTOMER PHONE</div>
                         <div id="customerPhone" class="info-value">---</div>
                     <a id="callCustomerBtn" class="nav-action-btn" href="#" style="display:none;text-decoration:none;" aria-label="Call customer">📞 Call customer</a>
+                    <button id="resendDeliveryCodeBtn" class="nav-action-btn" type="button" onclick="resendCustomerDeliveryCode()" style="display:none;margin-top:8px;width:100%;justify-content:center;background:#e9f8ef;color:#08783e;border:1px solid #bce8cd;">💬 Resend delivery code on WhatsApp</button>
+                    <p id="resendDeliveryCodeFeedback" role="status" style="display:none;font-size:12px;margin:7px 0 0;color:#52645a;"></p>
                     </div>
                 </div>
             </div>
@@ -4455,6 +4457,16 @@ function getStatusButtonText(status) {
 }
 
 function updateStatusScreen(status) {
+    const resendCodeButton = document.getElementById("resendDeliveryCodeBtn");
+    const resendCodeFeedback = document.getElementById("resendDeliveryCodeFeedback");
+    const canResendDeliveryCode = !!currentOrder && currentRider?.id !== "demo-rider" &&
+        currentOrder.rider_id === currentRider?.id &&
+        ["picked_up", "arrived_at_customer", "on_the_way"].includes(String(status || "").toLowerCase());
+    if (resendCodeButton) resendCodeButton.style.display = canResendDeliveryCode ? "flex" : "none";
+    if (!canResendDeliveryCode && resendCodeFeedback) {
+        resendCodeFeedback.style.display = "none";
+        resendCodeFeedback.textContent = "";
+    }
     document.getElementById("orderStatus").textContent =
         formatStatus(status);
 
@@ -4485,6 +4497,45 @@ function updateStatusScreen(status) {
         cancelButton.textContent = "CANCEL ORDER";
     }
 }
+
+async function resendCustomerDeliveryCode() {
+    const button = document.getElementById("resendDeliveryCodeBtn");
+    const feedback = document.getElementById("resendDeliveryCodeFeedback");
+    if (!currentOrder?.id || !currentRider?.id || currentRider.id === "demo-rider") {
+        showToast("Resending is available for real customer deliveries only.");
+        return;
+    }
+    if (currentOrder.rider_id !== currentRider.id) {
+        showToast("This delivery is not assigned to you.");
+        return;
+    }
+    if (!["picked_up", "arrived_at_customer", "on_the_way"].includes(String(currentOrder.status || "").toLowerCase())) {
+        showToast("You can resend the code when delivering to the customer.");
+        return;
+    }
+    if (!button) return;
+    button.disabled = true;
+    button.textContent = "SENDING WHATSAPP...";
+    if (feedback) { feedback.style.display = "block"; feedback.textContent = "Sending a secure message to the customer…"; }
+    try {
+        const { data, error } = await supabaseClient.functions.invoke("resend-delivery-code-whatsapp", {
+            body: { order_id: currentOrder.id }
+        });
+        if (error) throw error;
+        if (!data?.success) throw new Error(data?.message || "WhatsApp message could not be sent.");
+        if (feedback) feedback.textContent = "WhatsApp delivery code message sent. Ask the customer to check WhatsApp.";
+        showToast("Delivery code message sent to customer.");
+    } catch (error) {
+        console.error("Resend delivery code failed:", error);
+        const message = error?.message || "Could not send the WhatsApp message.";
+        if (feedback) feedback.textContent = message;
+        showToast(message);
+    } finally {
+        button.disabled = false;
+        button.textContent = "💬 Resend delivery code on WhatsApp";
+    }
+}
+
 
 async function advanceStatus() {
     if (!currentOrder) return;
