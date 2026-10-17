@@ -2503,6 +2503,7 @@ let currentOrder = null;
 let isOnline = true;
 
 let scannerTimer = null;
+let orderOwnershipTimer = null;
 let scannerInitialized = false;
 let scannerBusy = false;
 
@@ -3860,7 +3861,13 @@ function updateOnlineUI() {
 
 function startScanner() {
 
-    if (!supabaseClient || !isOnline || !navigator.onLine || riderShiftState?.onBreak) return;
+    if (!supabaseClient || !currentRider?.id) return;
+
+    // Keep realtime connected while an order is open so this screen can react
+    // if another rider wins the assignment.
+    listenForOrders();
+
+    if (!isOnline || !navigator.onLine || riderShiftState?.onBreak) return;
     if (currentOrder || pendingDetectedOrder || scannerTimer) return;
 
     updateOnlineUI();
@@ -3886,16 +3893,6 @@ function stopScanner() {
         clearInterval(scannerTimer);
 
         scannerTimer = null;
-
-    }
-
-    if (realtimeChannel) {
-
-        supabaseClient
-            .removeChannel(realtimeChannel)
-            .catch(() => {});
-
-        realtimeChannel = null;
 
     }
 
@@ -4027,11 +4024,20 @@ function listenForOrders() {
 }
 
 function handleRealtimeOrder(payload) {
-    if (!isOnline) return;
-
     const order = payload?.new;
     if (!order?.id) return;
 
+    // If another rider accepted this order, remove it from this rider's screen.
+    if (
+        order.rider_id &&
+        order.rider_id !== currentRider?.id &&
+        (currentOrder?.id === order.id || pendingDetectedOrder?.id === order.id)
+    ) {
+        clearOrderTakenByAnotherRider(order.id);
+        return;
+    }
+
+    if (!isOnline) return;
     if (order.rider_id && order.rider_id !== currentRider?.id) return;
     if (!order.rider_id && !["vendor_accepted", "ready_for_rider", "ready_for_pickup"].includes(order.status)) return;
     if (!["ready_for_rider", "accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup", "picked_up", "on_the_way", "arrived_at_customer"].includes(order.status)) return;
@@ -4159,6 +4165,101 @@ function hasActiveAssignedDelivery() {
 
 
 /* ============================================================
+   ORDER OWNERSHIP MONITOR
+============================================================ */
+
+function startOrderOwnershipMonitor() {
+    if (orderOwnershipTimer || !supabaseClient || !currentRider?.id || currentRider.id === "demo-rider") return;
+
+    orderOwnershipTimer = setInterval(async () => {
+        const orderId = currentOrder?.id;
+        if (!orderId || !currentRider?.id || currentRider.id === "demo-rider") {
+            stopOrderOwnershipMonitor();
+            return;
+        }
+
+        try {
+            const { data, error } = await supabaseClient
+                .from("orders")
+                .select("id,rider_id,status")
+                .eq("id", orderId)
+                .maybeSingle();
+
+            if (error) {
+                console.warn("Could not verify current order ownership:", error.message);
+                return;
+            }
+
+            // If the row is no longer visible, or belongs to another rider,
+            // it is no longer safe to keep showing it as this rider's job.
+            if (!data || (data.rider_id && data.rider_id !== currentRider.id)) {
+                clearOrderTakenByAnotherRider(orderId);
+                return;
+            }
+
+            // Another rider or vendor may have returned this order to the pool.
+            if (!data.rider_id && ["ready_for_rider", "ready_for_pickup", "vendor_accepted"].includes(data.status)
+                && currentOrder?.rider_id === currentRider.id) {
+                clearOrderTakenByAnotherRider(orderId);
+            }
+        } catch (error) {
+            console.warn("Order ownership check failed:", error);
+        }
+    }, 6000);
+}
+
+function stopOrderOwnershipMonitor() {
+    if (orderOwnershipTimer) {
+        clearInterval(orderOwnershipTimer);
+        orderOwnershipTimer = null;
+    }
+}
+
+function clearOrderTakenByAnotherRider(orderId) {
+    if (currentOrder?.id !== orderId && pendingDetectedOrder?.id !== orderId) return;
+
+    currentOrder = null;
+    pendingDetectedOrder = null;
+    lastDetectedOrderId = null;
+    clearTimeout(popupTimer);
+    hideOrderPopup();
+    stopOrderOwnershipMonitor();
+
+    const card = document.getElementById("orderCard");
+    if (card) card.classList.add("hidden");
+    document.getElementById("emptyOrder")?.classList.remove("hidden");
+    document.getElementById("deliveryDetails")?.classList.add("hidden");
+    document.getElementById("acceptBtn")?.style && (document.getElementById("acceptBtn").style.display = "block");
+    const acceptButton = document.getElementById("acceptBtn");
+    if (acceptButton) {
+        acceptButton.disabled = false;
+        acceptButton.textContent = "ACCEPT DELIVERY";
+    }
+    const statusButton = document.getElementById("statusBtn");
+    if (statusButton) {
+        statusButton.disabled = false;
+        statusButton.textContent = "UPDATE STATUS";
+        statusButton.classList.add("hidden");
+    }
+    const cancelButton = document.getElementById("cancelOrderBtn");
+    if (cancelButton) {
+        cancelButton.disabled = false;
+        cancelButton.textContent = "CANCEL ORDER";
+        cancelButton.classList.add("hidden");
+    }
+
+    try {
+        localStorage.removeItem(riderStorageKey("last_order"));
+    } catch (error) {
+        console.warn("Could not clear cached order:", error);
+    }
+
+    showToast("This order has been assigned to another rider. Your screen has been updated.");
+    if (isOnline && navigator.onLine) startScanner();
+}
+
+
+/* ============================================================
    DISPLAY ORDER
 ============================================================ */
 
@@ -4167,6 +4268,7 @@ function showOrder(order, animate = false) {
 
     currentOrder = order;
     saveRiderActivityState();
+    startOrderOwnershipMonitor();
 
     const card = document.getElementById("orderCard");
     card.classList.toggle("demo-order-card", !!order.is_demo_order);
@@ -4792,6 +4894,11 @@ document.addEventListener("DOMContentLoaded",loadRiderPreferences);
 
 async function logoutRider() {
     stopScanner();
+    stopOrderOwnershipMonitor();
+    if (realtimeChannel && supabaseClient) {
+        supabaseClient.removeChannel(realtimeChannel).catch(() => {});
+        realtimeChannel = null;
+    }
     stopLiveGPS();
 
     const acceptButton = document.getElementById("acceptBtn");
