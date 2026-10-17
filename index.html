@@ -2982,69 +2982,29 @@ function renderRiderDocumentFields() {
 }
 
 function getEffectiveRiderApprovalStatus(rider = currentRider) {
-  if (!rider || rider.id === "demo-rider") return "approved";
-  const stored = String(rider.approval_status || "pending").trim().toLowerCase();
-  // Never let an account skip verification just because its database row says approved.
-  // A valid application must include a vehicle type and a submitted-document timestamp.
-  if (stored === "approved" && (!rider.vehicle_type || !rider.documents_submitted_at)) return "pending";
-  return stored;
+  // Verification is temporarily disabled. Allow every signed-in rider to access the dashboard.
+  return "approved";
 }
 
+function updateRiderApplicationUI()
+
 function updateRiderApplicationUI() {
+  // Rider verification is temporarily hidden and can be restored later.
   const panel = document.getElementById("riderApplicationPanel");
-  if (!panel || !currentRider || currentRider.id === "demo-rider") return;
-  const status = getEffectiveRiderApprovalStatus(currentRider);
-  // Use the vehicle already saved on the rider record so the required upload fields
-  // match the vehicle type the admin panel will review.
-  const verificationVehicle = document.getElementById("riderVehicleType");
-  const profileVehicle = document.getElementById("profileVehicleType");
-  if (currentRider.vehicle_type && verificationVehicle && !verificationVehicle.dataset.userSelected) {
-    verificationVehicle.value = currentRider.vehicle_type;
-    if (profileVehicle) profileVehicle.value = currentRider.vehicle_type;
-    renderRiderDocumentFields();
+  if (panel) panel.style.display = "none";
+  const online = document.getElementById("onlineBtn");
+  if (online) {
+    online.disabled = false;
+    online.title = "Toggle availability";
   }
-  const verificationNumber = document.getElementById("riderVehicleNumber");
-  if (verificationNumber && currentRider.vehicle_number && !verificationNumber.value) {
-    verificationNumber.value = currentRider.vehicle_number;
-  }
-  panel.style.display = status === "approved" ? "none" : "block";
-  // Keep the header visible for every signed-in rider so the online/offline status is always shown.
-  // Unapproved riders still cannot go online; the button is disabled below until approval.
   const header = document.querySelector("#app > .header");
   const nav = document.querySelector("#app .bottom-nav");
   if (header) header.style.display = "";
-  // Keep Profile available to pending riders so they can upload or resubmit documents.
   if (nav) nav.style.display = "";
-  document.querySelectorAll("#app .page").forEach(page => {
-    page.style.display = status === "approved" || page.id === "profilePage" ? "" : "none";
-  });
-  if (status !== "approved") {
-    document.querySelectorAll("#app .page").forEach(page => page.classList.toggle("active", page.id === "profilePage"));
-    document.querySelectorAll("#app .nav-btn").forEach(button => button.classList.toggle("active", button.id === "navProfile"));
-  }
-  const messages = {
-    pending: currentRider.documents_submitted_at
-      ? "Your required documents have been submitted. Your account is awaiting administrator verification. Your dashboard will open after approval."
-      : "Upload the required documents for your vehicle type. Your dashboard will open after administrator verification.",
-    rejected: "Your application was rejected. Review the note from QuickEats support and resubmit your documents.",
-    needs_resubmission: "QuickEats needs you to resubmit your documents. Please upload clear, valid files.",
-    approved: "Your rider account is approved."
-  };
-  document.getElementById("riderApplicationStatus").textContent = messages[status] || messages.pending;
-  const form = document.getElementById("riderApplicationForm");
-  form.style.display = status === "pending" && currentRider.documents_submitted_at ? "none" : "block";
-  if (!document.getElementById("riderDocumentFields").children.length) renderRiderDocumentFields();
-  const online = document.getElementById("onlineBtn");
-  if (online) {
-    online.disabled = status !== "approved";
-    online.title = status === "approved" ? "Toggle availability" : "Verification required before going online";
-  }
-  if (status !== "approved") {
-    isOnline = false;
-    stopScanner();
-    updateOnlineUI();
-  }
+  document.querySelectorAll("#app .page").forEach(page => page.style.display = "");
 }
+
+async function submitRiderApplication()
 
 async function submitRiderApplication() {
   const feedback = document.getElementById("riderApplicationFeedback");
@@ -3132,27 +3092,9 @@ async function enterApp() {
     restoreCachedRiderOrder();
     updateRiderApplicationUI();
 
-    // Hard gate: unapproved real riders stay on the verification screen.
-    // Do not initialise the delivery dashboard, scanner, map, GPS or order loaders
-    // until the database-backed application is approved.
-    if (currentRider?.id !== "demo-rider" &&
-        getEffectiveRiderApprovalStatus(currentRider) !== "approved") {
-        const panel = document.getElementById("riderApplicationPanel");
-        // Route pending riders straight to Profile, where verification lives.
-        showPage("profile");
-        const profilePage = document.getElementById("profilePage");
-        if (profilePage) profilePage.style.display = "block";
-        const nav = document.querySelector("#app .bottom-nav");
-        if (nav) nav.style.display = "";
-        if (panel) {
-            panel.style.display = "block";
-            panel.scrollIntoView({ behavior: "auto", block: "start" });
-        }
-        isOnline = false;
-        stopScanner();
-        updateOnlineUI();
-        return;
-    }
+    // Verification is temporarily disabled so new riders can reach the dashboard and see available orders.
+    const applicationPanel = document.getElementById("riderApplicationPanel");
+    if (applicationPanel) applicationPanel.style.display = "none";
 
     await refreshStats();
 
@@ -3813,12 +3755,6 @@ function restoreCachedRiderOrder() {
 }
 
 async function toggleOnline() {
-    const approvalStatus = getEffectiveRiderApprovalStatus(currentRider);
-    if (currentRider?.id !== "demo-rider" && approvalStatus !== "approved") {
-        showToast("Your account must be approved before you can go online.");
-        updateRiderApplicationUI();
-        return;
-    }
     if (!navigator.onLine) {
         showToast("No internet connection. Connect and try again.");
         return;
@@ -3848,15 +3784,6 @@ async function toggleOnline() {
                 .maybeSingle();
             if (error) throw error;
             if (!data) throw new Error("Your rider profile could not be updated. Sign out and sign back in, then try again.");
-            const freshApproval = String(data.approval_status || "").trim().toLowerCase();
-            if (freshApproval !== "approved") {
-                currentRider = { ...currentRider, ...data };
-                isOnline = false;
-                updateOnlineUI();
-                updateRiderApplicationUI();
-                showToast("Your account is not marked approved in the rider database yet.");
-                return;
-            }
             currentRider = { ...currentRider, ...data };
             isOnline = data.is_online === true;
         } else {
