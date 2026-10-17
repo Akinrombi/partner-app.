@@ -2986,8 +2986,6 @@ function getEffectiveRiderApprovalStatus(rider = currentRider) {
   return "approved";
 }
 
-function updateRiderApplicationUI()
-
 function updateRiderApplicationUI() {
   // Rider verification is temporarily hidden and can be restored later.
   const panel = document.getElementById("riderApplicationPanel");
@@ -3003,8 +3001,6 @@ function updateRiderApplicationUI() {
   if (nav) nav.style.display = "";
   document.querySelectorAll("#app .page").forEach(page => page.style.display = "");
 }
-
-async function submitRiderApplication()
 
 async function submitRiderApplication() {
   const feedback = document.getElementById("riderApplicationFeedback");
