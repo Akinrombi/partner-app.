@@ -2417,7 +2417,7 @@ button:active{transform:scale(.98);filter:brightness(.97)}
 <label for="riderThemePreference">Appearance</label><select id="riderThemePreference" onchange="saveRiderPreferences()" style="width:100%;padding:12px;margin:8px 0"><option value="light">Light theme</option><option value="dark">Dark theme</option></select>
 <label for="riderNavigationPreference">Navigation app</label><select id="riderNavigationPreference" onchange="saveRiderPreferences()" style="width:100%;padding:12px;margin:8px 0"><option value="google">Google Maps</option><option value="apple">Apple Maps (supported devices)</option><option value="osm">OpenStreetMap directions</option></select>
 <label for="riderLanguagePreference">Language</label><select id="riderLanguagePreference" onchange="saveRiderPreferences()" style="width:100%;padding:12px;margin:8px 0"><option value="en">English</option><option value="yo">Yorùbá (preference only)</option><option value="pcm">Nigerian Pidgin (preference only)</option></select>
-<label for="riderMarkerStylePreference">Map location style</label><select id="riderMarkerStylePreference" onchange="saveRiderPreferences()" style="width:100%;padding:12px;margin:8px 0"><option value="green">🟢 Classic green scanner (default)</option><option value="📍">📍 Pin</option><option value="🛵">🛵 Scooter</option><option value="🚲">🚲 Bicycle</option><option value="🚴">🚴 Cyclist</option><option value="🍔">🍔 Foodie</option><option value="⭐">⭐ Star</option><option value="🐸">🐸 Froggy</option><option value="🦄">🦄 Unicorn</option><option value="🚀">🚀 Rocket</option></select>
+<label for="riderMarkerStylePreference">Map location style</label><select id="riderMarkerStylePreference" onchange="saveRiderPreferences()" style="width:100%;padding:12px;margin:8px 0"><option value="😁">😁 Live 3D smiling emoji (default)</option><option value="green">🟢 Classic green scanner</option><option value="📍">📍 Pin</option><option value="🛵">🛵 Scooter</option><option value="🚲">🚲 Bicycle</option><option value="🚴">🚴 Cyclist</option><option value="🍔">🍔 Foodie</option><option value="⭐">⭐ Star</option><option value="🐸">🐸 Froggy</option><option value="🦄">🦄 Unicorn</option><option value="🚀">🚀 Rocket</option></select>
 <label style="display:flex;align-items:center;gap:10px;margin:10px 0"><input id="riderSoundPreference" type="checkbox" onchange="saveRiderPreferences()"> Enable order alert sounds</label>
 <label style="display:flex;align-items:center;gap:10px;margin:10px 0"><input id="riderVibrationPreference" type="checkbox" onchange="saveRiderPreferences()"> Enable vibration alerts where supported</label><p id="riderPreferencesFeedback" role="status"></p></section>
 <section class="support-card" style="margin-top:16px;text-align:left"><h3>Request a payout</h3><p>Requests are sent for review; this form does not transfer money instantly.</p><label for="riderWithdrawalAmount">Amount (₦)</label><input id="riderWithdrawalAmount" type="number" min="100" step="50" placeholder="e.g. 5000" style="width:100%;padding:12px;margin:8px 0"><button type="button" class="support-submit" onclick="requestRiderWithdrawal()">Submit payout request</button><p id="riderWithdrawalFeedback" role="status"></p></section>
@@ -3438,13 +3438,18 @@ function updateGoogleRiderMarker() {
 
 /* Keep the map scanner visual-only and synchronized with rider/order state. */
 function getRiderScannerMarkerHtml() {
-    let style = "green";
+    let style = "😁";
     try {
-        style = JSON.parse(localStorage.getItem("quickeats_rider_preferences") || "{}").markerStyle || "green";
+        style = JSON.parse(localStorage.getItem("quickeats_rider_preferences") || "{}").markerStyle || "😁";
     } catch (e) {}
-    const marker = style === "green"
-        ? '<span class="orb"></span>'
-        : '<span class="emoji-orb" aria-hidden="true">' + escapeHtml(style) + '</span>';
+    let marker;
+    if (style === "green") {
+        marker = '<span class="orb"></span>';
+    } else if (style === "😁") {
+        marker = '<span class="emoji-orientation"><span class="live-emoji-face" role="img" aria-label="Animated smiling rider emoji"><span class="live-emoji-eye eye-left"></span><span class="live-emoji-eye eye-right"></span><span class="live-emoji-mouth"></span><span class="live-emoji-shine"></span></span></span>';
+    } else {
+        marker = '<span class="emoji-orb" aria-hidden="true">' + escapeHtml(style) + '</span>';
+    }
     return '<span class="rider-scanner"><span class="scan-ring ring-one"></span><span class="scan-ring ring-two"></span><span class="scan-ring ring-three"></span><span class="orb-shadow"></span>' + marker + '<span class="scan-label">Searching for orders…</span></span>';
 }
 function updateRiderMapScannerVisual() {
@@ -3453,6 +3458,14 @@ function updateRiderMapScannerVisual() {
     const waiting = Boolean(isOnline && navigator.onLine && !currentOrder &&
         !pendingDetectedOrder && !riderShiftState?.onBreak);
     root.classList.toggle("is-scanning", waiting);
+    const face = root.querySelector(".emoji-orientation");
+    if (face && riderPosition && Number.isFinite(Number(riderPosition.heading)) &&
+        Number(riderPosition.heading) >= 0 && (Number(riderPosition.speed) || 0) > 0.4) {
+        face.style.setProperty("--rider-heading", Number(riderPosition.heading) + "deg");
+        face.classList.add("has-heading");
+    } else if (face) {
+        face.classList.remove("has-heading");
+    }
 }
 let riderMapScannerSyncTimer = null;
 document.addEventListener("DOMContentLoaded", () => {
@@ -5141,8 +5154,8 @@ function toggleRiderBreak() {
 document.addEventListener("DOMContentLoaded", loadRiderShift);
 
 /* Rider preferences and account controls */
-function loadRiderPreferences(){let p={theme:"light",navigation:"google",language:"en",sound:true,vibration:true,markerStyle:"green"};try{p={...p,...JSON.parse(localStorage.getItem("quickeats_rider_preferences")||"{}")};}catch(e){};const set=(id,v)=>{const el=document.getElementById(id);if(el){if(el.type==="checkbox")el.checked=!!v;else el.value=v;}};set("riderThemePreference",p.theme);set("riderNavigationPreference",p.navigation);set("riderLanguagePreference",p.language);set("riderMarkerStylePreference",p.markerStyle);set("riderSoundPreference",p.sound);set("riderVibrationPreference",p.vibration);applyRiderTheme(p.theme);}
-function saveRiderPreferences(){const el=id=>document.getElementById(id);const p={theme:el("riderThemePreference")?.value||"light",navigation:el("riderNavigationPreference")?.value||"google",language:el("riderLanguagePreference")?.value||"en",markerStyle:el("riderMarkerStylePreference")?.value||"green",sound:!!el("riderSoundPreference")?.checked,vibration:!!el("riderVibrationPreference")?.checked};try{localStorage.setItem("quickeats_rider_preferences",JSON.stringify(p));}catch(e){}applyRiderTheme(p.theme);if(riderMapMarker&&liveMap){const point=riderMapMarker.getLatLng();liveMap.removeLayer(riderMapMarker);riderMapMarker=null;const scannerIcon=L.divIcon({className:"rider-scanner-icon",html:getRiderScannerMarkerHtml(),iconSize:[76,76],iconAnchor:[38,38]});riderMapMarker=L.marker(point,{icon:scannerIcon,keyboard:false,zIndexOffset:1000}).addTo(liveMap).bindPopup("Your live location");updateRiderMapScannerVisual();}const f=el("riderPreferencesFeedback");if(f)f.textContent="Preferences saved on this device. Your map marker style is updated.";}
+function loadRiderPreferences(){let p={theme:"light",navigation:"google",language:"en",sound:true,vibration:true,markerStyle:"😁"};try{p={...p,...JSON.parse(localStorage.getItem("quickeats_rider_preferences")||"{}")};}catch(e){};const set=(id,v)=>{const el=document.getElementById(id);if(el){if(el.type==="checkbox")el.checked=!!v;else el.value=v;}};set("riderThemePreference",p.theme);set("riderNavigationPreference",p.navigation);set("riderLanguagePreference",p.language);set("riderMarkerStylePreference",p.markerStyle);set("riderSoundPreference",p.sound);set("riderVibrationPreference",p.vibration);applyRiderTheme(p.theme);}
+function saveRiderPreferences(){const el=id=>document.getElementById(id);const p={theme:el("riderThemePreference")?.value||"light",navigation:el("riderNavigationPreference")?.value||"google",language:el("riderLanguagePreference")?.value||"en",markerStyle:el("riderMarkerStylePreference")?.value||"😁",sound:!!el("riderSoundPreference")?.checked,vibration:!!el("riderVibrationPreference")?.checked};try{localStorage.setItem("quickeats_rider_preferences",JSON.stringify(p));}catch(e){}applyRiderTheme(p.theme);if(riderMapMarker&&liveMap){const point=riderMapMarker.getLatLng();liveMap.removeLayer(riderMapMarker);riderMapMarker=null;const scannerIcon=L.divIcon({className:"rider-scanner-icon",html:getRiderScannerMarkerHtml(),iconSize:[76,76],iconAnchor:[38,38]});riderMapMarker=L.marker(point,{icon:scannerIcon,keyboard:false,zIndexOffset:1000}).addTo(liveMap).bindPopup("Your live location");updateRiderMapScannerVisual();}const f=el("riderPreferencesFeedback");if(f)f.textContent="Preferences saved on this device. Your map marker style is updated.";}
 function applyRiderTheme(theme){document.documentElement.dataset.riderTheme=theme==="dark"?"dark":"light";let st=document.getElementById("riderThemeStyles");if(!st){st=document.createElement("style");st.id="riderThemeStyles";document.head.appendChild(st);}st.textContent=theme==="dark"?"html[data-rider-theme='dark'] body{background:#101713;color:#edf5ef}html[data-rider-theme='dark'] .header,html[data-rider-theme='dark'] .bottom-nav,html[data-rider-theme='dark'] .order-card,html[data-rider-theme='dark'] .stat,html[data-rider-theme='dark'] .map-wrap,html[data-rider-theme='dark'] .profile-card,html[data-rider-theme='dark'] .earning-item,html[data-rider-theme='dark'] .support-card{background:#18231c!important;color:#edf5ef;border-color:#2d3b32}html[data-rider-theme='dark'] .info-value,html[data-rider-theme='dark'] .section-title,html[data-rider-theme='dark'] .header-title{color:#edf5ef}html[data-rider-theme='dark'] input,html[data-rider-theme='dark'] select,html[data-rider-theme='dark'] textarea{background:#101713!important;color:#edf5ef!important;border-color:#405147!important}html[data-rider-theme='dark'] #liveMap{filter:brightness(.82) saturate(.85)}":"";}
 async function requestRiderWithdrawal(){const f=document.getElementById("riderWithdrawalFeedback"),amount=Number(document.getElementById("riderWithdrawalAmount")?.value);if(!f)return;f.textContent="";if(!supabaseClient||!currentRider?.id||currentRider.id==="demo-rider"){f.textContent="Sign in with a real rider account to request a payout.";return;}if(!Number.isFinite(amount)||amount<100){f.textContent="Enter a valid amount of at least ₦100.";return;}const bank=document.getElementById("payoutBankName")?.value.trim(),account=document.getElementById("payoutAccountNumber")?.value.replace(/\s/g,"");if(!bank||!account){f.textContent="Save your bank and payout details first.";return;}try{const {data,error}=await supabaseClient.rpc("request_withdrawal",{p_amount:amount,p_bank:bank,p_account:account});if(error)throw error;f.textContent=(data?.message||"Payout request submitted for review.")+" No money is transferred instantly.";document.getElementById("riderWithdrawalAmount").value="";}catch(e){f.textContent=e.message||"Could not submit payout request. Check balance and permissions.";}}
 function requestAccountDeletion(){const f=document.getElementById("accountDeletionFeedback");if(!f)return;if(!currentUser?.email){f.textContent="Sign in with your account first.";return;}const subject=encodeURIComponent("QuickEats account deletion request"),body=encodeURIComponent("I request deletion of my QuickEats rider account and associated personal data.\nAccount email: "+currentUser.email+"\nPlease verify my identity before processing.");f.textContent="Your email app will open with a deletion request draft. This does not delete your account automatically.";window.location.href="mailto:privacy@quickeats.ng?subject="+subject+"&body="+body;}
@@ -5412,5 +5425,24 @@ if (qeSplashStyles && !qeSplashStyles.textContent.includes("qe-splash-clickthrou
 })();
 
 </script>
+<style id="quickeats-live-3d-emoji">
+/* Glossy animated 3D smiling emoji marker */
+.rider-scanner .emoji-orientation{position:absolute;left:50%;top:50%;width:36px;height:36px;transform:translate(-50%,-50%);perspective:140px;z-index:3}
+.rider-scanner .live-emoji-face{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 29% 19%,#fffbd1 0 4%,#ffe985 11%,#ffd43b 37%,#ffad0a 72%,#d97706 100%);border:1px solid rgba(255,255,255,.96);box-shadow:inset -4px -5px 7px rgba(151,78,0,.28),inset 3px 3px 5px rgba(255,255,255,.92),0 3px 5px rgba(0,0,0,.3),0 0 0 2px rgba(255,199,36,.24),0 0 14px rgba(255,184,0,.5);transform-style:preserve-3d;animation:qeEmojiLiving 5.8s ease-in-out infinite}
+.rider-scanner .live-emoji-eye{position:absolute;top:30%;width:4px;height:7px;border-radius:60% 60% 48% 48%;background:linear-gradient(90deg,#2a2119,#090909);box-shadow:1px 1px 0 rgba(255,255,255,.3);transform-origin:center 65%;animation:qeEmojiBlink 4.7s infinite}
+.rider-scanner .eye-left{left:29%}.rider-scanner .eye-right{right:29%}
+.rider-scanner .live-emoji-mouth{position:absolute;left:31%;top:51%;width:38%;height:24%;border-radius:10% 10% 55% 55%;background:linear-gradient(#7d210e,#40100b);border:1px solid rgba(112,36,0,.4);box-shadow:inset 0 2px 1px rgba(255,255,255,.12);transform-origin:50% 15%;animation:qeEmojiLaugh 3.8s ease-in-out infinite}
+.rider-scanner .live-emoji-mouth:after{content:"";position:absolute;left:13%;right:13%;bottom:0;height:28%;border-radius:50% 50% 45% 45%;background:#ff6f7c;opacity:.9}
+.rider-scanner .live-emoji-shine{position:absolute;left:16%;top:9%;width:27%;height:10%;border-radius:50%;background:rgba(255,255,255,.9);filter:blur(.5px);transform:rotate(-27deg)}
+.rider-scanner .emoji-orientation.has-heading .live-emoji-face{animation:qeEmojiLiving 5.8s ease-in-out infinite,qeEmojiHeading .65s ease-out both}
+.rider-scanner.is-scanning .emoji-orientation{animation:qeEmojiBob 1.8s ease-in-out infinite}
+.rider-scanner.is-scanning .live-emoji-face{box-shadow:inset -4px -5px 7px rgba(151,78,0,.28),inset 3px 3px 5px rgba(255,255,255,.92),0 3px 5px rgba(0,0,0,.3),0 0 0 2px rgba(255,199,36,.3),0 0 18px rgba(255,184,0,.75)}
+@keyframes qeEmojiLiving{0%,100%{transform:rotateY(-13deg) rotateZ(-2deg) scale(1)}22%{transform:rotateY(17deg) rotateZ(1deg) scale(1.02)}42%{transform:rotateY(0deg) rotateZ(0deg) scale(1.04)}65%{transform:rotateY(-18deg) rotateZ(2deg) scale(1)}82%{transform:rotateY(8deg) rotateZ(-1deg) scale(1.02)}}
+@keyframes qeEmojiBlink{0%,42%,46%,80%,84%,100%{transform:scaleY(1)}44%,82%{transform:scaleY(.12)}}
+@keyframes qeEmojiLaugh{0%,25%,100%{height:18%;border-radius:10% 10% 55% 55%}32%,42%{height:30%;border-radius:25% 25% 50% 50%}37%{height:34%}60%{height:22%}}
+@keyframes qeEmojiBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes qeEmojiHeading{from{rotate:y 0deg}to{rotate:y var(--rider-heading,0deg)}}
+@media(prefers-reduced-motion:reduce){.rider-scanner .live-emoji-face,.rider-scanner .live-emoji-eye,.rider-scanner .live-emoji-mouth,.rider-scanner.is-scanning .emoji-orientation{animation:none!important}.rider-scanner .emoji-orientation{transform:translate(-50%,-50%)}}
+</style>
 </body>
 </html>
