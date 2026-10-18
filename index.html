@@ -3153,15 +3153,51 @@ function getRestaurant(order) {
 }
 
 function getPickup(order) {
-
-    return (
+    const address = (
         order?.pickup_address ||
         order?.vendor_address ||
         order?.restaurant_address ||
         order?.pickup ||
         "Pickup location"
     );
+    const landmark = order?.vendor_landmark || order?.restaurant_landmark || "";
+    if (landmark && address && !String(address).toLowerCase().includes(String(landmark).toLowerCase())) {
+        return String(address) + " · Landmark: " + String(landmark);
+    }
+    return address;
+}
 
+async function attachVendorPickupDetails(orders) {
+    if (!Array.isArray(orders) || !orders.length || !supabaseClient) return orders || [];
+    const vendorIds = [...new Set(orders.map(order => order?.vendor_id).filter(Boolean))];
+    if (!vendorIds.length) return orders;
+    try {
+        const { data, error } = await supabaseClient
+            .from("vendors")
+            .select("id,store_name,address,landmark,lat,lng,latitude,longitude,phone")
+            .in("id", vendorIds);
+        if (error) throw error;
+        const byId = new Map((data || []).map(vendor => [vendor.id, vendor]));
+        return orders.map(order => {
+            const vendor = byId.get(order.vendor_id);
+            if (!vendor) return order;
+            const lat = vendor.lat ?? vendor.latitude ?? null;
+            const lng = vendor.lng ?? vendor.longitude ?? null;
+            return {
+                ...order,
+                restaurant_name: vendor.store_name || order.restaurant_name || order.store_name,
+                vendor_name: vendor.store_name || order.vendor_name,
+                pickup_address: vendor.address || order.pickup_address || order.vendor_address || "",
+                vendor_landmark: vendor.landmark || order.vendor_landmark || "",
+                vendor_lat: lat,
+                vendor_lng: lng,
+                vendor_phone: vendor.phone || order.vendor_phone || ""
+            };
+        });
+    } catch (error) {
+        console.warn("Could not load vendor pickup details; using order fallback fields.", error);
+        return orders;
+    }
 }
 
 function getDelivery(order) {
@@ -3939,7 +3975,7 @@ async function scanForNewOrders(initialScan = false) {
 
         if (error) throw error;
 
-        const orders = data || [];
+        const orders = await attachVendorPickupDetails(data || []);
 
         if (!scannerInitialized || initialScan) {
 
