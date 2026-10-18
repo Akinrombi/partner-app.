@@ -1656,6 +1656,23 @@ input:focus,textarea:focus,select:focus{outline:none!important;border-color:#12a
 /* demo-account-visibility-fix */
 .demo-btn{display:block!important;width:100%;min-height:58px;margin-top:16px;padding:16px 18px;border:2px solid #087f43!important;border-radius:16px;background:#e8f8ef!important;color:#075b35!important;font-weight:800!important;letter-spacing:.02em;opacity:1!important;box-shadow:0 5px 16px rgba(8,127,67,.12);}
 .demo-btn:focus-visible{outline:3px solid #84e1bc;outline-offset:3px;}
+
+/* Map rider scanner: glossy 3D orb and flat expanding radar rings */
+.rider-scanner-icon{background:transparent!important;border:0!important;overflow:visible!important}
+.rider-scanner{position:relative;width:76px;height:76px;pointer-events:none;display:block}
+.rider-scanner .scan-ring{position:absolute;left:50%;top:50%;width:22px;height:22px;border:1.5px solid rgba(0,190,86,.82);border-radius:50%;transform:translate(-50%,-50%) scale(.8);opacity:0;box-shadow:0 0 5px rgba(0,190,86,.35),inset 0 0 3px rgba(0,190,86,.18)}
+.rider-scanner.is-scanning .scan-ring{animation:riderMapScan 3.6s ease-out infinite}
+.rider-scanner.is-scanning .scan-ring.ring-two{animation-delay:1.2s}
+.rider-scanner.is-scanning .scan-ring.ring-three{animation-delay:2.4s}
+.rider-scanner .orb-shadow{position:absolute;left:50%;top:50%;width:18px;height:7px;transform:translate(-50%,7px);border-radius:50%;background:rgba(0,0,0,.25);filter:blur(2px)}
+.rider-scanner .orb{position:absolute;left:50%;top:50%;width:17px;height:17px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 31% 24%,#d9ffe8 0 7%,#72f5a0 17%,#13bf5a 48%,#07833b 78%,#045c2a 100%);border:1.5px solid rgba(255,255,255,.95);box-shadow:inset -2px -3px 4px rgba(0,54,23,.42),inset 2px 2px 3px rgba(255,255,255,.55),0 0 0 2px rgba(12,177,79,.17),0 0 12px rgba(0,220,93,.55)}
+.rider-scanner.is-scanning .orb{animation:riderOrbGlow 3.6s ease-in-out infinite}
+.rider-scanner .scan-label{position:absolute;top:calc(50% + 19px);left:50%;transform:translateX(-50%);white-space:nowrap;padding:3px 6px;border-radius:8px;background:rgba(255,255,255,.92);color:#087a3d;font:700 10px/1.2 Arial,Helvetica,sans-serif;box-shadow:0 1px 5px rgba(0,0,0,.16);opacity:0;transition:opacity .2s}
+.rider-scanner.is-scanning .scan-label{opacity:1}
+@keyframes riderMapScan{0%{transform:translate(-50%,-50%) scale(.75);opacity:.85;box-shadow:0 0 5px rgba(0,190,86,.35),inset 0 0 3px rgba(0,190,86,.18)}75%{opacity:.24}100%{transform:translate(-50%,-50%) scale(3.25);opacity:0;box-shadow:0 0 9px rgba(0,190,86,.5),inset 0 0 4px rgba(0,190,86,.2)}}
+@keyframes riderOrbGlow{0%,100%{filter:brightness(1);box-shadow:inset -2px -3px 4px rgba(0,54,23,.42),inset 2px 2px 3px rgba(255,255,255,.55),0 0 0 2px rgba(12,177,79,.17),0 0 10px rgba(0,220,93,.42)}50%{filter:brightness(1.08);box-shadow:inset -2px -3px 4px rgba(0,54,23,.42),inset 2px 2px 3px rgba(255,255,255,.6),0 0 0 3px rgba(12,177,79,.2),0 0 16px rgba(0,220,93,.68)}}
+@media(prefers-reduced-motion:reduce){.rider-scanner.is-scanning .scan-ring,.rider-scanner.is-scanning .orb{animation:none}.rider-scanner.is-scanning .scan-ring{opacity:.28;transform:translate(-50%,-50%) scale(1.7)}}
+
 </style>
 
 
@@ -3388,10 +3405,16 @@ function updateGoogleRiderMarker() {
     const L = window.L;
     const point = [riderPosition.lat, riderPosition.lng];
     if (!riderMapMarker) {
-        riderMapMarker = L.circleMarker(point, {
-            radius: 9, color: "#ffffff", weight: 3, fillColor: "#0ba957", fillOpacity: 1
-        }).addTo(liveMap).bindPopup("Your live location");
+        const scannerIcon = L.divIcon({
+            className: "rider-scanner-icon",
+            html: '<span class="rider-scanner"><span class="scan-ring ring-one"></span><span class="scan-ring ring-two"></span><span class="scan-ring ring-three"></span><span class="orb-shadow"></span><span class="orb"></span><span class="scan-label">Searching for orders…</span></span>',
+            iconSize: [76, 76],
+            iconAnchor: [38, 38]
+        });
+        riderMapMarker = L.marker(point, { icon: scannerIcon, keyboard: false, zIndexOffset: 1000 })
+            .addTo(liveMap).bindPopup("Your live location");
     } else riderMapMarker.setLatLng(point);
+    updateRiderMapScannerVisual();
     if (!window.riderAccuracyCircle) {
         window.riderAccuracyCircle = L.circle(point, {
             radius: Math.max(10, Number(riderPosition.accuracy) || 0),
@@ -3404,6 +3427,21 @@ function updateGoogleRiderMarker() {
     if (!currentOrder) liveMap.setView(point, Math.max(liveMap.getZoom(), 15));
     else updateDestinationOnMap(currentOrder);
 }
+
+
+/* Keep the map scanner visual-only and synchronized with rider/order state. */
+function updateRiderMapScannerVisual() {
+    const root = riderMapMarker?.getElement?.()?.querySelector(".rider-scanner");
+    if (!root) return;
+    const waiting = Boolean(isOnline && navigator.onLine && !currentOrder &&
+        !pendingDetectedOrder && !riderShiftState?.onBreak);
+    root.classList.toggle("is-scanning", waiting);
+}
+let riderMapScannerSyncTimer = null;
+document.addEventListener("DOMContentLoaded", () => {
+    if (riderMapScannerSyncTimer) clearInterval(riderMapScannerSyncTimer);
+    riderMapScannerSyncTimer = setInterval(updateRiderMapScannerVisual, 350);
+});
 
 function setGPSMessage(message, coordsText) {
 
@@ -3851,6 +3889,7 @@ async function toggleOnline() {
 
 
 function updateOnlineUI() {
+    updateRiderMapScannerVisual();
 
     const button =
         document.getElementById("onlineBtn");
@@ -3906,6 +3945,7 @@ function updateOnlineUI() {
 
 function startScanner() {
 
+    updateRiderMapScannerVisual();
     if (!supabaseClient || !currentRider?.id) return;
 
     // Keep realtime connected while an order is open so this screen can react
@@ -3933,6 +3973,7 @@ function startScanner() {
 
 function stopScanner() {
 
+    updateRiderMapScannerVisual();
     if (scannerTimer) {
 
         clearInterval(scannerTimer);
@@ -5292,6 +5333,7 @@ updateNetworkBanner();
 ============================================================ */
 
 window.addEventListener("beforeunload", () => {
+    if (riderMapScannerSyncTimer) clearInterval(riderMapScannerSyncTimer);
     if (scannerTimer) {
         clearInterval(scannerTimer);
     }
