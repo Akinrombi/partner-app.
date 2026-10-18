@@ -1673,6 +1673,12 @@ input:focus,textarea:focus,select:focus{outline:none!important;border-color:#12a
 @keyframes riderOrbGlow{0%,100%{filter:brightness(1);box-shadow:inset -2px -3px 4px rgba(0,54,23,.42),inset 2px 2px 3px rgba(255,255,255,.55),0 0 0 2px rgba(12,177,79,.17),0 0 10px rgba(0,220,93,.42)}50%{filter:brightness(1.08);box-shadow:inset -2px -3px 4px rgba(0,54,23,.42),inset 2px 2px 3px rgba(255,255,255,.6),0 0 0 3px rgba(12,177,79,.2),0 0 16px rgba(0,220,93,.68)}}
 @media(prefers-reduced-motion:reduce){.rider-scanner.is-scanning .scan-ring,.rider-scanner.is-scanning .orb{animation:none}.rider-scanner.is-scanning .scan-ring{opacity:.28;transform:translate(-50%,-50%) scale(1.7)}}
 
+
+/* Custom rider map marker styles */
+.rider-scanner .emoji-orb{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:30px/1 Arial,sans-serif;filter:drop-shadow(0 3px 2px rgba(0,0,0,.32)) drop-shadow(0 0 6px rgba(0,210,90,.45));}
+.rider-scanner.is-scanning .emoji-orb{animation:riderEmojiGlow 3.6s ease-in-out infinite}
+@keyframes riderEmojiGlow{0%,100%{filter:drop-shadow(0 3px 2px rgba(0,0,0,.3)) drop-shadow(0 0 4px rgba(0,210,90,.35));transform:translate(-50%,-50%) scale(1)}50%{filter:drop-shadow(0 3px 2px rgba(0,0,0,.3)) drop-shadow(0 0 10px rgba(0,230,100,.7));transform:translate(-50%,-50%) scale(1.08)}}
+
 </style>
 
 
@@ -2411,6 +2417,7 @@ button:active{transform:scale(.98);filter:brightness(.97)}
 <label for="riderThemePreference">Appearance</label><select id="riderThemePreference" onchange="saveRiderPreferences()" style="width:100%;padding:12px;margin:8px 0"><option value="light">Light theme</option><option value="dark">Dark theme</option></select>
 <label for="riderNavigationPreference">Navigation app</label><select id="riderNavigationPreference" onchange="saveRiderPreferences()" style="width:100%;padding:12px;margin:8px 0"><option value="google">Google Maps</option><option value="apple">Apple Maps (supported devices)</option><option value="osm">OpenStreetMap directions</option></select>
 <label for="riderLanguagePreference">Language</label><select id="riderLanguagePreference" onchange="saveRiderPreferences()" style="width:100%;padding:12px;margin:8px 0"><option value="en">English</option><option value="yo">Yorùbá (preference only)</option><option value="pcm">Nigerian Pidgin (preference only)</option></select>
+<label for="riderMarkerStylePreference">Map location style</label><select id="riderMarkerStylePreference" onchange="saveRiderPreferences()" style="width:100%;padding:12px;margin:8px 0"><option value="green">🟢 Classic green scanner (default)</option><option value="📍">📍 Pin</option><option value="🛵">🛵 Scooter</option><option value="🚲">🚲 Bicycle</option><option value="🚴">🚴 Cyclist</option><option value="🍔">🍔 Foodie</option><option value="⭐">⭐ Star</option><option value="🐸">🐸 Froggy</option><option value="🦄">🦄 Unicorn</option><option value="🚀">🚀 Rocket</option></select>
 <label style="display:flex;align-items:center;gap:10px;margin:10px 0"><input id="riderSoundPreference" type="checkbox" onchange="saveRiderPreferences()"> Enable order alert sounds</label>
 <label style="display:flex;align-items:center;gap:10px;margin:10px 0"><input id="riderVibrationPreference" type="checkbox" onchange="saveRiderPreferences()"> Enable vibration alerts where supported</label><p id="riderPreferencesFeedback" role="status"></p></section>
 <section class="support-card" style="margin-top:16px;text-align:left"><h3>Request a payout</h3><p>Requests are sent for review; this form does not transfer money instantly.</p><label for="riderWithdrawalAmount">Amount (₦)</label><input id="riderWithdrawalAmount" type="number" min="100" step="50" placeholder="e.g. 5000" style="width:100%;padding:12px;margin:8px 0"><button type="button" class="support-submit" onclick="requestRiderWithdrawal()">Submit payout request</button><p id="riderWithdrawalFeedback" role="status"></p></section>
@@ -3407,7 +3414,7 @@ function updateGoogleRiderMarker() {
     if (!riderMapMarker) {
         const scannerIcon = L.divIcon({
             className: "rider-scanner-icon",
-            html: '<span class="rider-scanner"><span class="scan-ring ring-one"></span><span class="scan-ring ring-two"></span><span class="scan-ring ring-three"></span><span class="orb-shadow"></span><span class="orb"></span><span class="scan-label">Searching for orders…</span></span>',
+            html: getRiderScannerMarkerHtml(),
             iconSize: [76, 76],
             iconAnchor: [38, 38]
         });
@@ -3430,6 +3437,16 @@ function updateGoogleRiderMarker() {
 
 
 /* Keep the map scanner visual-only and synchronized with rider/order state. */
+function getRiderScannerMarkerHtml() {
+    let style = "green";
+    try {
+        style = JSON.parse(localStorage.getItem("quickeats_rider_preferences") || "{}").markerStyle || "green";
+    } catch (e) {}
+    const marker = style === "green"
+        ? '<span class="orb"></span>'
+        : '<span class="emoji-orb" aria-hidden="true">' + escapeHtml(style) + '</span>';
+    return '<span class="rider-scanner"><span class="scan-ring ring-one"></span><span class="scan-ring ring-two"></span><span class="scan-ring ring-three"></span><span class="orb-shadow"></span>' + marker + '<span class="scan-label">Searching for orders…</span></span>';
+}
 function updateRiderMapScannerVisual() {
     const root = riderMapMarker?.getElement?.()?.querySelector(".rider-scanner");
     if (!root) return;
@@ -5124,8 +5141,8 @@ function toggleRiderBreak() {
 document.addEventListener("DOMContentLoaded", loadRiderShift);
 
 /* Rider preferences and account controls */
-function loadRiderPreferences(){let p={theme:"light",navigation:"google",language:"en",sound:true,vibration:true};try{p={...p,...JSON.parse(localStorage.getItem("quickeats_rider_preferences")||"{}")};}catch(e){};const set=(id,v)=>{const el=document.getElementById(id);if(el){if(el.type==="checkbox")el.checked=!!v;else el.value=v;}};set("riderThemePreference",p.theme);set("riderNavigationPreference",p.navigation);set("riderLanguagePreference",p.language);set("riderSoundPreference",p.sound);set("riderVibrationPreference",p.vibration);applyRiderTheme(p.theme);}
-function saveRiderPreferences(){const el=id=>document.getElementById(id);const p={theme:el("riderThemePreference")?.value||"light",navigation:el("riderNavigationPreference")?.value||"google",language:el("riderLanguagePreference")?.value||"en",sound:!!el("riderSoundPreference")?.checked,vibration:!!el("riderVibrationPreference")?.checked};try{localStorage.setItem("quickeats_rider_preferences",JSON.stringify(p));}catch(e){}applyRiderTheme(p.theme);const f=el("riderPreferencesFeedback");if(f)f.textContent="Preferences saved on this device. Language is saved as a preference; not all screens are translated yet.";}
+function loadRiderPreferences(){let p={theme:"light",navigation:"google",language:"en",sound:true,vibration:true,markerStyle:"green"};try{p={...p,...JSON.parse(localStorage.getItem("quickeats_rider_preferences")||"{}")};}catch(e){};const set=(id,v)=>{const el=document.getElementById(id);if(el){if(el.type==="checkbox")el.checked=!!v;else el.value=v;}};set("riderThemePreference",p.theme);set("riderNavigationPreference",p.navigation);set("riderLanguagePreference",p.language);set("riderMarkerStylePreference",p.markerStyle);set("riderSoundPreference",p.sound);set("riderVibrationPreference",p.vibration);applyRiderTheme(p.theme);}
+function saveRiderPreferences(){const el=id=>document.getElementById(id);const p={theme:el("riderThemePreference")?.value||"light",navigation:el("riderNavigationPreference")?.value||"google",language:el("riderLanguagePreference")?.value||"en",markerStyle:el("riderMarkerStylePreference")?.value||"green",sound:!!el("riderSoundPreference")?.checked,vibration:!!el("riderVibrationPreference")?.checked};try{localStorage.setItem("quickeats_rider_preferences",JSON.stringify(p));}catch(e){}applyRiderTheme(p.theme);if(riderMapMarker&&liveMap){const point=riderMapMarker.getLatLng();liveMap.removeLayer(riderMapMarker);riderMapMarker=null;const scannerIcon=L.divIcon({className:"rider-scanner-icon",html:getRiderScannerMarkerHtml(),iconSize:[76,76],iconAnchor:[38,38]});riderMapMarker=L.marker(point,{icon:scannerIcon,keyboard:false,zIndexOffset:1000}).addTo(liveMap).bindPopup("Your live location");updateRiderMapScannerVisual();}const f=el("riderPreferencesFeedback");if(f)f.textContent="Preferences saved on this device. Your map marker style is updated.";}
 function applyRiderTheme(theme){document.documentElement.dataset.riderTheme=theme==="dark"?"dark":"light";let st=document.getElementById("riderThemeStyles");if(!st){st=document.createElement("style");st.id="riderThemeStyles";document.head.appendChild(st);}st.textContent=theme==="dark"?"html[data-rider-theme='dark'] body{background:#101713;color:#edf5ef}html[data-rider-theme='dark'] .header,html[data-rider-theme='dark'] .bottom-nav,html[data-rider-theme='dark'] .order-card,html[data-rider-theme='dark'] .stat,html[data-rider-theme='dark'] .map-wrap,html[data-rider-theme='dark'] .profile-card,html[data-rider-theme='dark'] .earning-item,html[data-rider-theme='dark'] .support-card{background:#18231c!important;color:#edf5ef;border-color:#2d3b32}html[data-rider-theme='dark'] .info-value,html[data-rider-theme='dark'] .section-title,html[data-rider-theme='dark'] .header-title{color:#edf5ef}html[data-rider-theme='dark'] input,html[data-rider-theme='dark'] select,html[data-rider-theme='dark'] textarea{background:#101713!important;color:#edf5ef!important;border-color:#405147!important}html[data-rider-theme='dark'] #liveMap{filter:brightness(.82) saturate(.85)}":"";}
 async function requestRiderWithdrawal(){const f=document.getElementById("riderWithdrawalFeedback"),amount=Number(document.getElementById("riderWithdrawalAmount")?.value);if(!f)return;f.textContent="";if(!supabaseClient||!currentRider?.id||currentRider.id==="demo-rider"){f.textContent="Sign in with a real rider account to request a payout.";return;}if(!Number.isFinite(amount)||amount<100){f.textContent="Enter a valid amount of at least ₦100.";return;}const bank=document.getElementById("payoutBankName")?.value.trim(),account=document.getElementById("payoutAccountNumber")?.value.replace(/\s/g,"");if(!bank||!account){f.textContent="Save your bank and payout details first.";return;}try{const {data,error}=await supabaseClient.rpc("request_withdrawal",{p_amount:amount,p_bank:bank,p_account:account});if(error)throw error;f.textContent=(data?.message||"Payout request submitted for review.")+" No money is transferred instantly.";document.getElementById("riderWithdrawalAmount").value="";}catch(e){f.textContent=e.message||"Could not submit payout request. Check balance and permissions.";}}
 function requestAccountDeletion(){const f=document.getElementById("accountDeletionFeedback");if(!f)return;if(!currentUser?.email){f.textContent="Sign in with your account first.";return;}const subject=encodeURIComponent("QuickEats account deletion request"),body=encodeURIComponent("I request deletion of my QuickEats rider account and associated personal data.\nAccount email: "+currentUser.email+"\nPlease verify my identity before processing.");f.textContent="Your email app will open with a deletion request draft. This does not delete your account automatically.";window.location.href="mailto:privacy@quickeats.ng?subject="+subject+"&body="+body;}
