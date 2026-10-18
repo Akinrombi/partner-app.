@@ -5314,6 +5314,13 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   bind("#authSubmitBtn", () => loginRider());
   bind(".demo-btn", () => demoLogin());
+
+  // Bind the order actions directly for mobile browsers/WebViews. Replacing
+  // inline handlers prevents a stale or swallowed inline click from doing nothing.
+  bind("#acceptBtn", () => { void acceptCurrentOrder(); });
+  bind("#statusBtn", () => { void advanceStatus(); });
+  bind("#cancelOrderBtn", () => { void cancelCurrentOrder(); });
+
   const locate = document.querySelector('button[onclick="startLiveGPS(true)"]');
   if (locate) locate.onclick = () => startLiveGPS(true);
   const openMap = document.querySelector('button[onclick="openCurrentLocationInMaps()"]');
