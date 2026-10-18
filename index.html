@@ -2056,7 +2056,7 @@ button:active{transform:scale(.98);filter:brightness(.97)}
         <input id="emailInput" type="email" autocomplete="email" placeholder="Email address">
         <input id="passwordInput" type="password" autocomplete="current-password" minlength="8" placeholder="Password (at least 8 characters)">
         <button id="authSubmitBtn" class="primary-btn" onclick="loginRider()">LOGIN</button>
-        <button class="text-btn" type="button" onclick="resetRiderPassword()">Forgot password?</button>
+        <button id="forgotPasswordBtn" class="text-btn" type="button">Forgot password?</button>
 <button class="text-btn" type="button" onclick="togglePhoneOtpPanel()">Use phone number + OTP</button><section id="phoneOtpPanel" class="support-card hidden"><label for="otpPhoneInput">Phone number with country code</label><input id="otpPhoneInput" type="tel" placeholder="+2348012345678"><div id="otpCodeRow" class="hidden"><label for="otpCodeInput">6-digit verification code</label><input id="otpCodeInput" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div><button id="sendOtpBtn" class="primary-btn" type="button" onclick="sendRiderPhoneOtp()">SEND CODE</button><button id="verifyOtpBtn" class="primary-btn hidden" type="button" onclick="verifyRiderPhoneOtp()">VERIFY &amp; SIGN IN</button><p id="otpFeedback" role="status"></p></section>
         <button class="demo-btn" onclick="demoLogin()">DEMO RIDER (PREVIEW ONLY)</button>
         <div id="loginError" class="login-error" role="status" aria-live="polite"></div>
@@ -5313,6 +5313,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (el) el.onclick = handler;
   };
   bind("#authSubmitBtn", () => loginRider());
+  bind("#forgotPasswordBtn", () => { void resetRiderPassword(); });
   bind(".demo-btn", () => demoLogin());
 
   // Bind the order actions directly for mobile browsers/WebViews. Replacing
