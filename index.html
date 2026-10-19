@@ -5489,5 +5489,41 @@ if (qeSplashStyles && !qeSplashStyles.textContent.includes("qe-splash-clickthrou
 @keyframes qeEmojiHeading{from{rotate:y 0deg}to{rotate:y var(--rider-heading,0deg)}}
 @media(prefers-reduced-motion:reduce){.rider-scanner .live-emoji-face,.rider-scanner .live-emoji-eye,.rider-scanner .live-emoji-mouth,.rider-scanner.is-scanning .emoji-orientation{animation:none!important}.rider-scanner .emoji-orientation{transform:translate(-50%,-50%)}}
 </style>
+
+<style id="qe-global-shutdown-style">
+#qeGlobalShutdown{position:fixed;inset:0;z-index:2147483647;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(8,20,13,.96);color:#fff;text-align:center;font-family:Arial,sans-serif;touch-action:none}
+#qeGlobalShutdown .qe-shutdown-card{width:min(460px,100%);padding:28px 22px;border:1px solid rgba(255,255,255,.18);border-radius:22px;background:#14251b;box-shadow:0 20px 80px #0008}
+#qeGlobalShutdown h2{margin:0 0 12px;font-size:25px}#qeGlobalShutdown p{line-height:1.6;color:#d8e7dd;margin:8px 0}
+</style>
+<div id="qeGlobalShutdown" role="alertdialog" aria-modal="true" aria-labelledby="qeGlobalShutdownTitle">
+ <div class="qe-shutdown-card"><h2 id="qeGlobalShutdownTitle">QuickEats is temporarily offline</h2><p id="qeGlobalShutdownMessage">The QuickEats team has paused the system. Please try again later.</p><p>This screen will close automatically when QuickEats is switched back on.</p></div>
+</div>
+<script>
+(function(){
+ const layer=document.getElementById('qeGlobalShutdown');
+ const msg=document.getElementById('qeGlobalShutdownMessage');
+ let lastState=null, checking=false;
+ async function checkQuickEatsSystem(){
+  if(checking)return;checking=true;
+  try{
+   const client=window.supabaseClient;
+   if(!client){return;}
+   const {data,error}=await client.from('quickeats_system_control').select('enabled,shutdown_message').eq('id','global').maybeSingle();
+   if(error||!data)return;
+   const enabled=data.enabled!==false;
+   if(lastState!==enabled){
+    layer.style.display=enabled?'none':'flex';
+    msg.textContent=data.shutdown_message||'QuickEats is temporarily unavailable. Please try again later.';
+    document.documentElement.style.overflow=enabled?'':'hidden';
+    lastState=enabled;
+   }
+  }catch(e){console.warn('QuickEats system status check failed',e);}
+  finally{checking=false;}
+ }
+ checkQuickEatsSystem();
+ setInterval(checkQuickEatsSystem,8000);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkQuickEatsSystem();});
+})();
+</script>
 </body>
 </html>
