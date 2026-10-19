@@ -5506,7 +5506,7 @@ if (qeSplashStyles && !qeSplashStyles.textContent.includes("qe-splash-clickthrou
  async function checkQuickEatsSystem(){
   if(checking)return;checking=true;
   try{
-   const client=window.supabaseClient;
+   const client=(typeof supabaseClient!=='undefined'?supabaseClient:null);
    if(!client){return;}
    const {data,error}=await client.from('quickeats_system_control').select('enabled,shutdown_message').eq('id','global').maybeSingle();
    if(error||!data)return;
