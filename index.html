@@ -3225,25 +3225,53 @@ async function attachVendorPickupDetails(orders) {
 }
 
 function getDelivery(order) {
+    if (!order) return "Delivery address not provided";
 
-    return (
-        order?.delivery_address ||
-        order?.customer_address ||
-        order?.dropoff_address ||
-        order?.address ||
-        "Delivery location"
-    );
+    const address = [
+        order.delivery_address,
+        order.customer_address,
+        order.dropoff_address,
+        order.shipping_address,
+        order.address,
+        order.customer?.delivery_address,
+        order.customer?.address,
+        order.delivery?.address
+    ].find(value => typeof value === "string" && value.trim());
 
+    const landmark = [
+        order.delivery_landmark,
+        order.customer_landmark,
+        order.dropoff_landmark,
+        order.landmark,
+        order.customer?.landmark,
+        order.delivery?.landmark
+    ].find(value => typeof value === "string" && value.trim());
+
+    const fullAddress = String(address || "").trim();
+    const landmarkText = String(landmark || "").trim();
+    if (fullAddress && landmarkText &&
+        !fullAddress.toLowerCase().includes(landmarkText.toLowerCase())) {
+        return fullAddress + "\\nLandmark: " + landmarkText;
+    }
+    if (fullAddress) return fullAddress;
+    if (landmarkText) return "Landmark: " + landmarkText;
+    const coords = getOrderCoordinates(order, "delivery");
+    if (coords) return "Saved GPS location: " + coords.lat + ", " + coords.lng;
+    return "Delivery address not provided";
 }
 
 function getCustomer(order) {
-
     return (
         order?.customer_name ||
+        order?.customer_full_name ||
+        order?.full_name ||
+        order?.customer?.full_name ||
+        order?.customer?.name ||
+        order?.user?.full_name ||
+        order?.user?.name ||
         order?.name ||
-        "Customer"
+        "Customer name not provided"
     );
-
 }
 
 function getPhone(order) {
@@ -3778,14 +3806,30 @@ function getOrderCoordinates(order, type) {
 
     return coordinatePair(
         order.delivery_lat ??
+        order.delivery_latitude ??
         order.customer_lat ??
+        order.customer_latitude ??
         order.dropoff_lat ??
-        order.destination_lat,
+        order.dropoff_latitude ??
+        order.destination_lat ??
+        order.customer?.delivery_lat ??
+        order.customer?.latitude ??
+        order.customer?.lat ??
+        order.delivery?.latitude ??
+        order.delivery?.lat,
 
         order.delivery_lng ??
+        order.delivery_longitude ??
         order.customer_lng ??
+        order.customer_longitude ??
         order.dropoff_lng ??
-        order.destination_lng
+        order.dropoff_longitude ??
+        order.destination_lng ??
+        order.customer?.delivery_lng ??
+        order.customer?.longitude ??
+        order.customer?.lng ??
+        order.delivery?.longitude ??
+        order.delivery?.lng
     );
 
 }
@@ -4439,7 +4483,8 @@ function showOrder(order, animate = false) {
     }
     const instructionValue = [
         order.special_instructions, order.customer_instructions, order.delivery_instructions,
-        order.order_notes, order.notes, order.landmark, order.delivery_landmark
+        order.order_notes, order.notes, order.delivery_landmark, order.customer_landmark,
+        order.dropoff_landmark, order.landmark, order.customer?.landmark
     ].find(value => typeof value === "string" && value.trim());
     const instructionWrap = document.getElementById("orderInstructionsWrap");
     const instructionNode = document.getElementById("orderInstructions");
