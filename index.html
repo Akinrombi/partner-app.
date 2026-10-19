@@ -3384,8 +3384,43 @@ function showPage(page) {
 ============================================================ */
 
 let googleMapsLoadPromise = null;
+let googleMapInstance = null;
+let googleRiderMarker = null;
+let googleDestinationMarker = null;
+let googleRiderAccuracyCircle = null;
+let googleDestinationRouteLine = null;
 let riderAccuracyCircle = null;
 let destinationRouteLine = null;
+
+function loadGoogleMaps() {
+    if (window.google?.maps) return Promise.resolve(window.google.maps);
+    if (googleMapsLoadPromise) return googleMapsLoadPromise;
+    const key = String(window.GOOGLE_MAPS_API_KEY || "").trim();
+    if (!key) return Promise.reject(new Error("Google Maps browser key is not configured."));
+    googleMapsLoadPromise = new Promise((resolve, reject) => {
+        const callbackName = "__quickEatsGoogleMapsReady";
+        const timeoutId = setTimeout(() => reject(new Error("Google Maps loading timed out.")), 12000);
+        window[callbackName] = () => {
+            clearTimeout(timeoutId);
+            if (window.google?.maps) resolve(window.google.maps);
+            else reject(new Error("Google Maps did not initialise."));
+            try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
+        };
+        const script = document.createElement("script");
+        script.async = true;
+        script.defer = true;
+        script.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(key) + "&callback=" + callbackName + "&v=weekly";
+        script.onerror = () => {
+            clearTimeout(timeoutId);
+            reject(new Error("Google Maps script could not load. Check API restrictions, billing, and internet."));
+        };
+        document.head.appendChild(script);
+    }).catch(error => {
+        googleMapsLoadPromise = null;
+        throw error;
+    });
+    return googleMapsLoadPromise;
+}
 
 function loadLeaflet() {
     if (window.L) return Promise.resolve(window.L);
@@ -3415,6 +3450,31 @@ async function initializeLiveMap() {
     el.style.minHeight = "260px";
     el.setAttribute("aria-label", "Live rider and delivery map");
     try {
+        try {
+            const maps = await loadGoogleMaps();
+            if (liveMap) return liveMap;
+            el.innerHTML = "";
+            googleMapInstance = new maps.Map(el, {
+                center: { lat: 6.5244, lng: 3.3792 },
+                zoom: 12,
+                mapTypeControl: true,
+                streetViewControl: false,
+                fullscreenControl: true,
+                gestureHandling: "greedy"
+            });
+            liveMap = googleMapInstance;
+            const badge = document.createElement("div");
+            badge.textContent = "Google Maps";
+            badge.style.cssText = "margin:8px;padding:6px 10px;background:#fff;border-radius:6px;box-shadow:0 1px 5px #777;font:600 12px Arial;color:#176b3a";
+            googleMapInstance.controls[maps.ControlPosition.TOP_LEFT].push(badge);
+            google.maps.event.addListenerOnce(googleMapInstance, "idle", () => {
+                if (riderPosition) updateGoogleRiderMarker();
+                if (currentOrder) updateDestinationOnMap(currentOrder);
+            });
+            return liveMap;
+        } catch (googleError) {
+            console.warn("Google Maps unavailable; using OpenStreetMap fallback:", googleError);
+        }
         const L = await loadLeaflet();
         if (liveMap) return liveMap;
         el.innerHTML = "";
@@ -3426,17 +3486,44 @@ async function initializeLiveMap() {
         setTimeout(() => liveMap && liveMap.invalidateSize(), 100);
         if (riderPosition) updateGoogleRiderMarker();
         if (currentOrder) updateDestinationOnMap(currentOrder);
+        setGPSMessage("OpenStreetMap fallback", "Google Maps could not load. Check the API key, billing, and API restrictions.");
         return liveMap;
     } catch (error) {
-        console.warn("Leaflet map initialization:", error);
-        el.innerHTML = '<div class="google-map-state" role="status"><strong>Map could not load</strong><p>Check your internet connection and reload.</p><small>OpenStreetMap map tiles require internet access.</small></div>';
-        setGPSMessage("Map unavailable", "Check your internet connection and try again.");
+        console.warn("Map initialization:", error);
+        el.innerHTML = '<div class="google-map-state" role="status"><strong>Map could not load</strong><p>Check your internet connection and Google Maps API settings, then reload.</p></div>';
+        setGPSMessage("Map unavailable", "Check internet access and Google Maps API settings.");
         return null;
     }
 }
 
 function updateGoogleRiderMarker() {
-    if (!liveMap || !window.L || !riderPosition) return;
+    if (!liveMap || !riderPosition) return;
+    if (googleMapInstance && window.google?.maps) {
+        const maps = window.google.maps;
+        const point = { lat: riderPosition.lat, lng: riderPosition.lng };
+        if (!googleRiderMarker) {
+            googleRiderMarker = new maps.Marker({
+                position: point, map: googleMapInstance, title: "Your live rider location",
+                zIndex: 1000, label: { text: "🏍️", fontSize: "24px" }
+            });
+        } else googleRiderMarker.setPosition(point);
+        if (!googleRiderAccuracyCircle) {
+            googleRiderAccuracyCircle = new maps.Circle({
+                map: googleMapInstance, center: point,
+                radius: Math.max(10, Number(riderPosition.accuracy) || 0),
+                strokeColor: "#0ba957", strokeOpacity: 0.7, strokeWeight: 1,
+                fillColor: "#0ba957", fillOpacity: 0.1
+            });
+        } else {
+            googleRiderAccuracyCircle.setCenter(point);
+            googleRiderAccuracyCircle.setRadius(Math.max(10, Number(riderPosition.accuracy) || 0));
+        }
+        if (!currentOrder) googleMapInstance.setCenter(point);
+        googleMapInstance.setZoom(Math.max(googleMapInstance.getZoom() || 12, 15));
+        if (currentOrder) updateDestinationOnMap(currentOrder);
+        return;
+    }
+    if (!window.L || !window.L.Marker || typeof liveMap.setView !== "function") return;
     const L = window.L;
     const point = [riderPosition.lat, riderPosition.lng];
     if (!riderMapMarker) {
@@ -3462,7 +3549,6 @@ function updateGoogleRiderMarker() {
     if (!currentOrder) liveMap.setView(point, Math.max(liveMap.getZoom(), 15));
     else updateDestinationOnMap(currentOrder);
 }
-
 
 /* Keep the map scanner visual-only and synchronized with rider/order state. */
 function getRiderScannerMarkerHtml() {
@@ -3847,10 +3933,41 @@ function getDestinationText(order, type) {
 async function updateDestinationOnMap(order) {
     if (!order) return;
     const map = await initializeLiveMap();
-    if (!map || !window.L) return;
-    const L = window.L;
+    if (!map) return;
     const type = ["picked_up", "on_the_way", "arrived_at_customer"].includes(order.status) ? "delivery" : "pickup";
     const coords = getOrderCoordinates(order, type);
+    if (googleMapInstance && window.google?.maps) {
+        const maps = window.google.maps;
+        if (googleDestinationMarker) { googleDestinationMarker.setMap(null); googleDestinationMarker = null; }
+        if (googleDestinationRouteLine) { googleDestinationRouteLine.setMap(null); googleDestinationRouteLine = null; }
+        if (!coords) {
+            if (riderPosition) googleMapInstance.setCenter({ lat: riderPosition.lat, lng: riderPosition.lng });
+            return;
+        }
+        const destPoint = { lat: coords.lat, lng: coords.lng };
+        googleDestinationMarker = new maps.Marker({
+            position: destPoint, map: googleMapInstance,
+            title: type === "pickup" ? "Vendor pickup" : "Customer drop-off",
+            label: { text: type === "pickup" ? "P" : "D", color: "#fff", fontWeight: "bold" }
+        });
+        if (riderPosition) {
+            const riderPoint = { lat: riderPosition.lat, lng: riderPosition.lng };
+            googleDestinationRouteLine = new maps.Polyline({
+                path: [riderPoint, destPoint], map: googleMapInstance,
+                geodesic: true, strokeColor: "#0ba957", strokeOpacity: 0.85, strokeWeight: 5
+            });
+            const bounds = new maps.LatLngBounds();
+            bounds.extend(riderPoint);
+            bounds.extend(destPoint);
+            googleMapInstance.fitBounds(bounds, 48);
+        } else {
+            googleMapInstance.setCenter(destPoint);
+            googleMapInstance.setZoom(14);
+        }
+        return;
+    }
+    if (!window.L || typeof map.removeLayer !== "function") return;
+    const L = window.L;
     if (destinationMapMarker) { map.removeLayer(destinationMapMarker); destinationMapMarker = null; }
     if (window.destinationRouteLine) { map.removeLayer(window.destinationRouteLine); window.destinationRouteLine = null; }
     if (!coords) {
