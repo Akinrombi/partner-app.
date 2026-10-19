@@ -3645,6 +3645,7 @@ function startLiveGPS(showMessage = true) {
         "Allow location access when your browser asks."
     );
 
+    try {
     gpsWatchId = navigator.geolocation.watchPosition(
 
         position => {
@@ -3725,6 +3726,14 @@ function startLiveGPS(showMessage = true) {
         }
 
     );
+    } catch (error) {
+        gpsWatchId = null;
+        gpsStartRequested = false;
+        const message = error?.message || "The browser could not start GPS. Check location permission and reload the rider app.";
+        setGPSMessage("GPS could not start", message);
+        if (showMessage) showToast(message);
+        console.error("GPS watchPosition failed to start:", error);
+    }
 
 }
 function stopLiveGPS() {
