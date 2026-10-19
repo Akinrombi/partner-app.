@@ -2,4 +2,4 @@
    Add a Google Maps JavaScript API browser key here after restricting it to
    this site's HTTP referrers and to the Maps JavaScript API only.
    Do not place server-side secrets or Supabase service-role keys in this file. */
-window.GOOGLE_MAPS_API_KEY = "";
+window.GOOGLE_MAPS_API_KEY = "AIzaSyD15tvy4ay48c3TAyw6VQdG4TYTDCzeEEU";
