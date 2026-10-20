@@ -2049,6 +2049,10 @@ button:active{transform:scale(.98);filter:brightness(.97)}
 @media(max-width:360px){.page,.page.active{padding:9px 9px 90px}.stat{padding:11px}.stat-value{font-size:19px}.welcome h2{font-size:18px}}
 
 </style>
+<style>
+/* Compact expandable rider profile settings */
+.profile-accordion{margin:10px 0;border:1px solid #dce6df;border-radius:16px;background:#fff;overflow:hidden;text-align:left}.profile-accordion>summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:15px 16px;min-height:54px;font-size:14px;font-weight:800;cursor:pointer;touch-action:manipulation}.profile-accordion>summary::-webkit-details-marker{display:none}.profile-accordion>summary:after{content:'⌄';font-size:20px;color:#0a9b4e}.profile-accordion[open]>summary:after{content:'⌃'}.profile-accordion[open]>summary{border-bottom:1px solid #e8eee9;background:#f7fbf8}.profile-accordion>.support-card{margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:16px!important}
+</style>
 </head>
 
 <body>
@@ -5650,6 +5654,9 @@ if (qeSplashStyles && !qeSplashStyles.textContent.includes("qe-splash-clickthrou
  setInterval(checkQuickEatsSystem,8000);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkQuickEatsSystem();});
 })();
+</script>
+<script>
+(function(){function compactRiderProfile(){var p=document.querySelector('.profile-card');if(!p||p.dataset.accordionsReady)return;var cards=Array.from(p.querySelectorAll(':scope > section.support-card'));cards.forEach(function(card){if(card.closest('details.profile-accordion'))return;var h=card.querySelector('h3');var d=document.createElement('details');d.className='profile-accordion';var sum=document.createElement('summary');sum.textContent=(h&&h.textContent.trim())||'Profile settings';d.appendChild(sum);card.parentNode.insertBefore(d,card);d.appendChild(card);});p.dataset.accordionsReady='true';}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',compactRiderProfile,{once:true});else compactRiderProfile();})();
 </script>
 </body>
 </html>
