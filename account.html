@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07110d">
+<title>QuickEats | Account access</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:light;--green:#00a859;--ink:#14221a;--muted:#68756d}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at 15% 10%,#d9f8e6,transparent 35%),#f4f8f5;color:var(--ink);display:grid;place-items:center;padding:20px}
+main{width:100%;max-width:430px;background:#fff;border:1px solid #e3ece6;border-radius:24px;padding:28px;box-shadow:0 18px 55px #12331c14}
+.brand{text-align:center;font-size:28px;font-weight:900;color:var(--green);margin:4px 0 6px}.subtitle{text-align:center;color:var(--muted);font-size:14px;line-height:1.5;margin:0 0 24px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}.tabs button,.submit{border:0;border-radius:12px;padding:13px;font-weight:700;cursor:pointer}.tabs button{background:#f0f5f1;color:#526158}.tabs button.active,.submit{background:var(--green);color:white}
+label{display:block;font-size:13px;font-weight:700;margin:14px 0 7px}input{width:100%;padding:14px;border:1px solid #d8e2db;border-radius:12px;font-size:16px;outline:none}input:focus{border-color:var(--green);box-shadow:0 0 0 3px #00a8591c}.submit{width:100%;margin-top:20px;font-size:15px}.link{display:block;text-align:center;border:0;background:none;color:#078548;font-weight:700;margin:16px auto 0;cursor:pointer}.message{display:none;padding:12px;border-radius:10px;font-size:14px;line-height:1.5;margin:14px 0 0;overflow-wrap:anywhere}.message.show{display:block}.message.ok{background:#e9f9ef;color:#145b31}.message.err{background:#fff0ef;color:#a12d24}.fine{font-size:12px;color:var(--muted);line-height:1.5;text-align:center;margin:20px 0 0}.hidden{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">QuickEats</div>
+  <p class="subtitle">Create your account or securely get back into it.</p>
+  <div class="tabs" id="tabs">
+    <button type="button" class="active" id="loginTab">Log in</button>
+    <button type="button" id="signupTab">Create account</button>
+  </div>
+  <form id="authForm">
+    <div id="nameWrap" class="hidden"><label for="name">Full name</label><input id="name" autocomplete="name" maxlength="100" placeholder="Your full name"></div>
+    <label for="email">Email address</label>
+    <input id="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com">
+    <div id="passwordWrap"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" minlength="8" placeholder="At least 8 characters" required></div>
+    <button class="submit" id="submit" type="submit">Log in</button>
+  </form>
+  <button class="link" type="button" id="forgot">Forgot password?</button>
+  <form id="resetForm" class="hidden">
+    <label for="newPassword">New password</label><input id="newPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="At least 8 characters">
+    <label for="confirmPassword">Confirm new password</label><input id="confirmPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="Enter it again">
+    <button class="submit" type="submit">Save new password</button>
+  </form>
+  <div id="message" class="message" role="status" aria-live="polite"></div>
+  <p class="fine">We will never email you your password. Password reset links are private and expire. Only use this page with your own account.</p>
+</main>
+<script>
+(() => {
+  const SUPABASE_URL = "https://glkutdkwbrjpiuqcmgwe.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_lQkN8HQP2Tm3tPiDYJbrNw_ydO7bqXU";
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  const $ = id => document.getElementById(id);
+  let mode = "login";
+  const redirectUrl = window.location.origin + window.location.pathname;
+  function say(message, type="ok") { const el=$("message"); el.textContent=message; el.className="message show "+type; }
+  function clearMessage(){ $("message").className="message"; $("message").textContent=""; }
+  function setMode(next) {
+    mode=next; clearMessage();
+    $("tabs").classList.toggle("hidden", next==="reset" || next==="newpassword");
+    $("authForm").classList.toggle("hidden", next==="newpassword");
+    $("resetForm").classList.toggle("hidden", next!=="newpassword");
+    $("nameWrap").classList.toggle("hidden", next!=="signup");
+    $("passwordWrap").classList.toggle("hidden", next==="forgot");
+    $("password").required = next==="login" || next==="signup";
+    $("forgot").classList.toggle("hidden", next!=="login");
+    $("loginTab").classList.toggle("active", next==="login");
+    $("signupTab").classList.toggle("active", next==="signup");
+    $("submit").textContent = next==="signup" ? "Create account" : next==="forgot" ? "Send reset email" : "Log in";
+    $("password").autocomplete = next==="signup" ? "new-password" : "current-password";
+    if(next==="forgot") { $("passwordWrap").classList.add("hidden"); $("password").required=false; $("submit").textContent="Send reset email"; }
+  }
+  $("loginTab").addEventListener("click",()=>setMode("login"));
+  $("signupTab").addEventListener("click",()=>setMode("signup"));
+  $("forgot").addEventListener("click",()=>setMode("forgot"));
+  $("authForm").addEventListener("submit", async e => {
+    e.preventDefault(); clearMessage();
+    const email=$("email").value.trim(); const password=$("password").value; const button=$("submit");
+    button.disabled=true; button.textContent="Please wait…";
+    try {
+      if(mode==="signup") {
+        const fullName=$("name").value.trim();
+        if(!fullName) throw new Error("Please enter your full name.");
+        const {error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:redirectUrl,data:{full_name:fullName}}});
+        if(error) throw error;
+        say("If this email can be registered, check your inbox for the QuickEats confirmation link. You may need to check spam.");
+      } else if(mode==="forgot") {
+        const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:redirectUrl});
+        if(error) throw error;
+        say("If an account exists for this email, a password-reset link will arrive shortly. Check your spam folder too.");
+      } else {
+        const {error}=await supabase.auth.signInWithPassword({email,password});
+        if(error) throw error;
+        say("You are signed in successfully. This page handles account access; continue to your QuickEats app.");
+      }
+    } catch(err) { say(err.message || "Something went wrong. Please try again.", "err"); }
+    finally { button.disabled=false; button.textContent=mode==="signup"?"Create account":mode==="forgot"?"Send reset email":"Log in"; }
+  });
+  $("resetForm").addEventListener("submit", async e => {
+    e.preventDefault(); clearMessage();
+    const p=$("newPassword").value, c=$("confirmPassword").value;
+    if(p.length<8) return say("Use at least 8 characters for your password.","err");
+    if(p!==c) return say("The passwords do not match.","err");
+    const button=$("resetForm").querySelector("button"); button.disabled=true; button.textContent="Saving…";
+    try {
+      const {error}=await supabase.auth.updateUser({password:p});
+      if(error) throw error;
+      say("Your password has been changed. You can now log in with the new password.");
+      $("resetForm").reset(); setMode("login");
+    } catch(err) { say(err.message || "Could not update password. Request a fresh reset link and try again.", "err"); }
+    finally { button.disabled=false; button.textContent="Save new password"; }
+  });
+  supabase.auth.onAuthStateChange((event) => {
+    if(event==="PASSWORD_RECOVERY") { setMode("newpassword"); say("Choose a new password for your account."); }
+  });
+  if(window.location.hash.includes("type=recovery") || new URLSearchParams(window.location.search).get("mode")==="reset") {
+    setMode("newpassword");
+    say("If you opened a valid reset link, enter your new password below.");
+  }
+})();
+</script>
+</body>
+</html>
