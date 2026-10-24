@@ -2083,7 +2083,23 @@ button:active{transform:scale(.98);filter:brightness(.97)}
         <input id="emailInput" type="email" autocomplete="email" placeholder="Email address">
         <input id="passwordInput" type="password" autocomplete="current-password" minlength="8" placeholder="Password (at least 8 characters)">
         <button id="authSubmitBtn" class="primary-btn" onclick="loginRider()">LOGIN</button>
-        <button id="forgotPasswordBtn" class="text-btn" type="button">Forgot password?</button>
+        <button id="forgotPasswordBtn" class="text-btn" type="button" onclick="openWhatsAppPasswordReset()">Forgot password? Reset with WhatsApp</button>
+        <section id="whatsAppResetPanel" class="support-card hidden" style="text-align:left">
+          <h3>Reset with WhatsApp</h3>
+          <p>We will send a one-time code to the WhatsApp number already verified on your QuickEats account.</p>
+          <label for="resetPhoneInput">Registered phone number</label>
+          <input id="resetPhoneInput" type="tel" autocomplete="tel" placeholder="08012345678 or +2348012345678" maxlength="24">
+          <button id="requestResetCodeBtn" class="primary-btn" type="button" onclick="requestWhatsAppPasswordReset()">SEND WHATSAPP CODE</button>
+          <div id="resetVerifyFields" class="hidden">
+            <label for="resetCodeInput">8-digit code</label>
+            <input id="resetCodeInput" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="Enter code">
+            <label for="resetNewPasswordInput">New password (at least 12 characters)</label>
+            <input id="resetNewPasswordInput" type="password" autocomplete="new-password" minlength="12" maxlength="128" placeholder="Create a strong password">
+            <button id="completeResetBtn" class="primary-btn" type="button" onclick="completeWhatsAppPasswordReset()">UPDATE PASSWORD</button>
+          </div>
+          <button class="text-btn" type="button" onclick="closeWhatsAppPasswordReset()">Cancel</button>
+          <p id="whatsAppResetFeedback" role="status" aria-live="polite"></p>
+        </section>
 <button class="text-btn" type="button" onclick="togglePhoneOtpPanel()">Use phone number + OTP</button><section id="phoneOtpPanel" class="support-card hidden"><label for="otpPhoneInput">Phone number with country code</label><input id="otpPhoneInput" type="tel" placeholder="+2348012345678"><div id="otpCodeRow" class="hidden"><label for="otpCodeInput">6-digit verification code</label><input id="otpCodeInput" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div><button id="sendOtpBtn" class="primary-btn" type="button" onclick="sendRiderPhoneOtp()">SEND CODE</button><button id="verifyOtpBtn" class="primary-btn hidden" type="button" onclick="verifyRiderPhoneOtp()">VERIFY &amp; SIGN IN</button><p id="otpFeedback" role="status"></p></section>
         <button class="demo-btn" onclick="demoLogin()">DEMO RIDER (PREVIEW ONLY)</button>
         <div id="loginError" class="login-error" role="status" aria-live="polite"></div>
@@ -2856,6 +2872,66 @@ async function createOrLoadRiderProfile() {
         console.error("Rider profile setup error:", error);
         feedback.textContent = error.message || "Your rider profile could not be loaded. Please try logging in again.";
     }
+}
+
+let passwordResetRequestId = "";
+const PASSWORD_RESET_ENDPOINT = "https://glkutdkwbrjpiuqcmgwe.supabase.co/functions/v1/quickeats-whatsapp-password-reset";
+function openWhatsAppPasswordReset() {
+  document.getElementById("whatsAppResetPanel")?.classList.remove("hidden");
+  document.getElementById("resetPhoneInput")?.focus();
+  document.getElementById("loginError").textContent = "";
+}
+function closeWhatsAppPasswordReset() {
+  document.getElementById("whatsAppResetPanel")?.classList.add("hidden");
+  document.getElementById("resetVerifyFields")?.classList.add("hidden");
+  document.getElementById("whatsAppResetFeedback").textContent = "";
+  passwordResetRequestId = "";
+}
+async function requestWhatsAppPasswordReset() {
+  const feedback = document.getElementById("whatsAppResetFeedback");
+  const button = document.getElementById("requestResetCodeBtn");
+  const phone = document.getElementById("resetPhoneInput").value.trim();
+  feedback.textContent = "";
+  if (!phone || phone.replace(/\\D/g, "").length < 8) { feedback.textContent = "Enter your registered phone number."; return; }
+  button.disabled = true; button.textContent = "SENDING…";
+  try {
+    const response = await fetch(PASSWORD_RESET_ENDPOINT, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "request", role: "rider", phone })
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.message || "Could not request a code.");
+    passwordResetRequestId = result.request_id || "";
+    document.getElementById("resetVerifyFields").classList.remove("hidden");
+    feedback.textContent = result.message || "If the details match an eligible account, a code will be sent to its registered WhatsApp number. If you receive it, enter it below.";
+  } catch (error) {
+    feedback.textContent = error.message || "Could not request a code. Please try again later.";
+  } finally { button.disabled = false; button.textContent = "SEND WHATSAPP CODE"; }
+}
+async function completeWhatsAppPasswordReset() {
+  const feedback = document.getElementById("whatsAppResetFeedback");
+  const button = document.getElementById("completeResetBtn");
+  const code = document.getElementById("resetCodeInput").value.trim();
+  const password = document.getElementById("resetNewPasswordInput").value;
+  if (!passwordResetRequestId) { feedback.textContent = "Request a code first. If no code arrives, check your registered verified WhatsApp number and try again."; return; }
+  if (!/^\\d{8}$/.test(code)) { feedback.textContent = "Enter the 8-digit code."; return; }
+  if (password.length < 12) { feedback.textContent = "Use at least 12 characters for your new password."; return; }
+  button.disabled = true; button.textContent = "UPDATING…";
+  try {
+    const response = await fetch(PASSWORD_RESET_ENDPOINT, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "complete", request_id: passwordResetRequestId, code, new_password: password })
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.message || "Could not update password.");
+    feedback.textContent = "Password updated. You can now sign in with your new password.";
+    passwordResetRequestId = "";
+    document.getElementById("resetVerifyFields").classList.add("hidden");
+    document.getElementById("resetNewPasswordInput").value = "";
+    document.getElementById("resetCodeInput").value = "";
+  } catch (error) {
+    feedback.textContent = error.message || "Could not update password. Request a new code if it expired.";
+  } finally { button.disabled = false; button.textContent = "UPDATE PASSWORD"; }
 }
 
 async function resetRiderPassword() {
