@@ -46,7 +46,7 @@ label{display:block;font-size:13px;font-weight:700;margin:14px 0 7px}input{width
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
   const $ = id => document.getElementById(id);
   let mode = "login";
-  const redirectUrl = window.location.origin + window.location.pathname;
+  const redirectUrl = "https://partner-app-5l9f.onrender.com/account.html";
   function say(message, type="ok") { const el=$("message"); el.textContent=message; el.className="message show "+type; }
   function clearMessage(){ $("message").className="message"; $("message").textContent=""; }
   function setMode(next) {
