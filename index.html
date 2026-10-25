@@ -2683,84 +2683,58 @@ function unlockAudio() {
 }
 
 
-function playTone(frequency, startTime, duration) {
+function playTone(frequency, startTime, duration, peakGain = 0.55) {
 
     if (!audioContext) return;
 
     try {
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
 
-        const oscillator =
-            audioContext.createOscillator();
-
-        const gain =
-            audioContext.createGain();
-
-        oscillator.type = "sine";
-
-        oscillator.frequency.setValueAtTime(
-            frequency,
-            startTime
-        );
-
-        gain.gain.setValueAtTime(
-            0.0001,
-            startTime
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-            0.18,
-            startTime + 0.015
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-            0.0001,
-            startTime + duration
-        );
+        oscillator.type = "square";
+        oscillator.frequency.setValueAtTime(frequency, startTime);
+        gain.gain.setValueAtTime(0.0001, startTime);
+        gain.gain.exponentialRampToValueAtTime(peakGain, startTime + 0.02);
+        gain.gain.setValueAtTime(peakGain, Math.max(startTime + 0.025, startTime + duration - 0.06));
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
 
         oscillator.connect(gain);
         gain.connect(audioContext.destination);
-
         oscillator.start(startTime);
-        oscillator.stop(startTime + duration + 0.03);
-
+        oscillator.stop(startTime + duration + 0.04);
     } catch (error) {
-
-        console.log(error);
-
+        console.log("Order alert tone failed", error);
     }
-
 }
 
-
 function detectionSound() {
-
     try {
         let prefs = {};
-        try { prefs = JSON.parse(localStorage.getItem("quickeats_rider_preferences") || "{}"); } catch(e) {}
+        try {
+            prefs = JSON.parse(localStorage.getItem("quickeats_rider_preferences") || "{}");
+        } catch (e) {}
+
         if (prefs.sound === false) return;
         unlockAudio();
-
         if (!audioContext) return;
 
         if (audioContext.state === "suspended") {
-
             audioContext.resume().catch(() => {});
-
         }
 
-        const now =
-            audioContext.currentTime;
-
-        playTone(720, now, 0.16);
-        playTone(980, now + 0.17, 0.16);
-        playTone(1240, now + 0.34, 0.22);
-
+        // Three short, attention-grabbing alert bursts. The phone's own media
+        // volume still controls the maximum loudness; browsers cannot override it.
+        const now = audioContext.currentTime + 0.04;
+        for (let burst = 0; burst < 3; burst++) {
+            const t = now + burst * 0.92;
+            playTone(880, t, 0.22, 0.48);
+            playTone(1175, t + 0.24, 0.22, 0.58);
+            playTone(880, t + 0.48, 0.22, 0.48);
+            playTone(1480, t + 0.72, 0.16, 0.58);
+        }
     } catch (error) {
-
         console.log("Detection sound failed");
-
     }
-
 }
 /* ============================================================
    VIBRATION
