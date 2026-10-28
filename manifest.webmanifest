@@ -1,0 +1,17 @@
+{
+  "name": "Quick Eats",
+  "short_name": "Quick Eats",
+  "description": "Fast, friendly food delivery",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#08A84F",
+  "icons": [
+    {
+      "src": "./quick-eats-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
