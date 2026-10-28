@@ -3102,9 +3102,22 @@ function updateRiderApplicationUI() {
   }
   const header = document.querySelector("#app > .header");
   const nav = document.querySelector("#app .bottom-nav");
-  if (header) header.style.display = "";
-  if (nav) nav.style.display = "";
-  document.querySelectorAll("#app .page").forEach(page => page.style.display = "");
+  const approved = status === "active" || status === "approved";
+  if (header) header.style.display = approved ? "" : "none";
+  if (nav) nav.style.display = approved ? "" : "none";
+  document.querySelectorAll("#app .page").forEach(page => {
+    page.style.display = approved ? "" : (page.id === "profilePage" ? "" : "none");
+  });
+  // Never leave a rider online while their onboarding is incomplete or their account is suspended.
+  if (!approved && currentRider?.is_online) {
+    currentRider.is_online = false;
+    isOnline = false;
+    if (online) { online.textContent = "OFFLINE"; online.classList.remove("online"); }
+    if (supabaseClient && currentRider?.id && currentRider.id !== "demo-rider") {
+      supabaseClient.from("riders").update({is_online:false}).eq("id",currentRider.id).eq("user_id",currentUser?.id)
+        .then(({error}) => { if (error) console.error("Could not force rider offline:", error.message); });
+    }
+  }
 }
 
 async function submitRiderApplication() {
@@ -4106,6 +4119,12 @@ function restoreCachedRiderOrder() {
 }
 
 async function toggleOnline() {
+    const approval = String(currentRider?.approval_status || "pending").toLowerCase();
+    if (!["active","approved"].includes(approval)) {
+        showToast("Complete onboarding and wait for admin approval before going online.");
+        updateRiderApplicationUI();
+        return;
+    }
     if (!navigator.onLine) {
         showToast("No internet connection. Connect and try again.");
         return;
@@ -5281,7 +5300,16 @@ async function loadCompletedOrders() {
 }
 
 function renderEarnings() {
+    const approval = String(currentRider?.approval_status || "pending").toLowerCase();
     const list = document.getElementById("earningsList");
+    if (!["active","approved"].includes(approval)) {
+        const totalNode = document.getElementById("totalEarnings");
+        const summaryNode = document.getElementById("earningsSummary");
+        if (totalNode) totalNode.textContent = money(0);
+        if (summaryNode) summaryNode.textContent = "Earnings unlock after admin approval and activation.";
+        if (list) list.innerHTML = '<div class="empty-order">Complete onboarding and wait for approval to view earnings.</div>';
+        return;
+    }
     const totalNode = document.getElementById("totalEarnings");
     const summaryNode = document.getElementById("earningsSummary");
     const period = document.getElementById("earningsPeriod")?.value || "all";
