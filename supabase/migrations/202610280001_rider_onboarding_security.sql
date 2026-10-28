@@ -44,14 +44,25 @@ as $$
 begin
   if auth.uid() is not null and not public.is_admin() then
     if new.user_id is distinct from old.user_id
-      or new.approval_status is distinct from old.approval_status
       or new.rejection_reason is distinct from old.rejection_reason
-      or new.documents_submitted_at is distinct from old.documents_submitted_at
       or new.reviewed_at is distinct from old.reviewed_at
       or new.payout_verified is distinct from old.payout_verified
-      or new.payout_verified_at is distinct from old.payout_verified_at
-      or new.is_online is distinct from old.is_online then
-      raise exception 'Rider status, online access, and payout verification can only be changed by approved server-side workflows.';
+      or new.payout_verified_at is distinct from old.payout_verified_at then
+      raise exception 'Rider identity, review outcome, and payout verification are admin-controlled.';
+    end if;
+    -- A rider may only move their own application back to a non-approved pending state.
+    if new.approval_status is distinct from old.approval_status
+      and new.approval_status not in ('pending','pending_profile','pending_documents','under_review','needs_resubmission') then
+      raise exception 'Only an administrator can approve, activate, reject, or suspend a rider.';
+    end if;
+    if new.documents_submitted_at is distinct from old.documents_submitted_at
+      and (new.approval_status not in ('pending','pending_documents','under_review','needs_resubmission')
+           or new.documents_submitted_at is null) then
+      raise exception 'Document submission timestamps are only allowed for pending applications.';
+    end if;
+    if new.is_online is distinct from old.is_online
+      and not (old.approval_status in ('active','approved') and old.payout_verified = true) then
+      raise exception 'Rider must be active and payout-verified before going online.';
     end if;
   end if;
   return new;
