@@ -2773,7 +2773,7 @@ let pendingOtpPhone="";
 function togglePhoneOtpPanel(){document.getElementById("phoneOtpPanel")?.classList.toggle("hidden");}
 async function sendRiderPhoneOtp(){const phone=document.getElementById("otpPhoneInput").value.trim(),f=document.getElementById("otpFeedback"),b=document.getElementById("sendOtpBtn");f.textContent="";if(!supabaseClient){f.textContent="Connection not ready.";return;}if(!/^\+[1-9]\d{7,14}$/.test(phone)){f.textContent="Enter a valid phone number with country code.";return;}b.disabled=true;try{const {error}=await supabaseClient.auth.signInWithOtp({phone,options:{shouldCreateUser:false}});if(error)throw error;pendingOtpPhone=phone;document.getElementById("otpCodeRow").classList.remove("hidden");document.getElementById("verifyOtpBtn").classList.remove("hidden");f.textContent="Code sent. Check SMS.";}catch(e){f.textContent=e.message||"Could not send code. Configure Supabase phone authentication and an SMS provider.";}finally{b.disabled=false;b.textContent="RESEND CODE";}}
 async function verifyRiderPhoneOtp(){const token=document.getElementById("otpCodeInput").value.trim(),f=document.getElementById("otpFeedback"),b=document.getElementById("verifyOtpBtn");if(!pendingOtpPhone){f.textContent="Request a code first.";return;}if(!/^\d{6}$/.test(token)){f.textContent="Enter the 6-digit code.";return;}b.disabled=true;try{const {data,error}=await supabaseClient.auth.verifyOtp({phone:pendingOtpPhone,token,type:"sms"});if(error)throw error;currentUser=data.user;await loadRider();}catch(e){f.textContent=e.message||"Code verification failed.";}finally{b.disabled=false;}}
-async function saveRiderProfileDetails(){const f=document.getElementById("profileDetailsFeedback");f.textContent="";if(!supabaseClient||!currentRider?.id||currentRider.id==="demo-rider"){f.textContent="Sign in with a real rider account to save details.";return;}const vehicle_type=document.getElementById("profileVehicleType").value,vehicle_number=document.getElementById("profileVehicleNumber").value.trim(),photo=document.getElementById("profilePhotoInput").files?.[0];if(vehicle_number.length<2){f.textContent="Enter a valid vehicle number.";return;}if(photo&&(!["image/jpeg","image/png","image/webp"].includes(photo.type)||photo.size>5*1024*1024)){f.textContent="Photo must be JPG, PNG, or WebP under 5 MB.";return;}try{let profile_photo_path=currentRider.profile_photo_path||null;if(photo){profile_photo_path=currentUser.id+"/profile_"+Date.now()+"."+photo.name.split(".").pop().toLowerCase();const {error}=await supabaseClient.storage.from("rider-documents").upload(profile_photo_path,photo,{upsert:true,contentType:photo.type});if(error)throw error;}const {error}=await supabaseClient.from("riders").update({vehicle_type,vehicle_number,profile_photo_path}).eq("id",currentRider.id);if(error)throw error;currentRider={...currentRider,vehicle_type,vehicle_number,profile_photo_path};f.textContent="Profile details saved.";}catch(e){f.textContent=e.message||"Could not save profile details.";}}
+async function saveRiderProfileDetails(){const f=document.getElementById("profileDetailsFeedback");f.textContent="";if(!supabaseClient||!currentRider?.id||currentRider.id==="demo-rider"){f.textContent="Sign in with a real rider account to save details.";return;}const vehicle_type=document.getElementById("profileVehicleType").value,vehicle_number=document.getElementById("profileVehicleNumber").value.trim(),photo=document.getElementById("profilePhotoInput").files?.[0];if(vehicle_number.length<2){f.textContent="Enter a valid vehicle number.";return;}if(photo&&(!["image/jpeg","image/png","image/webp"].includes(photo.type)||photo.size>5*1024*1024)){f.textContent="Photo must be JPG, PNG, or WebP under 5 MB.";return;}try{let profile_photo_path=currentRider.profile_photo_path||null;if(photo){profile_photo_path=currentUser.id+"/profile_"+Date.now()+"."+photo.name.split(".").pop().toLowerCase();const {error}=await supabaseClient.storage.from("rider-documents").upload(profile_photo_path,photo,{upsert:true,contentType:photo.type});if(error)throw error;}const {error}=await supabaseClient.from("riders").update({vehicle_type,vehicle_number,profile_photo_path}).eq("id",currentRider.id);if(error)throw error;currentRider={...currentRider,vehicle_type,vehicle_number,profile_photo_path};const verificationVehicle=document.getElementById("riderVehicleType");if(verificationVehicle){verificationVehicle.value=vehicle_type;renderRiderDocumentFields();}const appFeedback=document.getElementById("riderApplicationFeedback");if(appFeedback)appFeedback.textContent="Profile saved. This does not submit your documents yet. Open Rider verification, attach each required document, then tap SUBMIT FOR REVIEW.";f.textContent="Profile details saved. Next, submit your documents separately for admin review.";}catch(e){f.textContent=e.message||"Could not save profile details.";}}
 async function loadRiderPayoutDetails(){if(!supabaseClient||!currentRider?.id||currentRider.id==="demo-rider")return;try{const {data,error}=await supabaseClient.from("rider_payout_details").select("bank_name,account_name,account_number").eq("rider_id",currentRider.id).maybeSingle();if(error)throw error;if(data){payoutBankName.value=data.bank_name||"";payoutAccountName.value=data.account_name||"";payoutAccountNumber.value=data.account_number||"";}}catch(e){payoutFeedback.textContent="Could not load payout details. Check your connection.";}}
 async function saveRiderPayoutDetails(){const f=document.getElementById("payoutFeedback");f.textContent="";if(!supabaseClient||!currentRider?.id||currentRider.id==="demo-rider"){f.textContent="Sign in with a real rider account to save details.";return;}const bank_name=payoutBankName.value.trim(),account_name=payoutAccountName.value.trim(),account_number=payoutAccountNumber.value.replace(/\s/g,"");if(bank_name.length<2||account_name.length<2||!/^\d{8,20}$/.test(account_number)){f.textContent="Enter bank name, account name, and a valid account number.";return;}try{const {error}=await supabaseClient.from("rider_payout_details").upsert({rider_id:currentRider.id,bank_name,account_name,account_number,updated_at:new Date().toISOString()},{onConflict:"rider_id"});if(error)throw error;f.textContent="Payout details saved.";}catch(e){f.textContent=e.message||"Could not save payout details.";}}
 function setAuthMode(mode) {
@@ -3071,24 +3071,53 @@ function renderRiderDocumentFields() {
 }
 
 function getEffectiveRiderApprovalStatus(rider = currentRider) {
-  // Verification is temporarily disabled. Allow every signed-in rider to access the dashboard.
-  return "approved";
+  // Riders must submit the required documents and be approved before going online.
+  return rider?.approval_status || "pending";
 }
 
 function updateRiderApplicationUI() {
-  // Rider verification is temporarily hidden and can be restored later.
   const panel = document.getElementById("riderApplicationPanel");
-  if (panel) panel.style.display = "none";
+  const status = getEffectiveRiderApprovalStatus(currentRider);
+  const submittedAt = currentRider?.documents_submitted_at;
+  const statusText = document.getElementById("riderApplicationStatus");
+  const form = document.getElementById("riderApplicationForm");
   const online = document.getElementById("onlineBtn");
+
+  if (panel) panel.style.display = status === "approved" ? "none" : "block";
+  if (statusText) {
+    statusText.textContent = status === "approved"
+      ? "Your documents have been approved."
+      : submittedAt && status === "pending"
+        ? "Your documents were submitted and are waiting for administrator review."
+        : status === "needs_resubmission"
+          ? "Please upload the requested documents again, then submit for review."
+          : status === "rejected"
+            ? "Your application was rejected. Contact QuickEats support before submitting again."
+            : "Complete and submit the required documents before accepting deliveries.";
+  }
+  if (form) form.style.display = status === "pending" && submittedAt ? "none" : "block";
   if (online) {
-    online.disabled = false;
-    online.title = "Toggle availability";
+    online.disabled = status !== "approved";
+    online.title = status === "approved" ? "Toggle availability" : "Approval required before going online";
   }
   const header = document.querySelector("#app > .header");
   const nav = document.querySelector("#app .bottom-nav");
-  if (header) header.style.display = "";
-  if (nav) nav.style.display = "";
-  document.querySelectorAll("#app .page").forEach(page => page.style.display = "");
+  const approved = status === "active" || status === "approved";
+  if (header) header.style.display = approved ? "" : "none";
+  if (nav) nav.style.display = approved ? "" : "none";
+  document.querySelectorAll("#app .page").forEach(page => {
+    page.style.display = approved ? "" : (page.id === "profilePage" ? "" : "none");
+  });
+  // Never leave a rider online while their onboarding is incomplete or their account is suspended.
+  if (!approved && currentRider?.is_online) {
+    currentRider.is_online = false;
+    isOnline = false;
+    if (online) { online.textContent = "OFFLINE"; online.classList.remove("online"); }
+    if (supabaseClient && currentRider?.id && currentRider.id !== "demo-rider") {
+      supabaseClient.from("riders").update({is_online:false}).eq("id",currentRider.id).eq("user_id",currentUser?.id)
+        .then(({error}) => { if (error) console.error("Could not force rider offline:", error.message); });
+    }
+  }
 }
 
 async function submitRiderApplication() {
@@ -4090,6 +4119,12 @@ function restoreCachedRiderOrder() {
 }
 
 async function toggleOnline() {
+    const approval = String(currentRider?.approval_status || "pending").toLowerCase();
+    if (!["active","approved"].includes(approval)) {
+        showToast("Complete onboarding and wait for admin approval before going online.");
+        updateRiderApplicationUI();
+        return;
+    }
     if (!navigator.onLine) {
         showToast("No internet connection. Connect and try again.");
         return;
@@ -5265,7 +5300,16 @@ async function loadCompletedOrders() {
 }
 
 function renderEarnings() {
+    const approval = String(currentRider?.approval_status || "pending").toLowerCase();
     const list = document.getElementById("earningsList");
+    if (!["active","approved"].includes(approval)) {
+        const totalNode = document.getElementById("totalEarnings");
+        const summaryNode = document.getElementById("earningsSummary");
+        if (totalNode) totalNode.textContent = money(0);
+        if (summaryNode) summaryNode.textContent = "Earnings unlock after admin approval and activation.";
+        if (list) list.innerHTML = '<div class="empty-order">Complete onboarding and wait for approval to view earnings.</div>';
+        return;
+    }
     const totalNode = document.getElementById("totalEarnings");
     const summaryNode = document.getElementById("earningsSummary");
     const period = document.getElementById("earningsPeriod")?.value || "all";
