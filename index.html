@@ -3071,18 +3071,34 @@ function renderRiderDocumentFields() {
 }
 
 function getEffectiveRiderApprovalStatus(rider = currentRider) {
-  // Verification is temporarily disabled. Allow every signed-in rider to access the dashboard.
-  return "approved";
+  // Riders must submit the required documents and be approved before going online.
+  return rider?.approval_status || "pending";
 }
 
 function updateRiderApplicationUI() {
-  // Rider verification is temporarily hidden and can be restored later.
   const panel = document.getElementById("riderApplicationPanel");
-  if (panel) panel.style.display = "none";
+  const status = getEffectiveRiderApprovalStatus(currentRider);
+  const submittedAt = currentRider?.documents_submitted_at;
+  const statusText = document.getElementById("riderApplicationStatus");
+  const form = document.getElementById("riderApplicationForm");
   const online = document.getElementById("onlineBtn");
+
+  if (panel) panel.style.display = status === "approved" ? "none" : "block";
+  if (statusText) {
+    statusText.textContent = status === "approved"
+      ? "Your documents have been approved."
+      : submittedAt && status === "pending"
+        ? "Your documents were submitted and are waiting for administrator review."
+        : status === "needs_resubmission"
+          ? "Please upload the requested documents again, then submit for review."
+          : status === "rejected"
+            ? "Your application was rejected. Contact QuickEats support before submitting again."
+            : "Complete and submit the required documents before accepting deliveries.";
+  }
+  if (form) form.style.display = status === "pending" && submittedAt ? "none" : "block";
   if (online) {
-    online.disabled = false;
-    online.title = "Toggle availability";
+    online.disabled = status !== "approved";
+    online.title = status === "approved" ? "Toggle availability" : "Approval required before going online";
   }
   const header = document.querySelector("#app > .header");
   const nav = document.querySelector("#app .bottom-nav");
