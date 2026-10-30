@@ -4950,7 +4950,7 @@ async function advanceStatus() {
                 throw new Error("Delivery confirmation cancelled.");
             }
             verificationCode = verificationCode.trim();
-            if (!/^\\d{4}$/.test(verificationCode)) {
+            if (!/^[0-9]{4}$/.test(verificationCode)) {
                 throw new Error("The customer delivery code must be exactly 4 digits. Please check with the customer and try again.");
             }
         }
