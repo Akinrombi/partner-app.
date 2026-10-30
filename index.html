@@ -3061,7 +3061,7 @@ function updateRiderApplicationUI() {
   }
   const header = document.querySelector("#app > .header");
   const nav = document.querySelector("#app .bottom-nav");
-  const approved = status === "active" || status === "approved";
+  const approved = status === "approved";
   if (header) header.style.display = approved ? "" : "none";
   if (nav) nav.style.display = approved ? "" : "none";
   document.querySelectorAll("#app .page").forEach(page => {
@@ -4047,7 +4047,7 @@ function restoreCachedRiderOrder() {
 
 async function toggleOnline() {
     const approval = String(currentRider?.approval_status || "pending").toLowerCase();
-    if (!["active","approved"].includes(approval)) {
+    if (approval !== "approved") {
         showToast("Complete onboarding and wait for admin approval before going online.");
         updateRiderApplicationUI();
         return;
@@ -5228,7 +5228,7 @@ async function loadCompletedOrders() {
 function renderEarnings() {
     const approval = String(currentRider?.approval_status || "pending").toLowerCase();
     const list = document.getElementById("earningsList");
-    if (!["active","approved"].includes(approval)) {
+    if (approval !== "approved") {
         const totalNode = document.getElementById("totalEarnings");
         const summaryNode = document.getElementById("earningsSummary");
         if (totalNode) totalNode.textContent = money(0);
