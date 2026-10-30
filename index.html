@@ -3216,55 +3216,100 @@ function updateRiderApplicationUI() {
 async function submitRiderApplication() {
   const feedback = document.getElementById("riderApplicationFeedback");
   const button = document.getElementById("submitRiderApplicationBtn");
+  let stage = "Starting";
+  const showFeedback = (message, isError = false) => {
+    if (!feedback) return;
+    feedback.textContent = message;
+    feedback.style.display = "block";
+    feedback.style.visibility = "visible";
+    feedback.style.color = isError ? "#b42318" : "#08783e";
+    feedback.style.background = isError ? "#fff1f0" : "#effaf3";
+    feedback.style.border = isError ? "1px solid #f3b7b2" : "1px solid #b8e4c7";
+    feedback.style.borderRadius = "10px";
+    feedback.style.padding = "10px 12px";
+    feedback.style.marginTop = "10px";
+    feedback.setAttribute("aria-live", "assertive");
+  };
   if (!feedback || !button) {
     console.error("Rider application form controls are missing from the page.");
     return;
   }
-  feedback.textContent = "Preparing your application…";
-  if (!currentUser?.id || !supabaseClient) { feedback.textContent = "Please sign in again before uploading documents."; return; }
-  const vehicle = document.getElementById("riderVehicleType").value;
-  const required = RIDER_DOCS[vehicle];
-  const files = [];
-  for (const [type,label] of required) {
-    const input = document.getElementById("riderDoc_" + type);
-    const file = input?.files?.[0];
-    if (!file) { feedback.textContent = `Please choose a file for: ${label}.`; input?.focus(); return; }
-    if (file.size > 5 * 1024 * 1024) { feedback.textContent = `${label} must be 5 MB or smaller.`; return; }
-    if (!["image/jpeg","image/png","image/webp","application/pdf"].includes(file.type)) { feedback.textContent = `${label}: use JPG, PNG, WebP, or PDF.`; return; }
-    files.push({type,label,file});
-  }
-  button.disabled = true; button.textContent = "UPLOADING DOCUMENTS…";
-  const uploadedPaths = [];
+  if (button.dataset.submitting === "true") return;
+  button.dataset.submitting = "true";
+  button.disabled = true;
+  button.textContent = "CHECKING DOCUMENTS…";
+  showFeedback("Checking your application details…");
   try {
+    if (!currentUser?.id || !supabaseClient) {
+      throw new Error("Your sign-in session is missing. Sign out, sign in again, and retry.");
+    }
+    const vehicleInput = document.getElementById("riderVehicleType");
+    if (!vehicleInput) throw new Error("The vehicle selection is missing. Reload the page and try again.");
+    const vehicle = vehicleInput.value;
+    const required = RIDER_DOCS?.[vehicle];
+    if (!Array.isArray(required) || !required.length) {
+      throw new Error("Please select Bicycle or Motorbike, then try again.");
+    }
+    const files = [];
+    for (const [type, label] of required) {
+      const input = document.getElementById("riderDoc_" + type);
+      const file = input?.files?.[0];
+      if (!file) {
+        input?.focus();
+        throw new Error("Please choose a file for: " + label + ".");
+      }
+      if (file.size > 5 * 1024 * 1024) throw new Error(label + " must be 5 MB or smaller.");
+      if (!["image/jpeg", "image/png", "image/webp", "application/pdf"].includes(file.type)) {
+        throw new Error(label + ": use JPG, PNG, WebP, or PDF.");
+      }
+      files.push({ type, label, file });
+    }
     const docs = [];
-    for (const item of files) {
+    for (let i = 0; i < files.length; i++) {
+      const item = files[i];
+      stage = "Uploading " + item.label;
+      button.textContent = "UPLOADING " + (i + 1) + "/" + files.length + "…";
+      showFeedback(stage + " (" + (i + 1) + " of " + files.length + ")…");
       const ext = (item.file.name.split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "");
-      const path = `${currentUser.id}/${Date.now()}_${item.type}.${ext}`;
-      const { error: uploadError } = await supabaseClient.storage.from("rider-documents").upload(path, item.file, { upsert: false, contentType: item.file.type });
-      if (uploadError) throw uploadError;
-      uploadedPaths.push(path);
+      const path = currentUser.id + "/" + Date.now() + "_" + item.type + "." + ext;
+      const { error: uploadError } = await supabaseClient.storage.from("rider-documents")
+        .upload(path, item.file, { upsert: false, contentType: item.file.type });
+      if (uploadError) throw new Error("Upload failed for " + item.label + ": " + uploadError.message);
       docs.push({ document_type: item.type, storage_path: path });
     }
+    stage = "Sending documents for review";
     button.textContent = "SUBMITTING FOR REVIEW…";
-    const { data, error } = await supabaseClient.rpc("submit_rider_application", { p_vehicle_type: vehicle, p_documents: docs });
-    if (error) throw error;
+    showFeedback("Uploads complete. Sending your application for review…");
+    const { data, error } = await supabaseClient.rpc("submit_rider_application", {
+      p_vehicle_type: vehicle, p_documents: docs
+    });
+    if (error) throw new Error("The documents uploaded, but Supabase could not register the application: " + error.message);
     const result = Array.isArray(data) ? data[0] : data;
-    if (!result?.success) throw new Error(result?.message || "Application submission failed.");
-    const { data: rider, error: riderError } = await supabaseClient.from("riders").select("*").eq("user_id", currentUser.id).single();
-    if (riderError) throw riderError;
+    if (!result?.success) throw new Error(result?.message || "The server did not accept the application.");
+    stage = "Confirming submission";
+    const { data: rider, error: riderError } = await supabaseClient.from("riders")
+      .select("*").eq("user_id", currentUser.id).single();
+    if (riderError) throw new Error("The application was accepted, but confirmation failed: " + riderError.message);
+    if (!rider?.documents_submitted_at || rider.approval_status !== "pending") {
+      throw new Error("The server responded, but the application status could not be confirmed. Contact support before trying again.");
+    }
     currentRider = { ...currentRider, ...rider };
-    feedback.textContent = "Required documents submitted successfully. Your account is now awaiting administrator approval.";
+    showFeedback("SUCCESS: Your documents were submitted. Your account is now waiting for Admin approval.");
     updateRiderApplicationUI();
     showToast("Application submitted for review");
     document.getElementById("app")?.classList.add("hidden");
-    document.getElementById("riderOnboardingPage").style.display = "none";
+    const onboarding = document.getElementById("riderOnboardingPage");
+    if (onboarding) onboarding.style.display = "none";
     showRiderApprovalGate();
   } catch (error) {
-    console.error("Rider application submission failed", error);
-    feedback.textContent = error.message || "Could not submit documents. Please try again.";
-    // Keep uploaded files in private storage so the user can retry; paths are scoped to their own account.
+    console.error("Rider application submission failed at " + stage, error);
+    const message = error?.message || String(error) || "Unknown error";
+    showFeedback("NOT SUBMITTED — " + stage + ": " + message, true);
+    if (typeof showToast === "function") showToast("Submission failed. Read the message below the button.");
   } finally {
-    button.disabled = false; button.textContent = "SUBMIT FOR REVIEW";
+    button.disabled = false;
+    button.dataset.submitting = "false";
+    button.textContent = "SUBMIT FOR REVIEW";
   }
 }
 
