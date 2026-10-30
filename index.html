@@ -2844,7 +2844,18 @@ async function createOrLoadRiderProfile() {
             .from("profiles").select("name, phone").eq("id", currentUser.id).maybeSingle();
         if (profileError) throw profileError;
         currentRider = { ...rider, rider_name: profile?.name || currentUser.user_metadata?.name || "Rider", phone: profile?.phone || currentUser.user_metadata?.phone || "" };
-        enterApp();
+        if (String(currentRider.approval_status || "pending").toLowerCase() === "approved") {
+            enterApp();
+        } else if (currentRider.documents_submitted_at) {
+            showRiderApprovalGate();
+        } else {
+            await enterApp();
+            const vehicle = document.getElementById("riderVehicleType");
+            const number = document.getElementById("riderVehicleNumber");
+            if (vehicle) vehicle.value = currentRider.vehicle_type || "bicycle";
+            if (number) number.value = currentRider.vehicle_number || "";
+            renderRiderDocumentFields();
+        }
     } catch (error) {
         console.error("Rider profile setup error:", error);
         feedback.textContent = error.message || "Your rider profile could not be loaded. Please try logging in again.";
@@ -3010,8 +3021,16 @@ async function loadRider() {
             showRiderApprovalGate();
             return;
         }
-        document.getElementById("riderApprovalGate").style.display = "none";
-        enterApp();
+        const gate = document.getElementById("riderApprovalGate");
+        if (gate) { gate.classList.add("hidden"); gate.style.display = "none"; }
+        await enterApp();
+        if (approvalStatus !== "approved") {
+            const vehicle = document.getElementById("riderVehicleType");
+            const number = document.getElementById("riderVehicleNumber");
+            if (vehicle) vehicle.value = currentRider.vehicle_type || "bicycle";
+            if (number) number.value = currentRider.vehicle_number || "";
+            renderRiderDocumentFields();
+        }
     } catch (error) {
         console.error("Rider profile load error:", error);
         document.getElementById("loginError").textContent = error.message || "Unable to load rider profile.";
@@ -3137,8 +3156,21 @@ function updateRiderApplicationUI() {
   if (header) header.style.display = approved ? "" : "none";
   if (nav) nav.style.display = approved ? "" : "none";
   document.querySelectorAll("#app .page").forEach(page => {
-    page.style.display = approved ? "" : (page.id === "profilePage" ? "" : "none");
+    page.style.display = approved ? "" : (page.id === "profilePage" ? "block" : "none");
+    page.classList.toggle("active", !approved && page.id === "profilePage");
   });
+  const profilePage = document.getElementById("profilePage");
+  if (profilePage) {
+    profilePage.querySelectorAll(":scope > *").forEach(child => {
+      child.style.display = approved || child.id === "riderApplicationPanel" ? "" : "none";
+    });
+    const heading = profilePage.querySelector(":scope > .section-title");
+    if (heading) heading.textContent = approved ? "Profile" : "Complete your rider application";
+  }
+  if (!approved) {
+    const applicationPanel = document.getElementById("riderApplicationPanel");
+    if (applicationPanel) applicationPanel.style.display = "block";
+  }
   // Never leave a rider online while their onboarding is incomplete or their account is suspended.
   if (!approved && currentRider?.is_online) {
     currentRider.is_online = false;
