@@ -4945,10 +4945,17 @@ async function advanceStatus() {
         if (nextStatus === "picked_up") {
             verificationCode = prompt("Enter the pickup code provided by the restaurant:");
         } else if (nextStatus === "delivered") {
-            verificationCode = prompt("Enter the delivery code provided by the customer:");
+            verificationCode = prompt("Enter the 4-digit delivery code provided by the customer:");
+            if (verificationCode === null) {
+                throw new Error("Delivery confirmation cancelled.");
+            }
+            verificationCode = verificationCode.trim();
+            if (!/^\\d{4}$/.test(verificationCode)) {
+                throw new Error("The customer delivery code must be exactly 4 digits. Please check with the customer and try again.");
+            }
         }
-        if ((nextStatus === "picked_up" || nextStatus === "delivered") && !verificationCode) {
-            throw new Error("Verification code is required for this step.");
+        if (nextStatus === "picked_up" && !verificationCode) {
+            throw new Error("Pickup verification code is required for this step.");
         }
         const { data, error } = await supabaseClient.rpc("update_order_status", {
             p_order_id: currentOrder.id,
