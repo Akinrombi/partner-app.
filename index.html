@@ -112,16 +112,6 @@ button{
     transform:scale(.98);
 }
 
-.demo-btn{
-    width:100%;
-    margin-top:12px;
-    height:48px;
-    border-radius:13px;
-    background:#edf5f0;
-    color:#08753a;
-    font-weight:800;
-}
-
 .login-error{
     margin-top:15px;
     color:#c62828;
@@ -2225,10 +2215,7 @@ button:active{transform:scale(.98);filter:brightness(.97)}
                 <button class="map-action-btn" onclick="openCurrentLocationInMaps()">
                     🧭 Open map
                 </button>
-                <button id="startDemoDeliveryBtn" class="map-action-btn" style="display:none;background:#101914;color:#fff" onclick="startDemoDelivery()">
-                    🧪 Start full demo order
-                </button>
-                
+
             </div>
         </section>
 
@@ -3813,43 +3800,6 @@ function stopLiveGPS() {
 
 }
 
-
-/* TEMPORARY end-to-end demo order. This is local test data only and is never saved to Supabase. */
-function startDemoDelivery() {
-    if (currentRider?.id !== "demo-rider") {
-        showToast("Sign in with Continue as Demo Rider to run this test.");
-        return;
-    }
-    const order = {
-        id: "demo-order-" + Date.now(),
-        order_number: "DEMO-" + String(Date.now()).slice(-5),
-        status: "available",
-        restaurant_name: "Tasty Bites Restaurant",
-        vendor_name: "Tasty Bites Restaurant",
-        pickup_address: "Demo Vendor — Lagos Island",
-        delivery_address: "Demo Customer — Ikeja, Lagos",
-        customer_name: "Demo Customer",
-        customer_phone: "08000000000",
-        item_name: "Jollof Rice + Grilled Chicken",
-        total_amount: 6500,
-        delivery_fee: 1200,
-        pickup_lat: 6.5244,
-        pickup_lng: 3.3792,
-        vendor_lat: 6.5244,
-        vendor_lng: 3.3792,
-        delivery_lat: 6.6018,
-        delivery_lng: 3.3515,
-        customer_lat: 6.6018,
-        customer_lng: 3.3515,
-        is_demo_order: true
-    };
-    showOrder(order, true);
-    const startButton = document.getElementById("startDemoDeliveryBtn");
-    if (startButton) startButton.textContent = "🔄 Restart demo order";
-    // Keep route actions inside their matching vendor/customer sections, not crowded beside the map.
-    showToast("Demo order received. Tap ACCEPT DELIVERY to begin.");
-    document.getElementById("orderCard")?.scrollIntoView({ behavior: "smooth", block: "start" });
-}
 
 /* Opens turn-by-turn Google Maps navigation for the current order's vendor or customer. */
 function navigateToOrderLocation(type) {
