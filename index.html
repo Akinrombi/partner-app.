@@ -3678,6 +3678,64 @@ function loadLeaflet() {
     return window.quickEatsLeafletPromise;
 }
 
+function addRiderMapStyleSwitcher(engine, map, mapsOrLeaflet) {
+    const styles = ["standard", "satellite", "terrain"];
+    const labels = { standard: "Standard map", satellite: "Satellite", terrain: "Terrain" };
+    let current = "standard";
+    let leafletLayers = null;
+    if (engine === "leaflet") {
+        const L = mapsOrLeaflet;
+        leafletLayers = {
+            standard: L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }),
+            satellite: L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+                maxZoom: 19,
+                attribution: 'Tiles &copy; Esri'
+            }),
+            terrain: L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", {
+                maxZoom: 19,
+                attribution: 'Tiles &copy; Esri'
+            })
+        };
+        leafletLayers.standard.addTo(map);
+    }
+    const control = document.createElement("button");
+    control.type = "button";
+    control.textContent = "Map: Standard";
+    control.setAttribute("aria-label", "Change map style");
+    control.title = "Tap to switch between Standard, Satellite and Terrain maps";
+    control.style.cssText = "margin:10px;padding:9px 12px;border:1px solid #d1d5db;border-radius:9px;background:#fff;color:#17211b;font:700 12px Arial,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.22);cursor:pointer;min-height:38px";
+    control.addEventListener("click", function () {
+        current = styles[(styles.indexOf(current) + 1) % styles.length];
+        control.textContent = "Map: " + (current === "standard" ? "Standard" : current === "satellite" ? "Satellite" : "Terrain");
+        if (engine === "google") {
+            const ids = { standard: mapsOrLeaflet.MapTypeId.ROADMAP, satellite: mapsOrLeaflet.MapTypeId.SATELLITE, terrain: mapsOrLeaflet.MapTypeId.TERRAIN };
+            map.setMapTypeId(ids[current]);
+        } else {
+            Object.keys(leafletLayers).forEach(key => {
+                if (map.hasLayer(leafletLayers[key])) map.removeLayer(leafletLayers[key]);
+            });
+            leafletLayers[current].addTo(map);
+        }
+    });
+    if (engine === "google") {
+        map.controls[mapsOrLeaflet.ControlPosition.TOP_RIGHT].push(control);
+    } else {
+        const L = mapsOrLeaflet;
+        const styleControl = L.control({ position: "topright" });
+        styleControl.onAdd = function () {
+            const container = L.DomUtil.create("div", "qe-map-style-control");
+            container.appendChild(control);
+            L.DomEvent.disableClickPropagation(container);
+            L.DomEvent.disableScrollPropagation(container);
+            return container;
+        };
+        styleControl.addTo(map);
+    }
+}
+
 async function initializeLiveMap() {
     if (liveMap) return liveMap;
     const el = document.getElementById("liveMap");
@@ -3692,12 +3750,13 @@ async function initializeLiveMap() {
             googleMapInstance = new maps.Map(el, {
                 center: { lat: 6.5244, lng: 3.3792 },
                 zoom: 12,
-                mapTypeControl: true,
+                mapTypeControl: false,
                 streetViewControl: false,
                 fullscreenControl: true,
                 gestureHandling: "greedy"
             });
             liveMap = googleMapInstance;
+            addRiderMapStyleSwitcher("google", googleMapInstance, maps);
             const badge = document.createElement("div");
             badge.textContent = "Google Maps";
             badge.style.cssText = "margin:8px;padding:6px 10px;background:#fff;border-radius:6px;box-shadow:0 1px 5px #777;font:600 12px Arial;color:#176b3a";
@@ -3714,10 +3773,7 @@ async function initializeLiveMap() {
         if (liveMap) return liveMap;
         el.innerHTML = "";
         liveMap = L.map(el, { zoomControl: true, attributionControl: true }).setView([6.5244, 3.3792], 12);
-        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(liveMap);
+        addRiderMapStyleSwitcher("leaflet", liveMap, L);
         setTimeout(() => liveMap && liveMap.invalidateSize(), 100);
         if (riderPosition) updateGoogleRiderMarker();
         if (currentOrder) updateDestinationOnMap(currentOrder);
