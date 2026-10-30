@@ -3183,10 +3183,7 @@ async function enterApp() {
     if (getEffectiveRiderApprovalStatus(currentRider) !== "approved") {
         isOnline = false;
         stopScanner();
-        if (gpsWatchId !== null && navigator.geolocation?.clearWatch) {
-            navigator.geolocation.clearWatch(gpsWatchId);
-            gpsWatchId = null;
-        }
+        stopLiveGPS();
         return;
     }
 
