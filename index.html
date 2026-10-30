@@ -2098,6 +2098,20 @@ button:active{transform:scale(.98);filter:brightness(.97)}
     </div>
 </div>
 
+<!-- STANDALONE RIDER ONBOARDING PAGE -->
+<section id="riderOnboardingPage" style="display:none;min-height:100vh;box-sizing:border-box;padding:28px 18px;background:linear-gradient(145deg,#effaf3,#f7faf8);">
+  <div style="max-width:520px;margin:0 auto;">
+    <div style="text-align:center;padding:18px 8px 22px;">
+      <div style="font-size:34px;font-weight:900;color:#087f5b;">QuickEats</div>
+      <p style="margin:8px 0;color:#52645a;">Rider registration</p>
+      <h1 style="font-size:25px;color:#12382b;margin:16px 0 8px;">Complete your rider application</h1>
+      <p style="color:#52645a;line-height:1.55;margin:0;">Upload your vehicle photo and required verification documents. Our team will review your application before you can access the Rider app.</p>
+    </div>
+    <div id="riderOnboardingFormHost"></div>
+    <button type="button" onclick="logoutRider()" style="display:block;margin:18px auto;background:transparent;border:0;color:#087f5b;font-weight:700;padding:12px;">LOG OUT</button>
+  </div>
+</section>
+
 <!-- RIDER APPROVAL HOLD SCREEN -->
 <section id="riderApprovalGate" class="hidden" style="display:none;min-height:100vh;box-sizing:border-box;padding:32px 22px;align-items:center;justify-content:center;background:linear-gradient(145deg,#effaf3,#f7faf8);">
   <div style="width:100%;max-width:440px;background:#fff;border:1px solid #e2eee7;border-radius:26px;padding:30px 24px;text-align:center;box-shadow:0 18px 50px rgba(6,63,53,.10);">
@@ -2849,12 +2863,7 @@ async function createOrLoadRiderProfile() {
         } else if (currentRider.documents_submitted_at) {
             showRiderApprovalGate();
         } else {
-            await enterApp();
-            const vehicle = document.getElementById("riderVehicleType");
-            const number = document.getElementById("riderVehicleNumber");
-            if (vehicle) vehicle.value = currentRider.vehicle_type || "bicycle";
-            if (number) number.value = currentRider.vehicle_number || "";
-            renderRiderDocumentFields();
+            showRiderOnboardingPage();
         }
     } catch (error) {
         console.error("Rider profile setup error:", error);
@@ -3023,13 +3032,11 @@ async function loadRider() {
         }
         const gate = document.getElementById("riderApprovalGate");
         if (gate) { gate.classList.add("hidden"); gate.style.display = "none"; }
-        await enterApp();
-        if (approvalStatus !== "approved") {
-            const vehicle = document.getElementById("riderVehicleType");
-            const number = document.getElementById("riderVehicleNumber");
-            if (vehicle) vehicle.value = currentRider.vehicle_type || "bicycle";
-            if (number) number.value = currentRider.vehicle_number || "";
-            renderRiderDocumentFields();
+        if (approvalStatus === "approved") {
+            document.getElementById("riderOnboardingPage").style.display = "none";
+            await enterApp();
+        } else {
+            showRiderOnboardingPage();
         }
     } catch (error) {
         console.error("Rider profile load error:", error);
@@ -3039,12 +3046,34 @@ async function loadRider() {
 
 
 
+function showRiderOnboardingPage() {
+    const login = document.getElementById("loginPage");
+    const app = document.getElementById("app");
+    const onboarding = document.getElementById("riderOnboardingPage");
+    const gate = document.getElementById("riderApprovalGate");
+    if (login) login.classList.add("hidden");
+    if (app) app.classList.add("hidden");
+    if (gate) { gate.classList.add("hidden"); gate.style.display = "none"; }
+    const panel = document.getElementById("riderApplicationPanel");
+    const host = document.getElementById("riderOnboardingFormHost");
+    if (panel && host && panel.parentElement !== host) host.appendChild(panel);
+    if (panel) { panel.style.display = "block"; panel.style.margin = "0"; }
+    if (onboarding) onboarding.style.display = "block";
+    const vehicle = document.getElementById("riderVehicleType");
+    const number = document.getElementById("riderVehicleNumber");
+    if (vehicle) vehicle.value = currentRider?.vehicle_type || "bicycle";
+    if (number) number.value = currentRider?.vehicle_number || "";
+    renderRiderDocumentFields();
+}
+
 function showRiderApprovalGate() {
     const gate = document.getElementById("riderApprovalGate");
     const login = document.getElementById("loginPage");
     const app = document.getElementById("app");
     if (login) login.classList.add("hidden");
     if (app) app.classList.add("hidden");
+    const onboarding = document.getElementById("riderOnboardingPage");
+    if (onboarding) onboarding.style.display = "none";
     if (gate) { gate.classList.remove("hidden"); gate.style.display = "flex"; }
     const status = String(currentRider?.approval_status || "pending").toLowerCase();
     const statusNode = document.getElementById("riderApprovalGateStatus");
@@ -3076,6 +3105,7 @@ async function refreshRiderApprovalStatus() {
         if (String(data.approval_status || "pending").toLowerCase() === "approved") {
             const gate = document.getElementById("riderApprovalGate");
             if (gate) { gate.classList.add("hidden"); gate.style.display = "none"; }
+            document.getElementById("riderOnboardingPage").style.display = "none";
             await enterApp();
             return;
         }
@@ -3223,6 +3253,7 @@ async function submitRiderApplication() {
     updateRiderApplicationUI();
     showToast("Application submitted for review");
     document.getElementById("app")?.classList.add("hidden");
+    document.getElementById("riderOnboardingPage").style.display = "none";
     showRiderApprovalGate();
   } catch (error) {
     console.error("Rider application submission failed", error);
