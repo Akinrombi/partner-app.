@@ -3216,7 +3216,11 @@ function updateRiderApplicationUI() {
 async function submitRiderApplication() {
   const feedback = document.getElementById("riderApplicationFeedback");
   const button = document.getElementById("submitRiderApplicationBtn");
-  feedback.textContent = "";
+  if (!feedback || !button) {
+    console.error("Rider application form controls are missing from the page.");
+    return;
+  }
+  feedback.textContent = "Preparing your application…";
   if (!currentUser?.id || !supabaseClient) { feedback.textContent = "Please sign in again before uploading documents."; return; }
   const vehicle = document.getElementById("riderVehicleType").value;
   const required = RIDER_DOCS[vehicle];
@@ -5723,6 +5727,9 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   bind("#authSubmitBtn", () => loginRider());
   bind("#forgotPasswordBtn", () => { openWhatsAppPasswordReset(); });
+  // The application panel is moved into the standalone onboarding page at runtime.
+  // Bind after DOM creation so the submit action remains reliable on mobile browsers.
+  bind("#submitRiderApplicationBtn", () => { void submitRiderApplication(); });
 
   // Bind the order actions directly for mobile browsers/WebViews. Replacing
   // inline handlers prevents a stale or swallowed inline click from doing nothing.
