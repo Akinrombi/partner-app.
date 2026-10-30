@@ -3162,7 +3162,7 @@ function updateRiderApplicationUI() {
   const profilePage = document.getElementById("profilePage");
   if (profilePage) {
     profilePage.querySelectorAll(":scope > *").forEach(child => {
-      child.style.display = approved || child.id === "riderApplicationPanel" ? "" : "none";
+      child.style.display = approved || child.id === "riderApplicationPanel" || child.classList.contains("section-title") ? "" : "none";
     });
     const heading = profilePage.querySelector(":scope > .section-title");
     if (heading) heading.textContent = approved ? "Profile" : "Complete your rider application";
