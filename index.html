@@ -4670,13 +4670,12 @@ async function acceptCurrentOrder() {
         return;
     }
 
-    if (!currentRider?.id || currentRider.id === "demo-rider") {
-        currentOrder.rider_id = currentRider?.id || "demo-rider";
-        currentOrder.status = "rider_accepted";
-
-        showAccepted(currentOrder);
-        showToast("Demo delivery accepted");
-        refreshStats();
+    if (!currentRider?.id) {
+        showToast("Sign in with an approved rider account first.");
+        return;
+    }
+    if (getEffectiveRiderApprovalStatus(currentRider) !== "approved") {
+        showToast("Administrator approval is required before accepting deliveries.");
         return;
     }
 
