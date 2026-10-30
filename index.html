@@ -2104,7 +2104,6 @@ button:active{transform:scale(.98);filter:brightness(.97)}
           <p id="whatsAppResetFeedback" role="status" aria-live="polite"></p>
         </section>
 <button class="text-btn" type="button" onclick="togglePhoneOtpPanel()">Use phone number + OTP</button><section id="phoneOtpPanel" class="support-card hidden"><label for="otpPhoneInput">Phone number with country code</label><input id="otpPhoneInput" type="tel" placeholder="+2348012345678"><div id="otpCodeRow" class="hidden"><label for="otpCodeInput">6-digit verification code</label><input id="otpCodeInput" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div><button id="sendOtpBtn" class="primary-btn" type="button" onclick="sendRiderPhoneOtp()">SEND CODE</button><button id="verifyOtpBtn" class="primary-btn hidden" type="button" onclick="verifyRiderPhoneOtp()">VERIFY &amp; SIGN IN</button><p id="otpFeedback" role="status"></p></section>
-        <button class="demo-btn" onclick="demoLogin()">DEMO RIDER (PREVIEW ONLY)</button>
         <div id="loginError" class="login-error" role="status" aria-live="polite"></div>
     </div>
 </div>
@@ -2984,36 +2983,6 @@ async function loginRider() {
  * Production rider login uses Supabase Auth.
  */
 
-function demoLogin() {
-
-    unlockAudio();
-    // TEMPORARY demo-only full-order testing controls. Remove after testing.
-    const demoStartButton = document.getElementById("startDemoDeliveryBtn");
-    const vendorTestButton = document.getElementById("demoVendorTestNav");
-    const customerTestButton = document.getElementById("demoCustomerTestNav");
-    if (demoStartButton) demoStartButton.style.display = "block";
-    if (vendorTestButton) vendorTestButton.style.display = "none";
-    if (customerTestButton) customerTestButton.style.display = "none";
-
-    currentUser = {
-        id: "demo-user",
-        email: "demo@quickeats.local"
-    };
-
-    currentRider = {
-        id: "demo-rider",
-        owner_id: "demo-user",
-        name: "Demo Rider",
-        phone: "08000000000",
-        approval_status: "approved",
-        is_online: true
-    };
-    isOnline = true;
-    enterApp();
-
-}
-
-
 /* ============================================================
    LOAD RIDER
 ============================================================ */
@@ -3209,9 +3178,17 @@ async function enterApp() {
     restoreCachedRiderOrder();
     updateRiderApplicationUI();
 
-    // Verification is temporarily disabled so new riders can reach the dashboard and see available orders.
-    const applicationPanel = document.getElementById("riderApplicationPanel");
-    if (applicationPanel) applicationPanel.style.display = "none";
+    // Unapproved riders can only see the onboarding/application screen.
+    // Do not start GPS, scanner, dashboard stats, or delivery activity until approved.
+    if (getEffectiveRiderApprovalStatus(currentRider) !== "approved") {
+        isOnline = false;
+        stopScanner();
+        if (gpsWatchId !== null && navigator.geolocation?.clearWatch) {
+            navigator.geolocation.clearWatch(gpsWatchId);
+            gpsWatchId = null;
+        }
+        return;
+    }
 
     await refreshStats();
 
@@ -5657,8 +5634,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (el) el.onclick = handler;
   };
   bind("#authSubmitBtn", () => loginRider());
-  bind("#forgotPasswordBtn", () => { void resetRiderPassword(); });
-  bind(".demo-btn", () => demoLogin());
+  bind("#forgotPasswordBtn", () => { openWhatsAppPasswordReset(); });
 
   // Bind the order actions directly for mobile browsers/WebViews. Replacing
   // inline handlers prevents a stale or swallowed inline click from doing nothing.
