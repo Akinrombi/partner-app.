@@ -2098,6 +2098,20 @@ button:active{transform:scale(.98);filter:brightness(.97)}
     </div>
 </div>
 
+<!-- RIDER APPROVAL HOLD SCREEN -->
+<section id="riderApprovalGate" class="hidden" style="min-height:100vh;box-sizing:border-box;padding:32px 22px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#effaf3,#f7faf8);">
+  <div style="width:100%;max-width:440px;background:#fff;border:1px solid #e2eee7;border-radius:26px;padding:30px 24px;text-align:center;box-shadow:0 18px 50px rgba(6,63,53,.10);">
+    <div style="width:82px;height:82px;border-radius:50%;margin:0 auto 20px;background:#e8f7ef;display:flex;align-items:center;justify-content:center;font-size:38px;">⏳</div>
+    <p style="margin:0 0 8px;color:#087f5b;font-weight:800;letter-spacing:.08em;font-size:12px;">QUICKEATS RIDER VERIFICATION</p>
+    <h1 style="margin:0 0 12px;color:#12382b;font-size:25px;">Your account is awaiting approval</h1>
+    <p id="riderApprovalGateMessage" style="color:#52645a;line-height:1.65;margin:0 0 22px;">Thank you for registering. Our team will review your rider account and get back to you. You cannot access the Rider homepage until your account is approved.</p>
+    <div style="padding:14px;border-radius:14px;background:#f1f8f3;color:#315b43;font-size:13px;margin-bottom:18px;">Account status: <strong id="riderApprovalGateStatus">PENDING REVIEW</strong></div>
+    <button id="riderApprovalRefreshBtn" type="button" onclick="refreshRiderApprovalStatus()" style="width:100%;padding:15px;border:0;border-radius:13px;background:#087f5b;color:white;font-weight:800;">CHECK APPROVAL STATUS</button>
+    <p id="riderApprovalGateFeedback" role="status" aria-live="polite" style="min-height:20px;color:#607267;font-size:13px;margin:14px 0 8px;"></p>
+    <button type="button" onclick="logoutRider()" style="background:transparent!important;color:#087f5b!important;border:0!important;box-shadow:none!important;font-weight:700;">LOG OUT</button>
+  </div>
+</section>
+
 <!-- APP -->
 <div id="app" class="app hidden">
 <div id="networkBanner" class="network-banner" role="status" aria-live="polite" hidden>
@@ -2991,6 +3005,11 @@ async function loadRider() {
             rider_name: profile?.name || currentUser.user_metadata?.name || "Rider",
             phone: profile?.phone || currentUser.user_metadata?.phone || ""
         };
+        if (String(currentRider.approval_status || "pending").toLowerCase() !== "approved") {
+            showRiderApprovalGate();
+            return;
+        }
+        document.getElementById("riderApprovalGate")?.classList.add("hidden");
         enterApp();
     } catch (error) {
         console.error("Rider profile load error:", error);
@@ -2998,6 +3017,56 @@ async function loadRider() {
     }
 }
 
+
+
+function showRiderApprovalGate() {
+    const gate = document.getElementById("riderApprovalGate");
+    const login = document.getElementById("loginPage");
+    const app = document.getElementById("app");
+    if (login) login.classList.add("hidden");
+    if (app) app.classList.add("hidden");
+    if (gate) gate.classList.remove("hidden");
+    const status = String(currentRider?.approval_status || "pending").toLowerCase();
+    const statusNode = document.getElementById("riderApprovalGateStatus");
+    const message = document.getElementById("riderApprovalGateMessage");
+    if (statusNode) statusNode.textContent = status.replaceAll("_"," ").toUpperCase();
+    if (message) {
+        message.textContent = status === "needs_resubmission"
+          ? "Our team needs more information before approving your account. Please contact QuickEats support for the next steps. Your Rider homepage will remain locked until approval."
+          : status === "rejected"
+            ? "Your rider application has not been approved. Please contact QuickEats support for clarification. Your Rider homepage remains locked."
+            : "Thank you for registering. Our team will review your rider account and get back to you. You cannot access the Rider homepage until your account is approved.";
+    }
+}
+
+async function refreshRiderApprovalStatus() {
+    const button = document.getElementById("riderApprovalRefreshBtn");
+    const feedback = document.getElementById("riderApprovalGateFeedback");
+    if (!currentUser?.id || !supabaseClient) {
+        if (feedback) feedback.textContent = "Please log in again to check your status.";
+        return;
+    }
+    if (button) { button.disabled = true; button.textContent = "CHECKING…"; }
+    if (feedback) feedback.textContent = "";
+    try {
+        const {data,error} = await supabaseClient.from("riders").select("*").eq("user_id",currentUser.id).maybeSingle();
+        if (error) throw error;
+        if (!data) throw new Error("Rider profile not found. Contact QuickEats support.");
+        currentRider = {...currentRider,...data};
+        if (String(data.approval_status || "pending").toLowerCase() === "approved") {
+            document.getElementById("riderApprovalGate")?.classList.add("hidden");
+            await enterApp();
+            return;
+        }
+        showRiderApprovalGate();
+        if (feedback) feedback.textContent = "Your account is still awaiting review. Please check again later.";
+    } catch (error) {
+        console.error("Rider approval refresh failed:",error);
+        if (feedback) feedback.textContent = error.message || "Could not check approval status. Try again.";
+    } finally {
+        if (button) { button.disabled = false; button.textContent = "CHECK APPROVAL STATUS"; }
+    }
+}
 
 /* ============================================================
    RIDER DOCUMENT APPLICATION
