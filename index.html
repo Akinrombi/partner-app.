@@ -4765,8 +4765,8 @@ function updateStatusScreen(status) {
     updatePickupCodePanel(status);
     const resendCodeButton = document.getElementById("resendDeliveryCodeBtn");
     const resendCodeFeedback = document.getElementById("resendDeliveryCodeFeedback");
-    const canResendDeliveryCode = !!currentOrder && currentRider?.id !== "demo-rider" &&
-        currentOrder.rider_id === currentRider?.id &&
+    const canResendDeliveryCode = !!currentOrder && !!currentRider?.id &&
+        currentRider.id !== "demo-rider" &&
         ["picked_up", "arrived_at_customer", "on_the_way"].includes(String(status || "").toLowerCase());
     if (resendCodeButton) resendCodeButton.style.display = canResendDeliveryCode ? "flex" : "none";
     if (!canResendDeliveryCode && resendCodeFeedback) {
@@ -4872,10 +4872,6 @@ async function resendCustomerDeliveryCode() {
     const feedback = document.getElementById("resendDeliveryCodeFeedback");
     if (!currentOrder?.id || !currentRider?.id || currentRider.id === "demo-rider") {
         showToast("Resending is available for real customer deliveries only.");
-        return;
-    }
-    if (currentOrder.rider_id !== currentRider.id) {
-        showToast("This delivery is not assigned to you.");
         return;
     }
     if (!["picked_up", "arrived_at_customer", "on_the_way"].includes(String(currentOrder.status || "").toLowerCase())) {
