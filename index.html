@@ -2099,7 +2099,7 @@ button:active{transform:scale(.98);filter:brightness(.97)}
 </div>
 
 <!-- RIDER APPROVAL HOLD SCREEN -->
-<section id="riderApprovalGate" class="hidden" style="min-height:100vh;box-sizing:border-box;padding:32px 22px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#effaf3,#f7faf8);">
+<section id="riderApprovalGate" class="hidden" style="display:none;min-height:100vh;box-sizing:border-box;padding:32px 22px;align-items:center;justify-content:center;background:linear-gradient(145deg,#effaf3,#f7faf8);">
   <div style="width:100%;max-width:440px;background:#fff;border:1px solid #e2eee7;border-radius:26px;padding:30px 24px;text-align:center;box-shadow:0 18px 50px rgba(6,63,53,.10);">
     <div style="width:82px;height:82px;border-radius:50%;margin:0 auto 20px;background:#e8f7ef;display:flex;align-items:center;justify-content:center;font-size:38px;">⏳</div>
     <p style="margin:0 0 8px;color:#087f5b;font-weight:800;letter-spacing:.08em;font-size:12px;">QUICKEATS RIDER VERIFICATION</p>
@@ -3005,11 +3005,12 @@ async function loadRider() {
             rider_name: profile?.name || currentUser.user_metadata?.name || "Rider",
             phone: profile?.phone || currentUser.user_metadata?.phone || ""
         };
-        if (String(currentRider.approval_status || "pending").toLowerCase() !== "approved") {
+        const approvalStatus = String(currentRider.approval_status || "pending").toLowerCase();
+        if (approvalStatus !== "approved" && currentRider.documents_submitted_at) {
             showRiderApprovalGate();
             return;
         }
-        document.getElementById("riderApprovalGate")?.classList.add("hidden");
+        document.getElementById("riderApprovalGate").style.display = "none";
         enterApp();
     } catch (error) {
         console.error("Rider profile load error:", error);
@@ -3025,7 +3026,7 @@ function showRiderApprovalGate() {
     const app = document.getElementById("app");
     if (login) login.classList.add("hidden");
     if (app) app.classList.add("hidden");
-    if (gate) gate.classList.remove("hidden");
+    if (gate) { gate.classList.remove("hidden"); gate.style.display = "flex"; }
     const status = String(currentRider?.approval_status || "pending").toLowerCase();
     const statusNode = document.getElementById("riderApprovalGateStatus");
     const message = document.getElementById("riderApprovalGateMessage");
@@ -3054,7 +3055,8 @@ async function refreshRiderApprovalStatus() {
         if (!data) throw new Error("Rider profile not found. Contact QuickEats support.");
         currentRider = {...currentRider,...data};
         if (String(data.approval_status || "pending").toLowerCase() === "approved") {
-            document.getElementById("riderApprovalGate")?.classList.add("hidden");
+            const gate = document.getElementById("riderApprovalGate");
+            if (gate) { gate.classList.add("hidden"); gate.style.display = "none"; }
             await enterApp();
             return;
         }
@@ -3072,8 +3074,9 @@ async function refreshRiderApprovalStatus() {
    RIDER DOCUMENT APPLICATION
 ============================================================ */
 const RIDER_DOCS = {
-  bicycle: [["government_id", "Government-issued ID"]],
+  bicycle: [["vehicle_photo", "Clear photo of your bicycle"], ["government_id", "Government-issued ID"]],
   motorbike: [
+    ["vehicle_photo", "Clear photo of your motorbike"],
     ["government_id", "Government-issued ID"],
     ["motorcycle_licence", "Valid motorcycle licence"],
     ["vehicle_registration", "Vehicle registration document"]
@@ -3184,9 +3187,11 @@ async function submitRiderApplication() {
     const { data: rider, error: riderError } = await supabaseClient.from("riders").select("*").eq("user_id", currentUser.id).single();
     if (riderError) throw riderError;
     currentRider = { ...currentRider, ...rider };
-    feedback.textContent = "Required documents submitted successfully. Your dashboard will appear after administrator approval.";
+    feedback.textContent = "Required documents submitted successfully. Your account is now awaiting administrator approval.";
     updateRiderApplicationUI();
     showToast("Application submitted for review");
+    document.getElementById("app")?.classList.add("hidden");
+    showRiderApprovalGate();
   } catch (error) {
     console.error("Rider application submission failed", error);
     feedback.textContent = error.message || "Could not submit documents. Please try again.";
