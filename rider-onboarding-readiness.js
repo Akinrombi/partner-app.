@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const TERMS_VERSION = "zavora-rider-terms-2026-11-02";
+  const TERMS_VERSION = "quickeats-rider-terms-2026-11-02";
 
   function getRider() {
     try { return typeof currentRider !== "undefined" ? currentRider : null; }
@@ -17,7 +17,7 @@
     panel.style.cssText = "border:1px solid #dcebe1;border-radius:14px;padding:14px;margin:0 0 16px;background:#f8fcf9";
     panel.innerHTML = [
       '<h3 style="margin:0 0 10px;color:#12382b">Personal and payout details</h3>',
-      '<p style="margin:0 0 12px;color:#52645a;font-size:13px;line-height:1.5">These details are private and are visible to you and authorised ZAVORA administrators for rider verification and payouts.</p>',
+      '<p style="margin:0 0 12px;color:#52645a;font-size:13px;line-height:1.5">These details are private and are visible to you and authorised platform administrators for rider verification and payouts.</p>',
       '<label for="riderOnboardingDob">Date of birth</label>',
       '<input id="riderOnboardingDob" type="date" required autocomplete="bday" style="width:100%;padding:12px;border:1px solid #d9e2dc;border-radius:10px;margin:6px 0 12px;box-sizing:border-box">',
       '<label for="riderOnboardingAddress">Full residential address</label>',
