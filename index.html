@@ -5927,5 +5927,6 @@ if (qeSplashStyles && !qeSplashStyles.textContent.includes("qe-splash-clickthrou
 <script>
 (function(){function compactRiderProfile(){var p=document.querySelector('.profile-card');if(!p||p.dataset.accordionsReady)return;var cards=Array.from(p.querySelectorAll(':scope > section.support-card'));cards.forEach(function(card){if(card.closest('details.profile-accordion'))return;var h=card.querySelector('h3');var d=document.createElement('details');d.className='profile-accordion';var sum=document.createElement('summary');sum.textContent=(h&&h.textContent.trim())||'Profile settings';d.appendChild(sum);card.parentNode.insertBefore(d,card);d.appendChild(card);});p.dataset.accordionsReady='true';}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',compactRiderProfile,{once:true});else compactRiderProfile();})();
 </script>
+<script src="./rider-onboarding-readiness.js?v=20261102" defer></script>
 </body>
 </html>
