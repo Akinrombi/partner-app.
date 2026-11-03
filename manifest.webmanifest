@@ -1,14 +1,14 @@
 {
-  "name": "Zenzora Vendor",
-  "short_name": "Zenzora",
-  "description": "Zenzora food delivery vendor and rider services",
+  "name": "Zenzora Rider",
+  "short_name": "Zenzora Rider",
+  "description": "Zenzora rider delivery partner app",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#050807",
   "theme_color": "#00BFA5",
   "icons": [
     {
-      "src": "./quick-eats-mark.svg",
+      "src": "./zenzora-mark.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
