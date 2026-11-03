@@ -1,11 +1,11 @@
 {
-  "name": "Quick Eats",
-  "short_name": "Quick Eats",
-  "description": "Fast, friendly food delivery",
+  "name": "Zenzora Vendor",
+  "short_name": "Zenzora",
+  "description": "Zenzora food delivery vendor and rider services",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#08A84F",
+  "background_color": "#050807",
+  "theme_color": "#00BFA5",
   "icons": [
     {
       "src": "./quick-eats-mark.svg",
