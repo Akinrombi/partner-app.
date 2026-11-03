@@ -1,11 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#fff"/>
-  <g stroke-linecap="round" stroke-linejoin="round">
-    <path d="M76 192h106M53 256h128M82 320h92" fill="none" stroke="#FFC928" stroke-width="24"/>
-    <path d="M210 145h160a20 20 0 0 1 20 20v207a20 20 0 0 1-20 20H173l37-247a20 20 0 0 1 20-0z" fill="#FF6A00"/>
-    <path d="M390 165l42 24v181l-42 22z" fill="#08A84F"/>
-    <path d="M248 145l9-31a18 18 0 0 1 18-14h48a18 18 0 0 1 18 18v27" fill="none" stroke="#FF6A00" stroke-width="23"/>
-    <path d="M202 358l82-86c13-14 23-18 36-18h29M289 264l55-49M305 282l54-46M320 301l44-35" fill="none" stroke="#fff" stroke-width="17"/>
-    <path d="M210 145h160" fill="none" stroke="#FF6A00" stroke-width="20"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Zenzora food delivery and rider booking logo">
+<rect width="512" height="512" rx="112" fill="#050807"/>
+<circle cx="256" cy="256" r="232" fill="none" stroke="#00BFA5" stroke-width="12"/>
+<g fill="#00BFA5" font-family="Arial,Helvetica,sans-serif" font-weight="600" text-anchor="middle">
+<text x="151" y="112" font-size="48" letter-spacing="5">ZENZ</text><text x="361" y="112" font-size="48" letter-spacing="5">RA</text>
+</g>
+<g transform="translate(256 91)" fill="none" stroke="#00BFA5" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+<circle r="31"/><circle r="6" fill="#00BFA5"/><path d="M0-25V-7M-22 12l16-9M22 12L6 3"/>
+</g>
+<path d="M111 172H389Q414 172 396 191L143 324Q123 335 151 335H390" fill="none" stroke="#00BFA5" stroke-width="25" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M151 184h34m27 0h34m27 0h34m27 0h34M173 316l26-14m25-13l26-14m25-13l26-14m25-13l26-14m-189 98h32m27 0h32m27 0h32m27 0h32" fill="none" stroke="#050807" stroke-width="8" stroke-linecap="round" stroke-dasharray="17 13"/>
+<g transform="translate(328 291)" fill="none" stroke="#00BFA5" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="-29" cy="24" r="17"/><circle cx="40" cy="24" r="17"/><path d="M-29 24l21-29 19 29h-40l13-20h24l12 20M2-13l10-12 12 4-4 12-12 1"/>
+<path d="M-4-20l-8-9m31 2l8-5"/>
+</g>
+<path d="M124 399H388" stroke="#00BFA5" stroke-width="5" stroke-linecap="round"/>
+<path d="M251 383v40m-17-40v24m34-24v24m-17 16v8" stroke="#00BFA5" stroke-width="7" stroke-linecap="round"/>
+<text x="256" y="463" fill="#00BFA5" font-family="Arial,Helvetica,sans-serif" font-size="23" font-weight="700" text-anchor="middle" letter-spacing="1.2">FOOD DELIVERY • BOOK A RIDER</text>
 </svg>
