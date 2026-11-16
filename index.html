@@ -5985,5 +5985,85 @@ function zhOpenPartnerAuth(mode){
 }
 </script>
 
+
+<style id="zenzora-premium-light-theme">
+/* Zenzora premium light system: white-first, restrained green, warm orange/gold accents */
+:root{
+  --zz-ink:#18212b;--zz-muted:#697581;--zz-line:#e8ebef;
+  --zz-paper:#ffffff;--zz-soft:#f7f8fa;--zz-orange:#f59e0b;
+  --zz-orange-deep:#e88900;--zz-green:#16834a;--zz-green-soft:#edf7f0;
+  --zz-shadow:0 8px 26px rgba(24,33,43,.07);
+}
+html,body{background:#f7f8fa!important;color:var(--zz-ink)!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif!important}
+button,input,select,textarea{font:inherit}
+button{transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+.primary-btn,.zh-ew-primary,.primary-button,.btn-primary,.submit-btn,
+button.primary,button[type=submit]{
+ background:var(--zz-orange)!important;color:#211700!important;border:1px solid var(--zz-orange)!important;
+ box-shadow:0 5px 14px rgba(245,158,11,.16)!important;font-weight:800!important
+}
+.primary-btn:hover,.zh-ew-primary:hover,.primary-button:hover,.btn-primary:hover,button[type=submit]:hover{background:#fbbf24!important}
+.login-page{background:#f7f8fa!important;padding:22px!important}
+.login-card,.auth-card,.form-card,.onboarding-card{
+ background:#fff!important;border:1px solid var(--zz-line)!important;border-radius:22px!important;
+ box-shadow:var(--zz-shadow)!important;color:var(--zz-ink)!important
+}
+.logo{color:var(--zz-ink)!important}
+.login-subtitle,.header-sub,.muted,.helper-text{color:var(--zz-muted)!important}
+.login-card input,.form-card input,.form-card select,.form-card textarea,
+input,select,textarea{
+ border:1px solid #dfe4e9!important;background:#fff!important;color:var(--zz-ink)!important;
+ border-radius:12px!important;box-shadow:none!important
+}
+input:focus,select:focus,textarea:focus{border-color:#f4b43d!important;outline:0!important;box-shadow:0 0 0 3px rgba(245,158,11,.13)!important}
+.header{background:rgba(255,255,255,.96)!important;border-bottom:1px solid var(--zz-line)!important;box-shadow:0 2px 12px rgba(24,33,43,.035)!important}
+.header-title,.page h1,.page h2,.page h3{color:var(--zz-ink)}
+.page{background:transparent}
+.welcome{background:#fff!important;color:var(--zz-ink)!important;border:1px solid var(--zz-line)!important;border-radius:20px!important;box-shadow:var(--zz-shadow)!important}
+.welcome p{color:var(--zz-muted)!important;opacity:1!important}
+.welcome:after{border-color:rgba(245,158,11,.10)!important}
+.stat,.map-wrap,.card,.panel,.order-card,.request-card,.earning-card,.profile-card,
+.section-card,.settings-card,.history-card,.job-card{
+ background:#fff!important;border:1px solid var(--zz-line)!important;border-radius:17px!important;
+ box-shadow:0 5px 18px rgba(24,33,43,.045)!important;color:var(--zz-ink)!important
+}
+.stat-label,.card-subtitle,.section-subtitle{color:var(--zz-muted)!important}
+.stat.green .stat-value,.success-text,.approved-text{color:var(--zz-green)!important}
+.online-btn{background:#fff8e8!important;color:#8a5a00!important;border:1px solid #f7dfad!important}
+.online-btn .online-dot{background:#20a464!important;box-shadow:none!important}
+.online-btn.offline{background:#f2f3f5!important;color:#727b84!important;border-color:#e5e8eb!important}
+.map-heading{background:#fff!important;color:var(--zz-ink)!important}
+.map-actions button,.map-action-btn,.nav-action-btn{
+ background:#fff8e8!important;color:#8a5a00!important;border:1px solid #f5dfb2!important
+}
+.bottom-nav,.nav-bar,.tab-bar{background:#fff!important;border-top:1px solid var(--zz-line)!important;box-shadow:0 -4px 16px rgba(24,33,43,.04)!important}
+.bottom-nav .active,.nav-bar .active,.tab-bar .active{color:var(--zz-orange-deep)!important}
+.welcome,.scanner-panel{box-shadow:var(--zz-shadow)!important}
+.scanner-panel{
+ background:linear-gradient(135deg,#fff,#f5f7f9)!important;border:1px solid var(--zz-line)!important;
+ box-shadow:inset 0 0 24px rgba(24,33,43,.025)!important
+}
+.scanner-panel:before{background-image:linear-gradient(rgba(24,33,43,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(24,33,43,.035) 1px,transparent 1px)!important}
+.auto-badge{background:#fff8e8!important;border-color:#f5dfb2!important;color:#8a5a00!important}
+.scanner-status,.scanner-main-text,.scanner-main-text span{color:#8a5a00!important}
+.scanner-radar,.radar-ring-2{border-color:rgba(245,158,11,.24)!important}
+.scanner-radar:before,.scanner-radar:after,.crosshair:before,.crosshair:after{background:#f2ad24!important}
+.crosshair{border-color:#e99b08!important;box-shadow:0 0 8px rgba(245,158,11,.2)!important}
+.scan-beam-horizontal,.scan-beam-vertical,.scan-diagonal{background:linear-gradient(90deg,transparent,#f6c45d,transparent)!important;box-shadow:0 0 8px rgba(245,158,11,.22)!important}
+.particle{background:#f3b43b!important;box-shadow:0 0 5px rgba(245,158,11,.3)!important}
+#zhEarnWelcome{background:#fff!important;color:var(--zz-ink)!important;border:1px solid var(--zz-line)!important;box-shadow:var(--zz-shadow)!important}
+#zhEarnWelcome .zh-ew-kicker{color:#b77908!important}
+#zhEarnWelcome h1,#zhEarnWelcome .zh-ew-option h2,#zhEarnWelcome .zh-ew-steps h2{color:var(--zz-ink)!important}
+#zhEarnWelcome .zh-ew-lead,#zhEarnWelcome .zh-ew-option p{color:var(--zz-muted)!important}
+#zhEarnWelcome .zh-ew-option{background:#fff!important;border-color:var(--zz-line)!important}
+#zhEarnWelcome .zh-ew-steps{background:#faf7ef!important}
+#zhEarnWelcome .zh-ew-number{background:var(--zz-orange)!important;color:#241900!important}
+#zhEarnWelcome .zh-ew-primary{background:var(--zz-orange)!important;color:#241900!important}
+#zhEarnWelcome .zh-ew-secondary{background:#fff!important;color:var(--zz-ink)!important;border:1px solid var(--zz-line)!important}
+.badge-success,.status-approved,.success-badge{background:var(--zz-green-soft)!important;color:var(--zz-green)!important}
+hr,.divider{border-color:var(--zz-line)!important}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+</style>
+
 </body>
 </html>
