@@ -5928,5 +5928,142 @@ if (qeSplashStyles && !qeSplashStyles.textContent.includes("qe-splash-clickthrou
 (function(){function compactRiderProfile(){var p=document.querySelector('.profile-card');if(!p||p.dataset.accordionsReady)return;var cards=Array.from(p.querySelectorAll(':scope > section.support-card'));cards.forEach(function(card){if(card.closest('details.profile-accordion'))return;var h=card.querySelector('h3');var d=document.createElement('details');d.className='profile-accordion';var sum=document.createElement('summary');sum.textContent=(h&&h.textContent.trim())||'Profile settings';d.appendChild(sum);card.parentNode.insertBefore(d,card);d.appendChild(card);});p.dataset.accordionsReady='true';}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',compactRiderProfile,{once:true});else compactRiderProfile();})();
 </script>
 <script src="./rider-onboarding-readiness.js?v=20261102" defer></script>
+<script src="./ride-hailing-mode.js?v=20261115" defer></script>
+
+<style id="zh-earn-welcome-styles">
+#zhEarnWelcome{max-width:560px;margin:0 auto 18px;padding:24px 18px 22px;background:#fff;border:1px solid #e2eee7;border-radius:24px;box-shadow:0 12px 34px rgba(0,45,25,.10);color:#123d2d}
+#zhEarnWelcome .zh-ew-kicker{font-size:11px;letter-spacing:3px;font-weight:900;color:#078d60;text-align:center;margin:0 0 10px}
+#zhEarnWelcome h1{font-size:clamp(25px,6vw,34px);line-height:1.12;text-align:center;margin:0 auto 10px;max-width:420px;color:#073d2e}
+#zhEarnWelcome .zh-ew-lead{text-align:center;color:#65756d;font-size:14px;line-height:1.55;margin:0 auto 18px;max-width:430px}
+#zhEarnWelcome .zh-ew-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+#zhEarnWelcome .zh-ew-option{padding:14px 12px;border:1px solid #dcebe2;border-radius:16px;background:#f7fbf8}
+#zhEarnWelcome .zh-ew-icon{font-size:26px;margin-bottom:8px}
+#zhEarnWelcome .zh-ew-option h2{font-size:15px;margin:0 0 6px;color:#07523a}
+#zhEarnWelcome .zh-ew-option p{font-size:12px;line-height:1.45;color:#68776e;margin:0}
+#zhEarnWelcome .zh-ew-steps{margin:18px 0 14px;padding:15px;border-radius:16px;background:#f2f8f4}
+#zhEarnWelcome .zh-ew-steps h2{font-size:15px;margin:0 0 12px;color:#07523a}
+#zhEarnWelcome .zh-ew-step{display:flex;gap:10px;align-items:flex-start;margin:10px 0;color:#40584c;font-size:13px;line-height:1.45}
+#zhEarnWelcome .zh-ew-number{flex:0 0 24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#078d60;color:#fff;font-weight:800;font-size:12px}
+#zhEarnWelcome .zh-ew-note{text-align:center;font-size:11px;line-height:1.5;color:#78867f;margin:12px 4px}
+#zhEarnWelcome .zh-ew-actions{display:grid;gap:9px;margin-top:16px}
+#zhEarnWelcome .zh-ew-actions button{width:100%;min-height:50px;border:0;border-radius:13px;font-weight:800;font-size:14px;cursor:pointer}
+#zhEarnWelcome .zh-ew-primary{background:#078d60;color:white}
+#zhEarnWelcome .zh-ew-secondary{background:#edf5f0;color:#07523a}
+#loginPage.zh-ew-auth .login-card{display:flex!important}
+#loginPage.zh-ew-auth #zhEarnWelcome{display:none!important}
+@media(max-width:480px){#zhEarnWelcome{padding:21px 14px;border-radius:20px}#zhEarnWelcome .zh-ew-options{gap:8px}#zhEarnWelcome .zh-ew-option{padding:12px 10px}}
+</style>
+<section id="zhEarnWelcome" aria-labelledby="zhEarnTitle">
+  <div class="zh-ew-kicker">ZENZORA PARTNER</div>
+  <h1 id="zhEarnTitle">Earn on the road with Zenzora</h1>
+  <p class="zh-ew-lead">Choose the work that suits you. Deliver food and groceries, or drive passengers. One Zenzora partner account can support both services after approval.</p>
+  <div class="zh-ew-options">
+    <article class="zh-ew-option"><div class="zh-ew-icon" aria-hidden="true">🛵</div><h2>Delivery partner</h2><p>Use a bicycle or motorcycle to pick up customer orders and deliver them safely.</p></article>
+    <article class="zh-ew-option"><div class="zh-ew-icon" aria-hidden="true">🚗</div><h2>Car driver</h2><p>Apply with your car documents, get approved, then accept passenger trip requests.</p></article>
+  </div>
+  <div class="zh-ew-steps">
+    <h2>How you earn</h2>
+    <div class="zh-ew-step"><span class="zh-ew-number">1</span><span>Create your partner account and complete your profile.</span></div>
+    <div class="zh-ew-step"><span class="zh-ew-number">2</span><span>Submit the required identity, vehicle and payout details for review.</span></div>
+    <div class="zh-ew-step"><span class="zh-ew-number">3</span><span>After approval, go online and accept available deliveries or trips.</span></div>
+    <div class="zh-ew-step"><span class="zh-ew-number">4</span><span>Complete each job and track your recorded earnings in the app.</span></div>
+  </div>
+  <p class="zh-ew-note">Your earnings depend on completed jobs and the applicable rates and fees. Approval is required before you can start working.</p>
+  <div class="zh-ew-actions">
+    <button class="zh-ew-primary" type="button" onclick="zhOpenPartnerAuth('signup')">CREATE PARTNER ACCOUNT</button>
+    <button class="zh-ew-secondary" type="button" onclick="zhOpenPartnerAuth('login')">I ALREADY HAVE AN ACCOUNT — LOG IN</button>
+  </div>
+</section>
+<script>
+function zhOpenPartnerAuth(mode){
+  var page=document.getElementById('loginPage');
+  if(!page)return;
+  page.classList.add('zh-ew-auth');
+  if(typeof setAuthMode==='function')setAuthMode(mode);
+  var card=page.querySelector('.login-card');
+  if(card)card.scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+
+
+<style id="zenzora-premium-light-theme">
+/* Zenzora premium light system: white-first, restrained green, warm orange/gold accents */
+:root{
+  --zz-ink:#18212b;--zz-muted:#697581;--zz-line:#e8ebef;
+  --zz-paper:#ffffff;--zz-soft:#f7f8fa;--zz-orange:#f59e0b;
+  --zz-orange-deep:#e88900;--zz-green:#16834a;--zz-green-soft:#edf7f0;
+  --zz-shadow:0 8px 26px rgba(24,33,43,.07);
+}
+html,body{background:#f7f8fa!important;color:var(--zz-ink)!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif!important}
+button,input,select,textarea{font:inherit}
+button{transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+.primary-btn,.zh-ew-primary,.primary-button,.btn-primary,.submit-btn,
+button.primary,button[type=submit]{
+ background:var(--zz-orange)!important;color:#211700!important;border:1px solid var(--zz-orange)!important;
+ box-shadow:0 5px 14px rgba(245,158,11,.16)!important;font-weight:800!important
+}
+.primary-btn:hover,.zh-ew-primary:hover,.primary-button:hover,.btn-primary:hover,button[type=submit]:hover{background:#fbbf24!important}
+.login-page{background:#f7f8fa!important;padding:22px!important}
+.login-card,.auth-card,.form-card,.onboarding-card{
+ background:#fff!important;border:1px solid var(--zz-line)!important;border-radius:22px!important;
+ box-shadow:var(--zz-shadow)!important;color:var(--zz-ink)!important
+}
+.logo{color:var(--zz-ink)!important}
+.login-subtitle,.header-sub,.muted,.helper-text{color:var(--zz-muted)!important}
+.login-card input,.form-card input,.form-card select,.form-card textarea,
+input,select,textarea{
+ border:1px solid #dfe4e9!important;background:#fff!important;color:var(--zz-ink)!important;
+ border-radius:12px!important;box-shadow:none!important
+}
+input:focus,select:focus,textarea:focus{border-color:#f4b43d!important;outline:0!important;box-shadow:0 0 0 3px rgba(245,158,11,.13)!important}
+.header{background:rgba(255,255,255,.96)!important;border-bottom:1px solid var(--zz-line)!important;box-shadow:0 2px 12px rgba(24,33,43,.035)!important}
+.header-title,.page h1,.page h2,.page h3{color:var(--zz-ink)}
+.page{background:transparent}
+.welcome{background:#fff!important;color:var(--zz-ink)!important;border:1px solid var(--zz-line)!important;border-radius:20px!important;box-shadow:var(--zz-shadow)!important}
+.welcome p{color:var(--zz-muted)!important;opacity:1!important}
+.welcome:after{border-color:rgba(245,158,11,.10)!important}
+.stat,.map-wrap,.card,.panel,.order-card,.request-card,.earning-card,.profile-card,
+.section-card,.settings-card,.history-card,.job-card{
+ background:#fff!important;border:1px solid var(--zz-line)!important;border-radius:17px!important;
+ box-shadow:0 5px 18px rgba(24,33,43,.045)!important;color:var(--zz-ink)!important
+}
+.stat-label,.card-subtitle,.section-subtitle{color:var(--zz-muted)!important}
+.stat.green .stat-value,.success-text,.approved-text{color:var(--zz-green)!important}
+.online-btn{background:#fff8e8!important;color:#8a5a00!important;border:1px solid #f7dfad!important}
+.online-btn .online-dot{background:#20a464!important;box-shadow:none!important}
+.online-btn.offline{background:#f2f3f5!important;color:#727b84!important;border-color:#e5e8eb!important}
+.map-heading{background:#fff!important;color:var(--zz-ink)!important}
+.map-actions button,.map-action-btn,.nav-action-btn{
+ background:#fff8e8!important;color:#8a5a00!important;border:1px solid #f5dfb2!important
+}
+.bottom-nav,.nav-bar,.tab-bar{background:#fff!important;border-top:1px solid var(--zz-line)!important;box-shadow:0 -4px 16px rgba(24,33,43,.04)!important}
+.bottom-nav .active,.nav-bar .active,.tab-bar .active{color:var(--zz-orange-deep)!important}
+.welcome,.scanner-panel{box-shadow:var(--zz-shadow)!important}
+.scanner-panel{
+ background:linear-gradient(135deg,#fff,#f5f7f9)!important;border:1px solid var(--zz-line)!important;
+ box-shadow:inset 0 0 24px rgba(24,33,43,.025)!important
+}
+.scanner-panel:before{background-image:linear-gradient(rgba(24,33,43,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(24,33,43,.035) 1px,transparent 1px)!important}
+.auto-badge{background:#fff8e8!important;border-color:#f5dfb2!important;color:#8a5a00!important}
+.scanner-status,.scanner-main-text,.scanner-main-text span{color:#8a5a00!important}
+.scanner-radar,.radar-ring-2{border-color:rgba(245,158,11,.24)!important}
+.scanner-radar:before,.scanner-radar:after,.crosshair:before,.crosshair:after{background:#f2ad24!important}
+.crosshair{border-color:#e99b08!important;box-shadow:0 0 8px rgba(245,158,11,.2)!important}
+.scan-beam-horizontal,.scan-beam-vertical,.scan-diagonal{background:linear-gradient(90deg,transparent,#f6c45d,transparent)!important;box-shadow:0 0 8px rgba(245,158,11,.22)!important}
+.particle{background:#f3b43b!important;box-shadow:0 0 5px rgba(245,158,11,.3)!important}
+#zhEarnWelcome{background:#fff!important;color:var(--zz-ink)!important;border:1px solid var(--zz-line)!important;box-shadow:var(--zz-shadow)!important}
+#zhEarnWelcome .zh-ew-kicker{color:#b77908!important}
+#zhEarnWelcome h1,#zhEarnWelcome .zh-ew-option h2,#zhEarnWelcome .zh-ew-steps h2{color:var(--zz-ink)!important}
+#zhEarnWelcome .zh-ew-lead,#zhEarnWelcome .zh-ew-option p{color:var(--zz-muted)!important}
+#zhEarnWelcome .zh-ew-option{background:#fff!important;border-color:var(--zz-line)!important}
+#zhEarnWelcome .zh-ew-steps{background:#faf7ef!important}
+#zhEarnWelcome .zh-ew-number{background:var(--zz-orange)!important;color:#241900!important}
+#zhEarnWelcome .zh-ew-primary{background:var(--zz-orange)!important;color:#241900!important}
+#zhEarnWelcome .zh-ew-secondary{background:#fff!important;color:var(--zz-ink)!important;border:1px solid var(--zz-line)!important}
+.badge-success,.status-approved,.success-badge{background:var(--zz-green-soft)!important;color:var(--zz-green)!important}
+hr,.divider{border-color:var(--zz-line)!important}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+</style>
+
 </body>
 </html>
