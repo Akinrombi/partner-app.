@@ -172,3 +172,101 @@ html[data-theme="light"] #app .page :is(h1,h2,h3,h4,p,label,small,strong,b,span,
 #app .page .order-status{color:#087a43!important}
 #app .page .earn-value,#app .page .success-text,#app .page .approved-text{color:var(--zz-ui-accent)!important}
 @media(max-width:480px){.header{min-height:82px!important;height:auto!important;padding-top:8px!important;padding-bottom:8px!important}.zh-header-mode-switch button{font-size:9px;padding:4px 7px}}
+
+
+/* Neat Zenzora rider profile — compact identity header and clear sections */
+#profilePage .zenzora-profile-shell{
+  display:flex!important;flex-direction:column!important;gap:14px!important;
+  padding:0!important;border:0!important;background:transparent!important;
+  box-shadow:none!important;margin:0!important
+}
+#profilePage .zenzora-profile-hero{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:19px!important;border:1px solid var(--zz-ui-line)!important;
+  border-radius:20px!important;background:var(--zz-ui-surface)!important;
+  color:var(--zz-ui-ink)!important;box-shadow:0 8px 24px rgba(15,23,42,.045)
+}
+#profilePage .zenzora-profile-identity{display:flex;align-items:center;gap:14px;min-width:0}
+#profilePage .zenzora-profile-hero #avatar{
+  flex:0 0 66px;width:66px!important;height:66px!important;min-width:66px;
+  margin:0!important;border-radius:18px!important;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--zz-ui-background)!important;color:var(--zz-ui-accent)!important;
+  border:1px solid var(--zz-ui-line)!important;font-size:24px!important;font-weight:800
+}
+#profilePage .zenzora-profile-name-wrap{min-width:0;display:flex;flex-direction:column;gap:4px}
+#profilePage .zenzora-profile-name-wrap .profile-name{
+  margin:0!important;font-size:19px!important;font-weight:800!important;
+  line-height:1.25!important;letter-spacing:-.035em;color:var(--zz-ui-ink)!important;
+  overflow-wrap:anywhere
+}
+#profilePage .zenzora-profile-name-wrap .profile-email{
+  margin:0!important;font-size:12px!important;line-height:1.45!important;
+  color:var(--zz-ui-muted)!important;overflow-wrap:anywhere
+}
+#profilePage .zenzora-profile-role{
+  width:max-content;max-width:100%;margin-top:3px;padding:4px 8px;
+  border-radius:999px;background:rgba(16,191,165,.12);color:var(--zz-ui-accent)!important;
+  font-size:9px;font-weight:800;letter-spacing:.08em
+}
+#profilePage .zenzora-profile-accent{
+  flex:0 0 36px;width:36px;height:36px;display:grid;place-items:center;
+  border-radius:12px;background:rgba(16,191,165,.12);color:var(--zz-ui-accent)!important;font-size:18px
+}
+#profilePage .zenzora-profile-section{
+  padding:18px!important;margin:0!important;border:1px solid var(--zz-ui-line)!important;
+  border-radius:18px!important;background:var(--zz-ui-surface)!important;
+  color:var(--zz-ui-ink)!important;box-shadow:none!important
+}
+#profilePage .zenzora-card-heading{display:flex;align-items:center;gap:11px;margin:0 0 15px}
+#profilePage .zenzora-card-icon{
+  flex:0 0 38px;width:38px;height:38px;display:grid;place-items:center;
+  border-radius:12px;background:rgba(16,191,165,.12);font-size:17px
+}
+#profilePage .zenzora-card-heading h3{
+  margin:0 0 3px!important;font-size:14px!important;font-weight:800!important;
+  line-height:1.3!important;color:var(--zz-ui-ink)!important
+}
+#profilePage .zenzora-card-heading p{
+  margin:0!important;font-size:11px!important;line-height:1.4!important;color:var(--zz-ui-muted)!important
+}
+#profilePage .zenzora-profile-section>p:not([role="status"]){
+  color:var(--zz-ui-muted)!important;font-size:12px!important;line-height:1.5!important
+}
+#profilePage .zenzora-profile-section label:not(.zenzora-check-row){
+  display:block!important;margin:11px 0 5px!important;font-size:11px!important;
+  font-weight:700!important;color:var(--zz-ui-muted)!important
+}
+#profilePage .zenzora-profile-section input:not([type="checkbox"]):not([type="file"]),
+#profilePage .zenzora-profile-section select,
+#profilePage .zenzora-profile-section textarea{
+  width:100%!important;min-height:46px!important;box-sizing:border-box!important;
+  margin:0 0 8px!important;padding:11px 12px!important;border-radius:12px!important;
+  border:1px solid var(--zz-ui-line)!important;background:var(--zz-ui-background)!important;
+  color:var(--zz-ui-ink)!important;font:inherit!important;font-size:13px!important
+}
+#profilePage .zenzora-profile-section input[type="file"]{
+  width:100%!important;box-sizing:border-box!important;padding:10px!important;
+  margin:0 0 8px!important;border:1px dashed var(--zz-ui-line)!important;
+  border-radius:12px!important;background:var(--zz-ui-background)!important;color:var(--zz-ui-ink)!important
+}
+#profilePage .zenzora-profile-section input::placeholder,
+#profilePage .zenzora-profile-section textarea::placeholder{color:var(--zz-ui-muted)!important;opacity:.85}
+#profilePage .zenzora-profile-section .support-submit{
+  width:100%!important;min-height:46px!important;margin:8px 0 0!important;
+  border-radius:12px!important;font-size:12px!important;font-weight:800!important
+}
+#profilePage .zenzora-field-hint{display:block;margin:0 0 9px!important;color:var(--zz-ui-muted)!important;font-size:10px!important;line-height:1.5}
+#profilePage .zenzora-check-row{
+  display:flex!important;align-items:center;gap:10px!important;margin:12px 0!important;
+  color:var(--zz-ui-ink)!important;font-size:12px!important
+}
+#profilePage .zenzora-check-row input{width:18px!important;height:18px!important;accent-color:var(--zz-ui-accent)}
+#profilePage .zenzora-profile-section [role="status"]{color:var(--zz-ui-muted)!important;font-size:11px!important;line-height:1.5!important;overflow-wrap:anywhere}
+#profilePage .logout-btn{width:100%!important;min-height:48px!important;margin:2px 0 8px!important;border-radius:13px!important}
+@media(max-width:480px){
+  #profilePage .zenzora-profile-hero{padding:15px!important}
+  #profilePage .zenzora-profile-hero #avatar{width:58px!important;height:58px!important;min-width:58px;flex-basis:58px}
+  #profilePage .zenzora-profile-name-wrap .profile-name{font-size:17px!important}
+  #profilePage .zenzora-profile-section{padding:15px!important}
+}
