@@ -2423,47 +2423,82 @@ button:active{transform:scale(.98);filter:brightness(.97)}
     </section>
 
 
-        <section class="profile-card">
-<section class="support-card"><h3>Rider profile details</h3><label for="profilePhotoInput">Profile photo</label><input id="profilePhotoInput" type="file" accept="image/jpeg,image/png,image/webp"><label for="profileVehicleType">Vehicle type</label><select id="profileVehicleType" onchange="syncVerificationVehicleFromProfile()"><option value="bicycle">Bicycle</option><option value="motorbike">Motorbike</option></select><label for="profileVehicleNumber">Vehicle registration / number</label><input id="profileVehicleNumber" maxlength="32" placeholder="Vehicle number"><label for="profileServiceRegions">Delivery regions you cover</label><input id="profileServiceRegions" maxlength="240" placeholder="e.g. Arumosho, Akobo, Bodija"><small style="display:block;color:#68766e;margin:6px 0 12px">Separate areas with commas. Leave blank to keep your current unrestricted coverage.</small><button class="support-submit" type="button" onclick="saveRiderProfileDetails()">Save profile details</button><p id="profileDetailsFeedback" role="status"></p></section><section class="support-card"><h3>Bank / payout details</h3><p>Saving details does not initiate a payout.</p><label for="payoutBankName">Bank name</label><input id="payoutBankName" maxlength="80" placeholder="Bank name"><label for="payoutAccountName">Account name</label><input id="payoutAccountName" maxlength="100" placeholder="Name on bank account"><label for="payoutAccountNumber">Account number</label><input id="payoutAccountNumber" inputmode="numeric" maxlength="20" placeholder="Account number"><button class="support-submit" type="button" onclick="saveRiderPayoutDetails()">Save payout details</button><p id="payoutFeedback" role="status"></p></section>            <div id="avatar" class="avatar">R</div>
-            <div id="profileName" class="profile-name">Rider</div>
-            <div id="profileEmail" class="profile-email">---</div>
+        <section class="profile-card zenzora-profile-shell" aria-label="Rider account profile">
+          <header class="zenzora-profile-hero">
+            <div class="zenzora-profile-identity">
+              <div id="avatar" class="avatar">R</div>
+              <div class="zenzora-profile-name-wrap">
+                <div id="profileName" class="profile-name">Rider</div>
+                <div id="profileEmail" class="profile-email">---</div>
+                <span class="zenzora-profile-role">ZENZORA PARTNER</span>
+              </div>
+            </div>
+            <div class="zenzora-profile-accent" aria-hidden="true">✦</div>
+          </header>
 
-            <section class="support-card" aria-labelledby="riderSafetyTitle" style="margin-bottom:16px;border:1px solid #f2c9c9;">
-                <h3 id="riderSafetyTitle">Rider safety check-in</h3>
-                <p>Share your current location and delivery details with someone you trust. This opens your phone's share options; it does not contact emergency services automatically.</p>
-                <button class="support-submit" type="button" style="background:#b42318;" onclick="shareRiderSafetyCheckIn()">🛡️ Share safety check-in</button>
-                <p id="safetyFeedback" class="support-feedback" role="status"></p>
-            </section>
+          <section class="support-card zenzora-profile-section" aria-labelledby="profileDetailsTitle">
+            <div class="zenzora-card-heading"><span class="zenzora-card-icon">👤</span><div><h3 id="profileDetailsTitle">Personal & vehicle details</h3><p>Keep your rider information up to date</p></div></div>
+            <label for="profilePhotoInput">Profile photo</label>
+            <input id="profilePhotoInput" type="file" accept="image/jpeg,image/png,image/webp">
+            <label for="profileVehicleType">Vehicle type</label>
+            <select id="profileVehicleType" onchange="syncVerificationVehicleFromProfile()"><option value="bicycle">Bicycle</option><option value="motorbike">Motorbike</option></select>
+            <label for="profileVehicleNumber">Vehicle registration / number</label>
+            <input id="profileVehicleNumber" maxlength="32" placeholder="Vehicle number">
+            <label for="profileServiceRegions">Delivery regions you cover</label>
+            <input id="profileServiceRegions" maxlength="240" placeholder="e.g. Arumosho, Akobo, Bodija">
+            <small class="zenzora-field-hint">Separate areas with commas. Leave blank to keep your current unrestricted coverage.</small>
+            <button class="support-submit" type="button" onclick="saveRiderProfileDetails()">Save profile details</button>
+            <p id="profileDetailsFeedback" role="status"></p>
+          </section>
 
-            <section class="support-card" aria-labelledby="supportTitle">
-                <h3 id="supportTitle">Rider Support</h3>
-                <p>Report a delivery, payment, restaurant, or app problem.</p>
-                <label for="supportCategory">Problem type</label>
-                <select id="supportCategory">
-                    <option value="delivery">Delivery problem</option>
-                    <option value="payment">Earnings or payment</option>
-                    <option value="restaurant">Restaurant issue</option>
-                    <option value="customer">Customer issue</option>
-                    <option value="app">App or GPS issue</option>
-                    <option value="safety">Safety concern</option>
-                </select>
-                <label for="supportDescription">Describe the problem</label>
-                <textarea id="supportDescription" rows="3" maxlength="1200" placeholder="Include the order number if relevant. Do not include passwords or PINs."></textarea>
-                <button class="support-submit" onclick="submitRiderSupport()">Prepare support report</button>
-                <p id="supportFeedback" class="support-feedback" role="status"></p>
-            </section>
-<section class="support-card" style="margin-top:16px;text-align:left"><h3>App preferences</h3>
-<label for="riderThemePreference">Appearance</label><select id="riderThemePreference" onchange="saveRiderPreferences()" style="width:100%;padding:12px;margin:8px 0"><option value="light">Light theme</option><option value="dark">Dark theme</option></select>
-<label for="riderNavigationPreference">Navigation app</label><select id="riderNavigationPreference" onchange="saveRiderPreferences()" style="width:100%;padding:12px;margin:8px 0"><option value="google">Google Maps</option><option value="apple">Apple Maps (supported devices)</option><option value="osm">OpenStreetMap directions</option></select>
-<label for="riderLanguagePreference">Language</label><select id="riderLanguagePreference" onchange="saveRiderPreferences()" style="width:100%;padding:12px;margin:8px 0"><option value="en">English</option><option value="yo">Yorùbá (preference only)</option><option value="pcm">Nigerian Pidgin (preference only)</option></select>
-<label for="riderMarkerStylePreference">Map location style</label><select id="riderMarkerStylePreference" onchange="saveRiderPreferences()" style="width:100%;padding:12px;margin:8px 0"><option value="😁">😁 Live 3D smiling emoji (default)</option><option value="green">🟢 Classic green scanner</option><option value="📍">📍 Pin</option><option value="🛵">🛵 Scooter</option><option value="🚲">🚲 Bicycle</option><option value="🚴">🚴 Cyclist</option><option value="🍔">🍔 Foodie</option><option value="⭐">⭐ Star</option><option value="🐸">🐸 Froggy</option><option value="🦄">🦄 Unicorn</option><option value="🚀">🚀 Rocket</option></select>
-<label style="display:flex;align-items:center;gap:10px;margin:10px 0"><input id="riderSoundPreference" type="checkbox" onchange="saveRiderPreferences()"> Enable order alert sounds</label>
-<label style="display:flex;align-items:center;gap:10px;margin:10px 0"><input id="riderVibrationPreference" type="checkbox" onchange="saveRiderPreferences()"> Enable vibration alerts where supported</label><p id="riderPreferencesFeedback" role="status"></p></section>
-<section class="support-card" style="margin-top:16px;text-align:left"><h3>Request a payout</h3><p>Requests are sent for review; this form does not transfer money instantly.</p><label for="riderWithdrawalAmount">Amount (₦)</label><input id="riderWithdrawalAmount" type="number" min="100" step="50" placeholder="e.g. 5000" style="width:100%;padding:12px;margin:8px 0"><button type="button" class="support-submit" onclick="requestRiderWithdrawal()">Submit payout request</button><p id="riderWithdrawalFeedback" role="status"></p></section>
-<section class="support-card" style="margin-top:16px;text-align:left"><h3>Privacy and account</h3><p>Publish approved terms and a privacy policy before public launch.</p><button type="button" class="support-submit" onclick="requestAccountDeletion()">Request account deletion</button><p id="accountDeletionFeedback" role="status"></p></section>
-            <button class="logout-btn" onclick="logoutRider()">
-                LOG OUT
-            </button>
+          <section class="support-card zenzora-profile-section" aria-labelledby="payoutDetailsTitle">
+            <div class="zenzora-card-heading"><span class="zenzora-card-icon">🏦</span><div><h3 id="payoutDetailsTitle">Bank & payout details</h3><p>Manage where your earnings are paid</p></div></div>
+            <p>Saving details does not initiate a payout.</p>
+            <label for="payoutBankName">Bank name</label><input id="payoutBankName" maxlength="80" placeholder="Bank name">
+            <label for="payoutAccountName">Account name</label><input id="payoutAccountName" maxlength="100" placeholder="Name on bank account">
+            <label for="payoutAccountNumber">Account number</label><input id="payoutAccountNumber" inputmode="numeric" maxlength="20" placeholder="Account number">
+            <button class="support-submit" type="button" onclick="saveRiderPayoutDetails()">Save payout details</button><p id="payoutFeedback" role="status"></p>
+          </section>
+
+          <section class="support-card zenzora-profile-section" aria-labelledby="riderSafetyTitle">
+            <div class="zenzora-card-heading"><span class="zenzora-card-icon">🛡️</span><div><h3 id="riderSafetyTitle">Rider safety check-in</h3><p>Share your current location and delivery details with someone you trust</p></div></div>
+            <button class="support-submit" type="button" style="background:#b42318" onclick="shareRiderSafetyCheckIn()">Share safety check-in</button>
+            <p id="safetyFeedback" class="support-feedback" role="status"></p>
+          </section>
+
+          <section class="support-card zenzora-profile-section" aria-labelledby="supportTitle">
+            <div class="zenzora-card-heading"><span class="zenzora-card-icon">💬</span><div><h3 id="supportTitle">Rider support</h3><p>Get help with deliveries, payments or the app</p></div></div>
+            <label for="supportCategory">Problem type</label>
+            <select id="supportCategory"><option value="delivery">Delivery problem</option><option value="payment">Earnings or payment</option><option value="restaurant">Restaurant issue</option><option value="customer">Customer issue</option><option value="app">App or GPS issue</option><option value="safety">Safety concern</option></select>
+            <label for="supportDescription">Describe the problem</label>
+            <textarea id="supportDescription" rows="3" maxlength="1200" placeholder="Include the order number if relevant. Do not include passwords or PINs."></textarea>
+            <button class="support-submit" onclick="submitRiderSupport()">Prepare support report</button><p id="supportFeedback" class="support-feedback" role="status"></p>
+          </section>
+
+          <section class="support-card zenzora-profile-section" aria-labelledby="preferencesTitle">
+            <div class="zenzora-card-heading"><span class="zenzora-card-icon">⚙️</span><div><h3 id="preferencesTitle">App preferences</h3><p>Personalise your Zenzora partner app</p></div></div>
+            <label for="riderThemePreference">Appearance</label><select id="riderThemePreference" onchange="saveRiderPreferences()"><option value="light">Light theme</option><option value="dark">Dark theme</option></select>
+            <label for="riderNavigationPreference">Navigation app</label><select id="riderNavigationPreference" onchange="saveRiderPreferences()"><option value="google">Google Maps</option><option value="apple">Apple Maps (supported devices)</option><option value="osm">OpenStreetMap directions</option></select>
+            <label for="riderLanguagePreference">Language</label><select id="riderLanguagePreference" onchange="saveRiderPreferences()"><option value="en">English</option><option value="yo">Yorùbá (preference only)</option><option value="pcm">Nigerian Pidgin (preference only)</option></select>
+            <label for="riderMarkerStylePreference">Map location style</label><select id="riderMarkerStylePreference" onchange="saveRiderPreferences()"><option value="😁">😁 Live 3D smiling emoji (default)</option><option value="green">🟢 Classic green scanner</option><option value="📍">📍 Pin</option><option value="🛵">🛵 Scooter</option><option value="🚲">🚲 Bicycle</option><option value="🚴">🚴 Cyclist</option><option value="🍔">🍔 Foodie</option><option value="⭐">⭐ Star</option><option value="🐸">🐸 Froggy</option><option value="🦄">🦄 Unicorn</option><option value="🚀">🚀 Rocket</option></select>
+            <label class="zenzora-check-row"><input id="riderSoundPreference" type="checkbox" onchange="saveRiderPreferences()"> Enable order alert sounds</label>
+            <label class="zenzora-check-row"><input id="riderVibrationPreference" type="checkbox" onchange="saveRiderPreferences()"> Enable vibration alerts where supported</label>
+            <p id="riderPreferencesFeedback" role="status"></p>
+          </section>
+
+          <section class="support-card zenzora-profile-section" aria-labelledby="withdrawalTitle">
+            <div class="zenzora-card-heading"><span class="zenzora-card-icon">💸</span><div><h3 id="withdrawalTitle">Request a payout</h3><p>Send an earnings withdrawal request for review</p></div></div>
+            <p>Requests are sent for review; this form does not transfer money instantly.</p>
+            <label for="riderWithdrawalAmount">Amount (₦)</label><input id="riderWithdrawalAmount" type="number" min="100" step="50" placeholder="e.g. 5000">
+            <button type="button" class="support-submit" onclick="requestRiderWithdrawal()">Submit payout request</button><p id="riderWithdrawalFeedback" role="status"></p>
+          </section>
+
+          <section class="support-card zenzora-profile-section" aria-labelledby="privacyTitle">
+            <div class="zenzora-card-heading"><span class="zenzora-card-icon">🔒</span><div><h3 id="privacyTitle">Privacy & account</h3><p>Manage your account requests</p></div></div>
+            <p>Publish approved terms and a privacy policy before public launch.</p>
+            <button type="button" class="support-submit" onclick="requestAccountDeletion()">Request account deletion</button><p id="accountDeletionFeedback" role="status"></p>
+          </section>
+          <button class="logout-btn" onclick="logoutRider()">LOG OUT</button>
         </section>
     </main>
 
