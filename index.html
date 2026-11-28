@@ -4504,8 +4504,8 @@ async function scanForNewOrders(initialScan = false) {
         } = await supabaseClient
             .from("orders")
             .select("id,order_number,vendor_id,rider_id,customer_name,customer_phone,delivery_address,items,total,delivery_fee,status,created_at,preparing_at,ready_at,accepted_at,arrived_vendor_at,picked_up_at,arrived_customer_at,delivered_at,cancelled_at,notes,est_prep_mins,cancel_reason,source,wa_pending,commission_rate,commission_amount,vendor_net,payment_status,payment_reference,payment_paid_at,customer_id,updated_at")
-            .or("rider_id.eq." + currentRider.id + ",and(rider_id.is.null,status.in.(vendor_accepted,ready_for_rider,ready_for_pickup))")
-            .in("status", ["vendor_accepted", "ready_for_rider", "ready_for_pickup", "accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup", "picked_up", "on_the_way", "arrived_at_customer"])
+            .or("rider_id.eq." + currentRider.id + ",and(rider_id.is.null,status.in.(ready_for_rider,ready_for_pickup))")
+            .in("status", ["ready_for_rider", "ready_for_pickup", "accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup", "picked_up", "on_the_way", "arrived_at_customer"])
             .order("created_at", {
                 ascending: false
             })
@@ -4622,7 +4622,7 @@ function handleRealtimeOrder(payload) {
 
     if (!isOnline) return;
     if (order.rider_id && order.rider_id !== currentRider?.id) return;
-    if (!order.rider_id && !["vendor_accepted", "ready_for_rider", "ready_for_pickup"].includes(order.status)) return;
+    if (!order.rider_id && !["ready_for_rider", "ready_for_pickup"].includes(order.status)) return;
     if (!["vendor_accepted", "ready_for_rider", "ready_for_pickup", "accepted", "rider_accepted", "arrived_at_vendor", "arrived_pickup", "picked_up", "on_the_way", "arrived_at_customer"].includes(order.status)) return;
     if (seenOrderIds.has(order.id)) return;
 
@@ -4781,7 +4781,7 @@ function startOrderOwnershipMonitor() {
             }
 
             // Another rider or vendor may have returned this order to the pool.
-            if (!data.rider_id && ["ready_for_rider", "ready_for_pickup", "vendor_accepted"].includes(data.status)
+            if (!data.rider_id && ["ready_for_rider", "ready_for_pickup"].includes(data.status)
                 && currentOrder?.rider_id === currentRider.id) {
                 clearOrderTakenByAnotherRider(orderId);
             }
